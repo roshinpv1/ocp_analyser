@@ -1,0 +1,10 @@
+{
+  "component_name": null,
+  "repo_url": "https://github.com/sherlock-project/sherlock",
+  "validation": {
+    "total_rows": 163,
+    "mandatory_fields": 65,
+    "valid_git_urls": 1,
+    "is_valid": true
+  }
+}

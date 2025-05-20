@@ -1,0 +1,160 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Code Analysis Report - sherlock</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    line-height: 1.4;
+                    margin: 0;
+                    padding: 15px;
+                    color: #333;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                h1 { font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }
+                h2 { font-size: 1.2em; margin: 15px 0 10px 0; color: #444; }
+                h3 { font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }
+                .section {
+                    margin: 10px 0;
+                    padding: 10px;
+                    background: #f8f9fa;
+                    border-radius: 4px;
+                }
+                .tech-list {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .tech-item {
+                    background: white;
+                    padding: 8px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                .finding-list {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .finding {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                .severity-high { color: #dc3545; }
+                .severity-medium { color: #fd7e14; }
+                .severity-low { color: #28a745; }
+                .severity-badge {
+                    display: inline-block;
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    font-size: 0.9em;
+                    font-weight: 500;
+                    margin-right: 8px;
+                }
+                .severity-high .severity-badge { background: #dc3545; color: white; }
+                .severity-medium .severity-badge { background: #fd7e14; color: white; }
+                .severity-low .severity-badge { background: #28a745; color: white; }
+                pre, code {
+                    background: #f8f9fa;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    font-family: monospace;
+                    font-size: 0.9em;
+                }
+                .summary {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .summary-item {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                ul, ol { margin: 5px 0; padding-left: 20px; }
+                li { margin: 3px 0; }
+                @media print {
+                    body { padding: 10px; }
+                    .section { break-inside: avoid; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Code Analysis Report for sherlock</h1>
+            
+            <div class="section">
+                <h2>Summary</h2>
+                <div class="summary">
+                    <div class="summary-item">
+                        <strong>Total Findings:</strong> 0
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Technology Stack</h2>
+                <div class="tech-list">
+        
+                    <div class="tech-item">
+                        <h3>Python (v3.12)</h3>
+                        <p><strong>Category:</strong> Programming Languages</p>
+                        <p><strong>Purpose:</strong> Main application language for the Sherlock project</p>
+                        <p><strong>Files:</strong> sherlock_project/sherlock.py, sherlock_project/__init__.py, sherlock_project/notify.py, sherlock_project/result.py, sherlock_project/sites.py, sherlock_project/__main__.py</p>
+                    </div>
+                    
+                    <div class="tech-item">
+                        <h3>requests (v2.26.0)</h3>
+                        <p><strong>Category:</strong> Libraries</p>
+                        <p><strong>Purpose:</strong> HTTP library for making requests to social media APIs</p>
+                        <p><strong>Files:</strong> sherlock_project/sherlock.py, sherlock_project/sites.py</p>
+                    </div>
+                    
+                    <div class="tech-item">
+                        <h3>colorama (v0.4.4)</h3>
+                        <p><strong>Category:</strong> Libraries</p>
+                        <p><strong>Purpose:</strong> ANSI escape sequences for colored output in the terminal</p>
+                        <p><strong>Files:</strong> sherlock_project/sherlock.py</p>
+                    </div>
+                    
+                    <div class="tech-item">
+                        <h3>torrequest (v2.0.5)</h3>
+                        <p><strong>Category:</strong> Tools</p>
+                        <p><strong>Purpose:</strong> A wrapper around tor for making requests from a TOR circuit</p>
+                        <p><strong>Files:</strong> sherlock_project/sherlock.py</p>
+                    </div>
+                    
+                    <div class="tech-item">
+                        <h3>requests_futures.sessions (v0.1.8)</h3>
+                        <p><strong>Category:</strong> Tools</p>
+                        <p><strong>Purpose:</strong> Futures-based session object for making concurrent HTTP requests</p>
+                        <p><strong>Files:</strong> sherlock_project/sherlock.py</p>
+                    </div>
+                    
+                    <div class="tech-item">
+                        <h3>Dockerfile</h3>
+                        <p><strong>Category:</strong> Build Tools</p>
+                        <p><strong>Purpose:</strong> Configuration file for building a Docker image</p>
+                        <p><strong>Files:</strong> Dockerfile</p>
+                    </div>
+                    
+                </div>
+            </div>
+        
+            <div class="section">
+                <h2>Conclusion</h2>
+        
+                <p>No significant issues were found in the codebase. The code appears to follow good practices in terms of security, reliability, and maintainability.</p>
+            
+            </div>
+        </body>
+        </html>
+        
