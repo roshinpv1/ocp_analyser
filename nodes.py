@@ -942,12 +942,8 @@ class AnalyzeCode(Node):
         excel_validation = shared.get("excel_validation", {})
         unanswered_mandatory = excel_validation.get("unanswered_mandatory", [])
         
-        # Get specific component questions from the Excel file
-        component_questions = []
-        if unanswered_mandatory:
-            for question in unanswered_mandatory:
-                if question.startswith("Is the component using"):
-                    component_questions.append(question.strip())
+        # Get component questions from the Excel file
+        component_questions = excel_validation.get("component_questions", {})
         
         def create_llm_context(files_data):
             context = ""
@@ -1015,6 +1011,18 @@ class AnalyzeCode(Node):
    - ADFS
 """
 
+        # Add excel component questions to prompt if available
+        excel_component_section = ""
+        if component_questions:
+            excel_component_section = """
+IMPORTANT: The following components were mentioned in the project intake form. 
+Please pay special attention to detecting these components in the codebase:
+
+"""
+            for component, data in component_questions.items():
+                answer = "Yes" if data.get("is_yes", False) else "No"
+                excel_component_section += f"- {component}: Declared as '{answer}' in the intake form\n"
+
         prompt = f"""
 You are a code review assistant trained to identify patterns in source code and configurations related to various aspects of code quality, security, and best practices.
 
@@ -1025,6 +1033,8 @@ Codebase Context:
 
 List of files:
 {file_listing}
+
+{excel_component_section}
 
 IMPORTANT: You MUST return a JSON object with THREE main sections:
 1. "technology_stack": A dictionary containing all technologies found in the codebase
@@ -1152,6 +1162,10 @@ Now, analyze the codebase and return the complete JSON response:
             if "component_analysis" not in analysis or not isinstance(analysis["component_analysis"], dict):
                 analysis["component_analysis"] = {}
             
+            # Add Excel component questions to analysis result
+            if component_questions:
+                analysis["excel_components"] = component_questions
+            
             # Validate and clean up technology stack
             validated_tech_stack = {}
             for category, techs in analysis["technology_stack"].items():
@@ -1258,10 +1272,23 @@ Now, analyze the codebase and return the complete JSON response:
                 }
             
             print(f"Found {sum(len(techs) for techs in validated_tech_stack.values())} technologies, {len(validated_findings)} findings, and {len(validated_component_analysis)} components.")
+            
+            # Compare component analysis from code with Excel answers
+            if component_questions:
+                print("\nComparing components found in code with Excel declarations:")
+                for component_name, data in validated_component_analysis.items():
+                    for excel_comp, excel_data in component_questions.items():
+                        if component_name.lower() in excel_comp.lower() or excel_comp.lower() in component_name.lower():
+                            excel_answer = "Yes" if excel_data.get("is_yes", False) else "No"
+                            code_answer = "Yes" if data["detected"].lower() == "yes" else "No"
+                            match_str = "MATCH" if excel_answer == code_answer else "MISMATCH"
+                            print(f"- {component_name}: Excel={excel_answer}, Code={code_answer} => {match_str}")
+            
             return {
                 "technology_stack": validated_tech_stack,
                 "findings": validated_findings,
-                "component_analysis": validated_component_analysis
+                "component_analysis": validated_component_analysis,
+                "excel_components": component_questions if component_questions else {}
             }
             
         except Exception as e:
@@ -1301,6 +1328,10 @@ class GenerateReport(Node):
         component_analysis = analysis.get("component_analysis", {})
         print("DEBUG: Component analysis:", component_analysis)
         
+        # Get Excel component declarations
+        excel_components = analysis.get("excel_components", {})
+        print("DEBUG: Excel component declarations:", excel_components)
+        
         project_name = shared.get("project_name", "Unknown Project")
         output_dir = shared.get("output_dir", "analysis_output")
         
@@ -1310,10 +1341,10 @@ class GenerateReport(Node):
         print("DEBUG: Project name:", project_name)
         print("DEBUG: Output directory:", output_dir)
         
-        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis
+        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components
 
     def exec(self, prep_res):
-        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis = prep_res
+        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components = prep_res
         print("\nDEBUG: Starting GenerateReport exec")
         print("DEBUG: Number of findings:", len(findings))
         print("DEBUG: Technology stack categories:", list(technology_stack.keys()))
@@ -1364,6 +1395,68 @@ class GenerateReport(Node):
         # Component Analysis Section
         if component_analysis:
             report += "## Component Analysis\n\n"
+            
+            # Component Comparison Section (if available)
+            if excel_components:
+                report += "### Component Declaration vs Detection\n\n"
+                report += "This table compares what was declared in the intake form versus what was detected in the code:\n\n"
+                report += "| Component | Declared in Form | Detected in Code | Match Status |\n"
+                report += "|-----------|-----------------|-----------------|-------------|\n"
+                
+                # Create a mapping of component names to standardize comparison
+                component_mapping = {}
+                
+                # Populate the mapping with detected components
+                for comp_name in component_analysis.keys():
+                    normalized_name = comp_name.lower()
+                    component_mapping[normalized_name] = {
+                        "name": comp_name,
+                        "detected": component_analysis[comp_name]["detected"].lower() == "yes"
+                    }
+                
+                # Map Excel components to detected components
+                for excel_comp, excel_data in excel_components.items():
+                    excel_comp_lower = excel_comp.lower()
+                    excel_declared = excel_data.get("is_yes", False)
+                    
+                    # Try to find a match in component_analysis
+                    matched = False
+                    for comp_name, comp_data in component_mapping.items():
+                        if excel_comp_lower in comp_name or comp_name in excel_comp_lower:
+                            matched = True
+                            # Update with Excel declaration
+                            component_mapping[comp_name]["declared"] = excel_declared
+                            component_mapping[comp_name]["excel_name"] = excel_comp
+                            break
+                    
+                    # If no match was found, add it as a new entry
+                    if not matched:
+                        component_mapping[excel_comp_lower] = {
+                            "name": excel_comp,
+                            "excel_name": excel_comp,
+                            "declared": excel_declared,
+                            "detected": False  # Not found in code
+                        }
+                
+                # Generate the comparison table
+                for _, comp_data in sorted(component_mapping.items()):
+                    name = comp_data.get("name", "Unknown")
+                    excel_name = comp_data.get("excel_name", name)
+                    
+                    declared = "✅ Yes" if comp_data.get("declared", False) else "❌ No"
+                    detected = "✅ Yes" if comp_data.get("detected", False) else "❌ No"
+                    
+                    # Determine if there's a match between declaration and detection
+                    match_status = "✅ Match" if comp_data.get("declared", False) == comp_data.get("detected", False) else "❓ Mismatch"
+                    
+                    # Use the Excel name if available, otherwise use the detected name
+                    display_name = excel_name if "excel_name" in comp_data else name
+                    
+                    report += f"| {display_name} | {declared} | {detected} | {match_status} |\n"
+                
+                report += "\n"
+            
+            report += "### Detected Components\n\n"
             report += "The following table shows components identified in the codebase:\n\n"
             report += "| Component | Detected | Evidence |\n"
             report += "|-----------|----------|----------|\n"
@@ -1583,6 +1676,14 @@ class GenerateReport(Node):
                 .component-no {{
                     color: #dc3545;
                 }}
+                .match {{
+                    color: #28a745;
+                    font-weight: bold;
+                }}
+                .mismatch {{
+                    color: #fd7e14;
+                    font-weight: bold;
+                }}
                 pre, code {{
                     background: #f8f9fa;
                     padding: 2px 4px;
@@ -1679,6 +1780,90 @@ class GenerateReport(Node):
             html_content += """
             <div class="section">
                 <h2>Component Analysis</h2>
+            """
+            
+            # Component Comparison Table (if available)
+            if excel_components:
+                html_content += """
+                <h3>Component Declaration vs Detection</h3>
+                <p>This table compares what was declared in the intake form versus what was found in the code:</p>
+                <table class="component-table">
+                    <tr>
+                        <th>Component</th>
+                        <th>Declared in Form</th>
+                        <th>Detected in Code</th>
+                        <th>Status</th>
+                    </tr>
+                """
+                
+                # Create a mapping of component names to standardize comparison
+                component_mapping = {}
+                
+                # Populate the mapping with detected components
+                for comp_name in component_analysis.keys():
+                    normalized_name = comp_name.lower()
+                    component_mapping[normalized_name] = {
+                        "name": comp_name,
+                        "detected": component_analysis[comp_name]["detected"].lower() == "yes"
+                    }
+                
+                # Map Excel components to detected components
+                for excel_comp, excel_data in excel_components.items():
+                    excel_comp_lower = excel_comp.lower()
+                    excel_declared = excel_data.get("is_yes", False)
+                    
+                    # Try to find a match in component_analysis
+                    matched = False
+                    for comp_name, comp_data in component_mapping.items():
+                        if excel_comp_lower in comp_name or comp_name in excel_comp_lower:
+                            matched = True
+                            # Update with Excel declaration
+                            component_mapping[comp_name]["declared"] = excel_declared
+                            component_mapping[comp_name]["excel_name"] = excel_comp
+                            break
+                    
+                    # If no match was found, add it as a new entry
+                    if not matched:
+                        component_mapping[excel_comp_lower] = {
+                            "name": excel_comp,
+                            "excel_name": excel_comp,
+                            "declared": excel_declared,
+                            "detected": False  # Not found in code
+                        }
+                
+                # Generate the comparison table
+                for _, comp_data in sorted(component_mapping.items()):
+                    name = comp_data.get("name", "Unknown")
+                    excel_name = comp_data.get("excel_name", name)
+                    
+                    declared = '<span class="component-yes">✓ Yes</span>' if comp_data.get("declared", False) else '<span class="component-no">✗ No</span>'
+                    detected = '<span class="component-yes">✓ Yes</span>' if comp_data.get("detected", False) else '<span class="component-no">✗ No</span>'
+                    
+                    # Determine if there's a match between declaration and detection
+                    if comp_data.get("declared", False) == comp_data.get("detected", False):
+                        match_status = '<span class="match">✓ Match</span>'
+                    else:
+                        match_status = '<span class="mismatch">⚠ Mismatch</span>'
+                    
+                    # Use the Excel name if available, otherwise use the detected name
+                    display_name = excel_name if "excel_name" in comp_data else name
+                    
+                    html_content += f"""
+                    <tr>
+                        <td>{display_name}</td>
+                        <td>{declared}</td>
+                        <td>{detected}</td>
+                        <td>{match_status}</td>
+                    </tr>
+                    """
+                
+                html_content += """
+                </table>
+                """
+            
+            # Regular component detection table
+            html_content += """
+                <h3>All Detected Components</h3>
                 <p>The following components were identified in the codebase:</p>
                 <table class="component-table">
                     <tr>
@@ -1994,6 +2179,7 @@ class ProcessExcel(Node):
             mandatory_count = 0
             total_rows = 0
             unanswered_mandatory = []
+            component_questions = {}
             
             # Get component name, repo URL and its row
             component_name, repo_url, git_repo_row = find_component_and_repo(sheet)
@@ -2004,9 +2190,34 @@ class ProcessExcel(Node):
             # Process all rows (questions and answers)
             for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
                 if len(row) >= 3 and row[1].value:  # Question in second column
-                    total_rows += 1
                     question = str(row[1].value).strip()
                     answer = row[2].value
+                    
+                    total_rows += 1
+                    
+                    # Check if this is a component question
+                    # Look for patterns like "Is the component using X?" or "Does this use Y?"
+                    if any(pattern in question.lower() for pattern in ["is the component using", "does this use", "are you using"]):
+                        # Extract component name from question
+                        # For example, "Is the component using Venafi?" -> "Venafi"
+                        component_name_match = None
+                        
+                        # Try to extract component name after "using" or "use"
+                        for pattern in ["using ", "use "]:
+                            if pattern in question.lower():
+                                component_parts = question.lower().split(pattern, 1)[1].split("?")[0].strip()
+                                if component_parts:
+                                    component_name_match = component_parts
+                        
+                        if component_name_match:
+                            # Store the component name and the answer (yes/no)
+                            answer_text = str(answer).strip().lower() if answer else ""
+                            is_yes = any(yes_word in answer_text for yes_word in ["yes", "y", "true", "1"])
+                            component_questions[component_name_match] = {
+                                "question": question,
+                                "answer": answer_text,
+                                "is_yes": is_yes
+                            }
                     
                     # Check if this is a mandatory question (for now, consider all as mandatory)
                     # In a future update, you can specify which questions are mandatory
@@ -2031,7 +2242,8 @@ class ProcessExcel(Node):
                 "git_repo_url": repo_url,
                 "git_repo_valid": git_repo_valid,
                 "is_valid": mandatory_count > 0 and len(unanswered_mandatory) == 0 and git_repo_valid,
-                "unanswered_mandatory": unanswered_mandatory
+                "unanswered_mandatory": unanswered_mandatory,
+                "component_questions": component_questions
             }
 
         try:
