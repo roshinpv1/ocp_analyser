@@ -1341,15 +1341,19 @@ class GenerateReport(Node):
             total_rows = excel_validation.get("total_rows", 0)
             mandatory_fields = excel_validation.get("mandatory_fields", 0)
             unanswered_mandatory = excel_validation.get("unanswered_mandatory", [])
+            git_repo_url = excel_validation.get("git_repo_url", "Not provided")
+            git_repo_valid = excel_validation.get("git_repo_valid", False)
             
             if is_valid:
                 report += "✅ **Intake form is complete.** All mandatory fields have been answered.\n\n"
             else:
-                report += "❌ **Intake form is incomplete.** Some mandatory fields have not been answered.\n\n"
+                report += "❌ **Intake form is incomplete.** Some mandatory fields have not been answered or Git repository is invalid.\n\n"
             
             report += f"- Total questions: {total_rows}\n"
             report += f"- Mandatory fields: {mandatory_fields}\n"
-            report += f"- Unanswered mandatory fields: {len(unanswered_mandatory)}\n\n"
+            report += f"- Unanswered mandatory fields: {len(unanswered_mandatory)}\n"
+            report += f"- Git repository URL: {git_repo_url}\n"
+            report += f"- Git repository valid: {'✅ Yes' if git_repo_valid else '❌ No'}\n\n"
             
             if unanswered_mandatory:
                 report += "### Unanswered Mandatory Questions\n\n"
@@ -1616,6 +1620,8 @@ class GenerateReport(Node):
             total_rows = excel_validation.get("total_rows", 0)
             mandatory_fields = excel_validation.get("mandatory_fields", 0)
             unanswered_mandatory = excel_validation.get("unanswered_mandatory", [])
+            git_repo_url = excel_validation.get("git_repo_url", "Not provided")
+            git_repo_valid = excel_validation.get("git_repo_valid", False)
             
             html_content += """
             <div class="section">
@@ -1628,7 +1634,7 @@ class GenerateReport(Node):
                 """
             else:
                 html_content += f"""
-                <p><span class="validation-status validation-incomplete">✗ Incomplete</span> Some mandatory fields have not been answered.</p>
+                <p><span class="validation-status validation-incomplete">✗ Incomplete</span> Some mandatory fields have not been answered or Git repository is invalid.</p>
                 """
             
             html_content += f"""
@@ -1642,8 +1648,16 @@ class GenerateReport(Node):
                     <div class="summary-item">
                         <strong>Unanswered Mandatory:</strong> {len(unanswered_mandatory)}
                     </div>
+                    <div class="summary-item">
+                        <strong>Git Repository:</strong> {git_repo_valid and '<span class="component-yes">✓ Valid</span>' or '<span class="component-no">✗ Invalid</span>'}
+                    </div>
                 </div>
             """
+            
+            if git_repo_url:
+                html_content += f"""
+                <p><strong>Git Repository URL:</strong> {git_repo_url}</p>
+                """
             
             if unanswered_mandatory:
                 html_content += """
@@ -1735,7 +1749,7 @@ class GenerateReport(Node):
                 html_content += "</div>"
         
         html_content += """
-            </div>
+                </div>
             
             <div class="section">
                 <h2>Summary</h2>
@@ -1800,8 +1814,8 @@ class GenerateReport(Node):
                 
             html_content += """
             </div>
-            """
-            
+        """
+        
         if findings:
             html_content += """
             <div class="section">
@@ -1949,64 +1963,59 @@ class ProcessExcel(Node):
             return any(re.match(pattern, url.strip()) for pattern in patterns)
 
         def find_component_and_repo(sheet):
-            """Find component name and Git repository URL in the sheet."""
+            """Find component name from first row with value and Git repository URL."""
             component_name = None
             repo_url = None
+            git_repo_row = None
             
+            # Find component name from first row with value
             for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
-                # Check if this row has the component name
-                if any(cell.value and "component name" in str(cell.value).lower() for cell in row):
-                    # The component name should be in the next column
-                    for i, cell in enumerate(row):
-                        if cell.value and "component name" in str(cell.value).lower():
-                            if i + 1 < len(row) and row[i + 1].value:
-                                component_name = str(row[i + 1].value).strip()
-                                break
-                
-                # Check if this row has the Git repo URL
-                if any(cell.value and "git repo link" in str(cell.value).lower() for cell in row):
-                    # The URL should be in the next column
-                    for i, cell in enumerate(row):
-                        if cell.value and "git repo link" in str(cell.value).lower():
-                            if i + 1 < len(row) and row[i + 1].value:
-                                repo_url = str(row[i + 1].value).strip()
-                                break
-                
-                if component_name and repo_url:
+                if any(cell.value for cell in row):
+                    # Get the first non-empty cell value as component name
+                    for cell in row:
+                        if cell.value:
+                            component_name = str(cell.value).strip()
+                            break
                     break
             
-            return component_name, repo_url
+            # Find Git repo URL
+            for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
+                # Check if this row has the Git repo URL in the second column (questions column)
+                if len(row) >= 3 and row[1].value and "git repo" in str(row[1].value).lower():
+                    git_repo_row = row
+                    if row[2].value:  # Answer is in the third column
+                        repo_url = str(row[2].value).strip()
+                    break
+            
+            return component_name, repo_url, git_repo_row
 
         def validate_sheet(sheet):
             """Process the sheet and validate its contents."""
             mandatory_count = 0
-            valid_git_urls = 0
             total_rows = 0
             unanswered_mandatory = []
             
+            # Get component name, repo URL and its row
+            component_name, repo_url, git_repo_row = find_component_and_repo(sheet)
+            
+            # Validate Git repo URL
+            git_repo_valid = is_valid_git_repo(repo_url) if repo_url else False
+            
+            # Process all rows (questions and answers)
             for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
-                total_rows += 1
-                # Check if this is a mandatory field (has 'M' in third column)
-                if len(row) > 2 and row[2].value and str(row[2].value).strip().upper() == 'M':
-                    mandatory_count += 1
+                if len(row) >= 3 and row[1].value:  # Question in second column
+                    total_rows += 1
+                    question = str(row[1].value).strip()
+                    answer = row[2].value
                     
-                    # Get the question text (first column)
-                    question = str(row[0].value).strip() if row[0].value else "Unknown Question"
+                    # Check if this is a mandatory question (for now, consider all as mandatory)
+                    # In a future update, you can specify which questions are mandatory
+                    is_mandatory = True
                     
-                    # Check if the answer is empty (second column)
-                    answer = row[1].value
-                    if not answer or str(answer).strip() == "":
-                        unanswered_mandatory.append(question)
-                    
-                    # If this is a Git repo URL field, validate it
-                    if any(cell.value and "git repo link" in str(cell.value).lower() for cell in row):
-                        for i, cell in enumerate(row):
-                            if cell.value and "git repo link" in str(cell.value).lower():
-                                if i + 1 < len(row) and row[i + 1].value:
-                                    url = str(row[i + 1].value).strip()
-                                    if is_valid_git_repo(url):
-                                        valid_git_urls += 1
-                                    break
+                    if is_mandatory:
+                        mandatory_count += 1
+                        if not answer or str(answer).strip() == "":
+                            unanswered_mandatory.append(question)
             
             # Log unanswered mandatory questions
             if unanswered_mandatory:
@@ -2019,8 +2028,9 @@ class ProcessExcel(Node):
             return {
                 "total_rows": total_rows,
                 "mandatory_fields": mandatory_count,
-                "valid_git_urls": valid_git_urls,
-                "is_valid": mandatory_count > 0 and valid_git_urls > 0 and len(unanswered_mandatory) == 0,
+                "git_repo_url": repo_url,
+                "git_repo_valid": git_repo_valid,
+                "is_valid": mandatory_count > 0 and len(unanswered_mandatory) == 0 and git_repo_valid,
                 "unanswered_mandatory": unanswered_mandatory
             }
 
@@ -2032,7 +2042,7 @@ class ProcessExcel(Node):
             sheet = wb[sheet_name] if sheet_name else wb.active
             
             # Find component name and repo URL
-            component_name, repo_url = find_component_and_repo(sheet)
+            component_name, repo_url, _ = find_component_and_repo(sheet)
             
             # Validate the sheet
             validation_results = validate_sheet(sheet)

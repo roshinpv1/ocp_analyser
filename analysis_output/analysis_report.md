@@ -83,44 +83,28 @@ The following table shows components identified in the codebase:
 
 | Component | Detected | Evidence |
 |-----------|----------|----------|
-| Apigee | ❌ No | No APigEE components found |
-| Appdynamics | ❌ No | No AppDynamics components found |
-| Authentication_Methods_Adfs | ❌ No | No ADFS components found |
-| Authentication_Methods_Auth | ❌ No | No Auth components found |
-| Authentication_Methods_Jwt | ❌ No | No JWT components found |
-| Authentication_Methods_Okta | ❌ No | No Okta components found |
-| Authentication_Methods_Openid | ✅ Yes | Found OpenID authentication in .actor/input_schema.json and sherlock_project/sherlock.py |
-| Authentication_Methods_Saml | ❌ No | No SAML components found |
-| Autosys | ❌ No | No AutoSys components found |
-| Bridge_Utility_Server | ❌ No | No Bridge Utility server components found |
-| Channel_Secure_Pingfed | ❌ No | No Channel Secure / PingFed components found |
-| Cron_Quartz_Spring_Batch | ❌ No | No CRON/quartz/spring batch components found |
-| Databases_Cassandra | ❌ No | No Cassandra configurations or dependencies found |
-| Databases_Couchbase | ✅ Yes | Found Couchbase in sherlock_project/resources/data.json |
-| Databases_Hadoop | ❌ No | No Hadoop configurations or dependencies found |
-| Databases_Mongodb | ✅ Yes | Found MongoDB in sherlock_project/resources/data.json |
-| Databases_Mysql | ✅ Yes | Found MySQL in sherlock_project/resources/data.json |
-| Databases_Neo4J | ❌ No | No Neo4j configurations or dependencies found |
-| Databases_Oracle | ❌ No | No Oracle configurations or dependencies found |
-| Databases_Postgresql | ✅ Yes | Found PostgreSQL in sherlock_project/resources/data.json |
-| Databases_Spark | ❌ No | No Spark configurations or dependencies found |
-| Databases_Sqlserver | ❌ No | No SQLServer configurations or dependencies found |
-| Elastic_Apm | ❌ No | No ELASTIC APM components found |
-| Harness_Or_Ucd_For_Ci_Cd | ❌ No | No Harness or UCD for CI/CD components found |
-| Hashicorp_Vault | ❌ No | No Hashicorp vault components found |
-| Ibm_Mq | ❌ No | No IBM MQ components found |
-| Kafka | ❌ No | No KAFKA components found |
-| Ldap | ❌ No | No LDAP configurations or dependencies found |
-| Legacy_Jks_Files | ❌ No | No legacy JKS files found |
-| Mtls_Mutual_Auth_Hard_Rock_Pattern | ❌ No | No MTLS / Mutual Auth / Hard Rock pattern configurations or dependencies found |
-| Nas_Smb | ❌ No | No NAS / SMB configurations or dependencies found |
-| Ndm | ❌ No | No NDM components found |
-| Rabbitmq | ❌ No | No RabbitMQ components found |
+| Apigee | ❌ No | No ApigEE components detected |
+| Appd_Or_Appdyn | ❌ No | No AppD or AppDynamics components detected |
+| Autosys | ❌ No | No AutoSys components detected |
+| Bridge_Utility_Server | ❌ No | No Bridge Utility server components detected |
+| Channel_Secure_Or_Pingfed | ❌ No | No Channel Secure or PingFed components detected |
+| Cron_Quartz_Spring_Batch | ❌ No | No CRON, Quartz, or Spring Batch components detected |
+| Elastic_Apm | ❌ No | No Elastic APM components detected |
+| Harness_Or_Ucd_For_Ci_Cd | ❌ No | No Harness or UCD for CI/CD components detected |
+| Hashicorp_Vault | ❌ No | No Hashicorp vault components detected |
+| Ibm_Mq | ❌ No | No IBM MQ components detected |
+| Kafka | ❌ No | No Kafka components detected |
+| Ldap | ❌ No | No LDAP components detected |
+| Legacy_Jks_Files | ❌ No | No legacy JKS files detected |
+| Mtls_Or_Mutual_Auth_Hard_Rock_Pattern | ❌ No | No MTLS, Mutual Auth, or Hard Rock pattern components detected |
+| Nas_Smb | ❌ No | No NAS or SMB components detected |
+| Ndm | ❌ No | No NDM components detected |
+| Rabbitmq | ✅ Yes | Found RabbitMQ in .actor/actor.sh and sherlock_project/sherlock.py |
 | Redis | ❌ No | No Redis dependencies or configurations found |
-| Rest_Api | ✅ Yes | Found REST API endpoints in .actor/README.md and .actor/actor.json |
-| Smtp | ❌ No | No SMTP configurations or dependencies found |
-| Soap_Calls | ❌ No | No SOAP Calls configurations or dependencies found |
-| Splunk | ❌ No | No Splunk components found |
+| Rest_Api | ✅ Yes | Found REST API calls in .actor/actor.sh and sherlock_project/sherlock.py |
+| Smtp | ❌ No | No SMTP components detected |
+| Soap_Calls | ❌ No | No SOAP Calls detected |
+| Splunk | ❌ No | No Splunk components detected |
 | Venafi | ❌ No | No Venafi certificate management in security/certs.py |
 
 ## Technology Stack
@@ -128,44 +112,50 @@ The following table shows components identified in the codebase:
 ### Programming Languages
 
 - **Python** (v3.12)
-  - Purpose: Main application language for the Sherlock project
-  - Files: sherlock_project/sherlock.py, sherlock_project/__init__.py
+  - Purpose: Main application language
+  - Files: sherlock_project/__main__.py, sherlock_project/sherlock.py, sherlock_project/notify.py, sherlock_project/result.py, sherlock_project/sites.py
 
 ### Frameworks
 
-- **FuturesSession**
-  - Purpose: Asynchronous HTTP request handling in the Sherlock project
-  - Files: sherlock_project/sherlock.py
-
-- **Pandas**
-  - Purpose: Data manipulation and analysis library for the Sherlock project
-  - Files: sherlock_project/__init__.py, sherlock_project/result.py
+- **Requests-futures** (v0.2.2)
+  - Purpose: Asynchronous HTTP requests library
+  - Files: sherlock_project/__main__.py
 
 ### Libraries
 
-- **requests_futures**
-  - Purpose: Asynchronous HTTP requests library in the Sherlock project
-  - Files: sherlock_project/sherlock.py
+- **Pandas** (v1.5.3)
+  - Purpose: Data manipulation and analysis tool
+  - Files: sherlock_project/result.py, sherlock_project/sites.py
 
-- **torrequest**
-  - Purpose: Tor circuit management in the Sherlock project, now deprecated
+- **Colorama** (v0.4.6)
+  - Purpose: Cross-platform colored terminal text
+  - Files: sherlock_project/__main__.py
+
+- **APYFuturesSession**
+  - Purpose: Custom futures session for requests with response time measurement
   - Files: sherlock_project/sherlock.py
 
 ### Databases
 
-- **SQLite**
-  - Purpose: In-memory database used by the Sherlock project for caching and storage
-  - Files: sherlock_project/__init__.py, sherlock_project/result.py
+- **None**
+  - Purpose: No database dependencies or configurations found
+  - Files: N/A
 
 ### Tools
 
-- **Docker** (v3.12-slim-bullseye)
-  - Purpose: Containerization for running the Sherlock project
+- **Docker** (vlatest)
+  - Purpose: Containerization platform
   - Files: Dockerfile
 
-- **Apify SDK**
-  - Purpose: Automated testing and data analysis tool used by the Sherlock project
-  - Files: .actor/actor.json, .actor/README.md, .actor/actor.sh, .actor/input_schema.json
+- **Apify**
+  - Purpose: Cloud-based actor platform for serverless microservices
+  - Files: .actor/actor.json, .actor/README.md
+
+### Services
+
+- **None**
+  - Purpose: No service dependencies or configurations found
+  - Files: N/A
 
 ## Summary
 
