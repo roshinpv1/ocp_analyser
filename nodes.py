@@ -937,7 +937,18 @@ class AnalyzeCode(Node):
         files_data = shared["files"]
         project_name = shared["project_name"]
         use_cache = shared.get("use_cache", True)
-
+        
+        # Get Excel validation data
+        excel_validation = shared.get("excel_validation", {})
+        unanswered_mandatory = excel_validation.get("unanswered_mandatory", [])
+        
+        # Get specific component questions from the Excel file
+        component_questions = []
+        if unanswered_mandatory:
+            for question in unanswered_mandatory:
+                if question.startswith("Is the component using"):
+                    component_questions.append(question.strip())
+        
         def create_llm_context(files_data):
             context = ""
             file_info = []
@@ -953,11 +964,56 @@ class AnalyzeCode(Node):
         # Create a mapping of file paths to their content for validation
         file_content_map = {path: content for path, content in files_data}
         
-        return context, file_listing, len(files_data), project_name, use_cache, file_content_map
+        return context, file_listing, len(files_data), project_name, use_cache, file_content_map, component_questions
 
     def exec(self, prep_res):
-        context, file_listing, file_count, project_name, use_cache, file_content_map = prep_res
+        context, file_listing, file_count, project_name, use_cache, file_content_map, component_questions = prep_res
         print(f"Analyzing code for comprehensive review...")
+
+        # Create a list of components to check for in the codebase
+        component_check_list = """
+1. Venafi
+2. Redis
+3. Channel Secure / PingFed
+4. NAS / SMB
+5. SMTP
+6. AutoSys
+7. CRON/quartz/spring batch
+8. MTLS / Mutual Auth / Hard Rock pattern
+9. NDM
+10. Legacy JKS files
+11. SOAP Calls
+12. REST API
+13. APIGEE
+14. KAFKA
+15. IBM MQ
+16. LDAP
+17. Splunk
+18. AppD / AppDynamics
+19. ELASTIC APM
+20. Harness or UCD for CI/CD
+21. Hashicorp vault
+22. Bridge Utility server
+23. RabbitMQ
+24. Databases:
+   - MongoDB
+   - SQLServer
+   - MySQL
+   - PostgreSQL
+   - Oracle
+   - Cassandra
+   - Couchbase
+   - Neo4j
+   - Hadoop
+   - Spark
+25. Authentication methods:
+   - Okta
+   - SAML
+   - Auth
+   - JWT
+   - OpenID
+   - ADFS
+"""
 
         prompt = f"""
 You are a code review assistant trained to identify patterns in source code and configurations related to various aspects of code quality, security, and best practices.
@@ -970,9 +1026,10 @@ Codebase Context:
 List of files:
 {file_listing}
 
-IMPORTANT: You MUST return a JSON object with TWO main sections:
+IMPORTANT: You MUST return a JSON object with THREE main sections:
 1. "technology_stack": A dictionary containing all technologies found in the codebase
 2. "findings": A list of issues and recommendations
+3. "component_analysis": A dictionary containing detected components with yes/no values
 
 For the technology stack, you MUST identify and categorize ALL technologies used in the codebase. Look for:
 - Programming languages (e.g., Python, JavaScript, Java)
@@ -1012,6 +1069,27 @@ Example technology stack format:
 }}
 ```
 
+Additionally, specifically analyze the codebase to check for the presence of the following components. For each, respond with "yes" if found, or "no" if not found, with evidence from the code if available:
+
+{component_check_list}
+
+For the component_analysis section, use this format:
+```json
+{{
+    "component_analysis": {{
+        "venafi": {{
+            "detected": "yes",
+            "evidence": "Found Venafi certificate management in security/certs.py"
+        }},
+        "redis": {{
+            "detected": "no",
+            "evidence": "No Redis dependencies or configurations found"
+        }}
+        // ... and so on for all components
+    }}
+}}
+```
+
 Then proceed with the existing best practice checks and return findings in the same format as before.
 
 IMPORTANT RULES:
@@ -1041,7 +1119,7 @@ Now, analyze the codebase and return the complete JSON response:
             if start_idx == -1 or end_idx == 0:
                 print("Warning: No JSON object found in response. Returning empty findings.")
                 print("Response was:", response)
-                return {"technology_stack": {}, "findings": []}
+                return {"technology_stack": {}, "findings": [], "component_analysis": {}}
                 
             json_str = response[start_idx:end_idx]
             
@@ -1054,13 +1132,13 @@ Now, analyze the codebase and return the complete JSON response:
             except json.JSONDecodeError as e:
                 print(f"Warning: Failed to parse JSON response: {str(e)}")
                 print("JSON string was:", json_str)
-                return {"technology_stack": {}, "findings": []}
+                return {"technology_stack": {}, "findings": [], "component_analysis": {}}
             
             # Validate analysis structure
             if not isinstance(analysis, dict):
                 print("Warning: Response is not a dictionary. Returning empty findings.")
                 print("Response was:", analysis)
-                return {"technology_stack": {}, "findings": []}
+                return {"technology_stack": {}, "findings": [], "component_analysis": {}}
                 
             # Ensure technology_stack exists and is a dict
             if "technology_stack" not in analysis or not isinstance(analysis["technology_stack"], dict):
@@ -1069,6 +1147,10 @@ Now, analyze the codebase and return the complete JSON response:
             # Ensure findings exists and is a list
             if "findings" not in analysis or not isinstance(analysis["findings"], list):
                 analysis["findings"] = []
+                
+            # Ensure component_analysis exists and is a dict
+            if "component_analysis" not in analysis or not isinstance(analysis["component_analysis"], dict):
+                analysis["component_analysis"] = {}
             
             # Validate and clean up technology stack
             validated_tech_stack = {}
@@ -1155,22 +1237,44 @@ Now, analyze the codebase and return the complete JSON response:
                         
                 validated_findings.append(finding)
             
-            print(f"Found {sum(len(techs) for techs in validated_tech_stack.values())} technologies and {len(validated_findings)} findings.")
+            # Validate component analysis
+            validated_component_analysis = {}
+            for component, analysis_data in analysis.get("component_analysis", {}).items():
+                if not isinstance(analysis_data, dict):
+                    continue
+                
+                if "detected" not in analysis_data:
+                    continue
+                
+                detected = analysis_data["detected"].lower()
+                if detected not in ["yes", "no"]:
+                    detected = "no"
+                
+                evidence = analysis_data.get("evidence", "No evidence provided")
+                
+                validated_component_analysis[component] = {
+                    "detected": detected,
+                    "evidence": evidence
+                }
+            
+            print(f"Found {sum(len(techs) for techs in validated_tech_stack.values())} technologies, {len(validated_findings)} findings, and {len(validated_component_analysis)} components.")
             return {
                 "technology_stack": validated_tech_stack,
-                "findings": validated_findings
+                "findings": validated_findings,
+                "component_analysis": validated_component_analysis
             }
             
         except Exception as e:
             print(f"Warning: Unexpected error processing response: {str(e)}")
             print("Response was:", response)
-            return {"technology_stack": {}, "findings": []}
+            return {"technology_stack": {}, "findings": [], "component_analysis": {}}
 
     def post(self, shared, prep_res, exec_res):
         print("\nDEBUG: AnalyzeCode post")
         print("DEBUG: Analysis results:", exec_res)
         print("DEBUG: Technology stack found:", list(exec_res.get("technology_stack", {}).keys()))
         print("DEBUG: Number of findings:", len(exec_res.get("findings", [])))
+        print("DEBUG: Components detected:", len(exec_res.get("component_analysis", {})))
         shared["code_analysis"] = exec_res
         print("DEBUG: Stored code_analysis in shared state")
 
@@ -1193,19 +1297,27 @@ class GenerateReport(Node):
             technology_stack = analysis.get("technologies", {})
         print("DEBUG: Technology stack:", technology_stack)
         
+        # Get component analysis
+        component_analysis = analysis.get("component_analysis", {})
+        print("DEBUG: Component analysis:", component_analysis)
+        
         project_name = shared.get("project_name", "Unknown Project")
         output_dir = shared.get("output_dir", "analysis_output")
+        
+        # Get Excel validation data if available
+        excel_validation = shared.get("excel_validation", {})
         
         print("DEBUG: Project name:", project_name)
         print("DEBUG: Output directory:", output_dir)
         
-        return findings, technology_stack, project_name, output_dir
+        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis
 
     def exec(self, prep_res):
-        findings, technology_stack, project_name, output_dir = prep_res
+        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis = prep_res
         print("\nDEBUG: Starting GenerateReport exec")
         print("DEBUG: Number of findings:", len(findings))
         print("DEBUG: Technology stack categories:", list(technology_stack.keys()))
+        print("DEBUG: Component analysis items:", len(component_analysis))
         
         # Group findings by category
         categories = {}
@@ -1219,6 +1331,57 @@ class GenerateReport(Node):
         
         # Generate markdown report
         report = f"# Code Analysis Report for {project_name}\n\n"
+        
+        # Excel Validation Section (if available)
+        if excel_validation:
+            report += "## Intake Form Validation\n\n"
+            
+            # Check if the form is valid
+            is_valid = excel_validation.get("is_valid", False)
+            total_rows = excel_validation.get("total_rows", 0)
+            mandatory_fields = excel_validation.get("mandatory_fields", 0)
+            unanswered_mandatory = excel_validation.get("unanswered_mandatory", [])
+            
+            if is_valid:
+                report += "✅ **Intake form is complete.** All mandatory fields have been answered.\n\n"
+            else:
+                report += "❌ **Intake form is incomplete.** Some mandatory fields have not been answered.\n\n"
+            
+            report += f"- Total questions: {total_rows}\n"
+            report += f"- Mandatory fields: {mandatory_fields}\n"
+            report += f"- Unanswered mandatory fields: {len(unanswered_mandatory)}\n\n"
+            
+            if unanswered_mandatory:
+                report += "### Unanswered Mandatory Questions\n\n"
+                for question in unanswered_mandatory:
+                    report += f"- {question}\n"
+                report += "\n"
+        
+        # Component Analysis Section
+        if component_analysis:
+            report += "## Component Analysis\n\n"
+            report += "The following table shows components identified in the codebase:\n\n"
+            report += "| Component | Detected | Evidence |\n"
+            report += "|-----------|----------|----------|\n"
+            
+            # Sort components alphabetically for better readability
+            sorted_components = sorted(component_analysis.keys())
+            
+            for component in sorted_components:
+                data = component_analysis[component]
+                detected = data.get("detected", "no")
+                evidence = data.get("evidence", "No evidence provided")
+                
+                # Format detected as Yes/No with emoji
+                detected_formatted = "✅ Yes" if detected.lower() == "yes" else "❌ No"
+                
+                # Format evidence (truncate if too long)
+                if len(evidence) > 100:
+                    evidence = evidence[:97] + "..."
+                
+                report += f"| {component.title()} | {detected_formatted} | {evidence} |\n"
+            
+            report += "\n"
         
         # Technology Stack section
         report += "## Technology Stack\n\n"
@@ -1384,6 +1547,38 @@ class GenerateReport(Node):
                 .severity-high .severity-badge {{ background: #dc3545; color: white; }}
                 .severity-medium .severity-badge {{ background: #fd7e14; color: white; }}
                 .severity-low .severity-badge {{ background: #28a745; color: white; }}
+                .validation-status {{
+                    display: inline-block;
+                    padding: 5px 10px;
+                    border-radius: 4px;
+                    font-weight: bold;
+                }}
+                .validation-complete {{ background: #d4edda; color: #155724; }}
+                .validation-incomplete {{ background: #f8d7da; color: #721c24; }}
+                .component-table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }}
+                .component-table th, .component-table td {{
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }}
+                .component-table th {{
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }}
+                .component-table tr:nth-child(even) {{
+                    background-color: #f9f9f9;
+                }}
+                .component-yes {{
+                    color: #28a745;
+                    font-weight: bold;
+                }}
+                .component-no {{
+                    color: #dc3545;
+                }}
                 pre, code {{
                     background: #f8f9fa;
                     padding: 2px 4px;
@@ -1413,19 +1608,103 @@ class GenerateReport(Node):
         </head>
         <body>
             <h1>Code Analysis Report for {project_name}</h1>
+        """
+        
+        # Excel Validation Section (HTML)
+        if excel_validation:
+            is_valid = excel_validation.get("is_valid", False)
+            total_rows = excel_validation.get("total_rows", 0)
+            mandatory_fields = excel_validation.get("mandatory_fields", 0)
+            unanswered_mandatory = excel_validation.get("unanswered_mandatory", [])
             
+            html_content += """
             <div class="section">
-                <h2>Summary</h2>
+                <h2>Intake Form Validation</h2>
+            """
+            
+            if is_valid:
+                html_content += f"""
+                <p><span class="validation-status validation-complete">✓ Complete</span> All mandatory fields have been answered.</p>
+                """
+            else:
+                html_content += f"""
+                <p><span class="validation-status validation-incomplete">✗ Incomplete</span> Some mandatory fields have not been answered.</p>
+                """
+            
+            html_content += f"""
                 <div class="summary">
                     <div class="summary-item">
-                        <strong>Total Findings:</strong> """ + str(len(findings)) + """
+                        <strong>Total Questions:</strong> {total_rows}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Mandatory Fields:</strong> {mandatory_fields}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Unanswered Mandatory:</strong> {len(unanswered_mandatory)}
                     </div>
                 </div>
+            """
+            
+            if unanswered_mandatory:
+                html_content += """
+                <h3>Unanswered Mandatory Questions:</h3>
+                <ul>
+                """
+                for question in unanswered_mandatory:
+                    html_content += f"<li>{question}</li>"
+                html_content += """
+                </ul>
+                """
+            
+            html_content += """
             </div>
-
+            """
+        
+        # Component Analysis Section (HTML)
+        if component_analysis:
+            html_content += """
+            <div class="section">
+                <h2>Component Analysis</h2>
+                <p>The following components were identified in the codebase:</p>
+                <table class="component-table">
+                    <tr>
+                        <th>Component</th>
+                        <th>Detected</th>
+                        <th>Evidence</th>
+                    </tr>
+            """
+            
+            # Sort components alphabetically for better readability
+            sorted_components = sorted(component_analysis.keys())
+            
+            for component in sorted_components:
+                data = component_analysis[component]
+                detected = data.get("detected", "no")
+                evidence = data.get("evidence", "No evidence provided")
+                
+                # Format detected as Yes/No with proper CSS classes
+                if detected.lower() == "yes":
+                    detected_formatted = '<span class="component-yes">✅ Yes</span>'
+                else:
+                    detected_formatted = '<span class="component-no">❌ No</span>'
+                
+                html_content += f"""
+                    <tr>
+                        <td>{component.title()}</td>
+                        <td>{detected_formatted}</td>
+                        <td>{evidence}</td>
+                    </tr>
+                """
+            
+            html_content += """
+                </table>
+            </div>
+            """
+            
+        # Technology Stack Section (HTML)
+        html_content += """
             <div class="section">
                 <h2>Technology Stack</h2>
-                <div class="tech-list">
         """
         
         if not technology_stack:
@@ -1434,22 +1713,95 @@ class GenerateReport(Node):
             for category, techs in technology_stack.items():
                 if not techs:
                     continue
+                    
+                pretty_category = category.replace('_', ' ').title()
+                html_content += f"<h3>{pretty_category}</h3>"
+                html_content += "<div class='tech-list'>"
+                
                 for tech in techs:
                     tech_name = tech.get('name') or tech.get('technology', 'Unknown')
+                    version = tech.get('version', 'unknown')
+                    purpose = tech.get('purpose', 'N/A')
+                    files = tech.get('files', [])
+                    
                     html_content += f"""
                     <div class="tech-item">
-                        <h3>{tech_name}{f" (v{tech['version']})" if 'version' in tech and tech['version'] and tech['version'] != 'unknown' else ""}</h3>
-                        <p><strong>Category:</strong> {category.replace('_', ' ').title()}</p>
-                        <p><strong>Purpose:</strong> {tech.get('purpose', 'N/A')}</p>
-                        <p><strong>Files:</strong> {', '.join(tech.get('files', ['N/A']))}</p>
+                        <h4>{tech_name}{" (v" + version + ")" if version and version != "unknown" else ""}</h4>
+                        <p><strong>Purpose:</strong> {purpose}</p>
+                        <p><strong>Files:</strong> {", ".join(files) if files else "N/A"}</p>
                     </div>
                     """
+                    
+                html_content += "</div>"
         
         html_content += """
-                </div>
             </div>
+            
+            <div class="section">
+                <h2>Summary</h2>
+                <div class="summary">
+                    <div class="summary-item">
+                        <strong>Total Findings:</strong> """ + str(len(findings)) + """
+                    </div>
         """
         
+        if findings:
+            severity_counts = {"High": 0, "Medium": 0, "Low": 0}
+            for finding in findings:
+                severity = finding.get("severity", "Low")
+                if severity in severity_counts:
+                    severity_counts[severity] += 1
+                    
+            html_content += f"""
+                    <div class="summary-item">
+                        <strong>High Priority:</strong> {severity_counts["High"]}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Medium Priority:</strong> {severity_counts["Medium"]}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Low Priority:</strong> {severity_counts["Low"]}
+                    </div>
+            """
+            
+        html_content += """
+                </div>
+            """
+        
+        if findings:
+            high_priority_findings = [f for f in findings if f.get("severity") == "High"]
+            medium_priority_findings = [f for f in findings if f.get("severity") == "Medium"]
+            
+            if high_priority_findings or medium_priority_findings:
+                html_content += """
+                <h3>Key Recommendations</h3>
+                <ul>
+                """
+                
+                for finding in high_priority_findings[:3]:
+                    html_content += f"""
+                    <li class="severity-high">
+                        <span class="severity-badge">High</span>
+                        {finding["description"]}
+                    </li>
+                    """
+                    
+                for finding in medium_priority_findings[:3]:
+                    html_content += f"""
+                    <li class="severity-medium">
+                        <span class="severity-badge">Medium</span>
+                        {finding["description"]}
+                    </li>
+                    """
+                    
+                html_content += """
+                </ul>
+                """
+                
+            html_content += """
+            </div>
+            """
+            
         if findings:
             html_content += """
             <div class="section">
@@ -1630,12 +1982,21 @@ class ProcessExcel(Node):
             mandatory_count = 0
             valid_git_urls = 0
             total_rows = 0
+            unanswered_mandatory = []
             
             for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
                 total_rows += 1
                 # Check if this is a mandatory field (has 'M' in third column)
                 if len(row) > 2 and row[2].value and str(row[2].value).strip().upper() == 'M':
                     mandatory_count += 1
+                    
+                    # Get the question text (first column)
+                    question = str(row[0].value).strip() if row[0].value else "Unknown Question"
+                    
+                    # Check if the answer is empty (second column)
+                    answer = row[1].value
+                    if not answer or str(answer).strip() == "":
+                        unanswered_mandatory.append(question)
                     
                     # If this is a Git repo URL field, validate it
                     if any(cell.value and "git repo link" in str(cell.value).lower() for cell in row):
@@ -1647,11 +2008,20 @@ class ProcessExcel(Node):
                                         valid_git_urls += 1
                                     break
             
+            # Log unanswered mandatory questions
+            if unanswered_mandatory:
+                print("\nERROR: Intake form is incomplete. The following mandatory questions are not answered:")
+                for question in unanswered_mandatory:
+                    print(f"- {question}")
+                print("\nPlease complete all mandatory fields before proceeding.")
+                print()
+            
             return {
                 "total_rows": total_rows,
                 "mandatory_fields": mandatory_count,
                 "valid_git_urls": valid_git_urls,
-                "is_valid": mandatory_count > 0 and valid_git_urls > 0
+                "is_valid": mandatory_count > 0 and valid_git_urls > 0 and len(unanswered_mandatory) == 0,
+                "unanswered_mandatory": unanswered_mandatory
             }
 
         try:
@@ -1690,7 +2060,10 @@ class ProcessExcel(Node):
     def post(self, shared, prep_res, exec_res):
         """Store results in shared state."""
         if not exec_res["validation"]["is_valid"]:
-            raise ValueError("Excel validation failed. Please check the excel_validation.json file for details.")
+            if exec_res["validation"]["unanswered_mandatory"]:
+                print("Intake form is incomplete. Please complete all mandatory fields before proceeding.")
+            else:
+                print("Excel validation failed. Please check the excel_validation.json file for details.")
             
         # Store the Git repo URL in shared state
         shared["repo_url"] = exec_res["repo_url"]
