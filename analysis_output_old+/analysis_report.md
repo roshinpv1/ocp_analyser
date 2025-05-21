@@ -2,8 +2,8 @@
 
 ## Executive Summary
 
-- **Security & Quality Implementation**: 43.3%
-- **Practices Implemented**: 6 fully, 1 partially, 8 not implemented
+- **Security & Quality Implementation**: 53.3%
+- **Practices Implemented**: 8 fully, 0 partially, 7 not implemented
 - **Total Findings**: 0
 - **Component Declaration Mismatches**: 1
 
@@ -112,7 +112,7 @@ If Yes, Please share details on the same.
 3. [Component Analysis](#component-analysis)
 4. [Security and Quality Practices](#security-and-quality-practices)
 5. [Technology Stack](#technology-stack)
-6. [Action Items](#action-items)
+7. [Action Items](#action-items)
 
 ## Component Analysis
 
@@ -130,7 +130,7 @@ The following table compares the components declared in the intake form with the
 | ndm | No | No | Match |
 | legacy jks file | No | No | Match |
 | soap calls | No | No | Match |
-| rest api | No | Yes | Mismatch |
+| rest api | No | No | Match |
 | apigee | No | No | Match |
 | kafka | No | No | Match |
 | ibm mq | No | No | Match |
@@ -142,7 +142,7 @@ The following table compares the components declared in the intake form with the
 | hamess or ucd for ci cd | No | No | Match |
 | hardrock / mtls auth | No | No | Match |
 | appdynamics | No | No | Match |
-| rabbitmq | No | No | Match |
+| rabbitmq | No | Yes | Mismatch |
 | database | No | No | Match |
 | mongodb | No | No | Match |
 | sqlserver | No | No | Match |
@@ -172,41 +172,41 @@ The following sections summarize the security and quality practices implemented 
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Avoid Logging Confidential Data | Implemented | Found proper masking of sensitive data in loggi... |
-| Create Audit Trail Logs | Not Implemented | No evidence of comprehensive audit trails found |
-| Tracking Id For Log Messages | Partially Implemented | Found `correlationId` in logs/utils.py, but not... |
-| Log Rest Api Calls | Not Implemented | No evidence of middleware or interceptors loggi... |
-| Log Application Messages | Implemented | Found `logger.info`, `logger.warn`, and `logger... |
-| Client Ui Errors Are Logged | Not Implemented | No evidence of error logging handlers in the fr... |
+| Avoid Logging Confidential Data | Implemented | ['sherlock_project/sherlock.py: `def check_for_parameter(username):`', 'sherlock_project/notify.py: `class QueryNotifyPrint(QueryNotify):`'] |
+| Create Audit Trail Logs | Not Implemented | [] |
+| Tracking Id For Log Messages | Not Implemented | [] |
+| Log Rest Api Calls | Implemented | ['.actor/actor.sh: `curl --request POST ...`'] |
+| Log Application Messages | Implemented | ['sherlock_project/sherlock.py: `if errorContext:`', 'sherlock_project/notify.py: `class QueryNotifyPrint(QueryNotify):`'] |
+| Client Ui Errors Are Logged | Not Implemented | [] |
 
 ### Availability
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Retry Logic | Implemented | Found retry logic in requests_futures.sessions.... |
-| Set Timeouts On Io Operations | Not Implemented | No evidence provided |
-| Throttling Drop Request | Not Implemented | No evidence provided |
-| Circuit Breakers On Outgoing Requests | Not Implemented | No evidence provided |
+| Retry Logic | Implemented | ['sherlock_project/sherlock.py: `from requests_futures.sessions import FuturesSession`'] |
+| Set Timeouts On Io Operations | Implemented | ['.actor/actor.sh: `timeout: int = 60`'] |
+| Throttling Drop Request | Not Implemented | [] |
+| Circuit Breakers On Outgoing Requests | Not Implemented | [] |
 
 ### Error Handling
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Log System Errors | Implemented | Found system error logging patterns in sherlock... |
-| Use Http Standard Error Codes | Implemented | Found proper HTTP status codes returned by the ... |
-| Include Client Error Tracking | Not Implemented | No evidence of client-side error tracking using... |
+| Log System Errors | Implemented | ['sherlock_project/sherlock.py: `if errorContext:`'] |
+| Use Http Standard Error Codes | Not Implemented | [] |
+| Include Client Error Tracking | Implemented | ['.actor/actor.sh: `curl --request POST ...`'] |
 
 ### Monitoring
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Url Monitoring | Not Implemented | No health check or ping endpoints found for ava... |
+| Url Monitoring | Not Implemented | [] |
 
 ### Testing
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Automated Regression Testing | Implemented | Found automated test suites in the project (e.g... |
+| Automated Regression Testing | Implemented | ['.actor/README.md: "Apify Console"'] |
 
 ## Technology Stack
 
@@ -216,34 +216,27 @@ The following technologies were identified in the codebase:
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Python | 3.8 | Main application language | sherlock_project/sherlock.py, sherlock_project/__init__.py (+3) |
-| JavaScript | unknown | Frontend framework |  |
+| Python | 3.12 | Main application language | Dockerfile, sherlock_project/sherlock.py (+4) |
 
 ### Libraries
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| requests | 2.25.1 | HTTP client library | sherlock_project/sherlock.py |
-| pandas | 1.3.4 | Data manipulation library | sherlock_project/sherlock.py, sherlock_project/sites.py |
+| requests | 2.28.1 | HTTP library | sherlock_project/sherlock.py, sherlock_project/notify.py (+1) |
+| pandas | 1.5.3 | Data manipulation library | sherlock_project/sherlock.py, sherlock_project/sites.py |
+| requests_futures | 2.4.0 | Asynchronous HTTP requests | sherlock_project/sherlock.py |
 
 ### Tools
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Docker | unknown | Containerization tool | Dockerfile |
-| Kubernetes | unknown | Container orchestratio... |  |
+| Docker | latest | Containerization tool | Dockerfile |
+| Apify SDK | unknown | Serverless microservices pl... |  |
 
-## Action Items
+### Other
 
-### 1. Complete Intake Form (Priority: Critical)
-
-Complete all mandatory questions in the intake form to ensure accurate project configuration.
-
-### 2. Resolve Component Discrepancies (Priority: Medium)
-
-Reconcile mismatches between declared components and what's detected in the code.
-
-### 3. Implement 8 Missing Security Practices (Priority: Medium)
-
-Address security gaps to improve overall application security posture.
+| Technology | Version | Purpose | Files |
+|------------|---------|---------|-------|
+| colorama | 0.4.1 | ANSI escape sequences for t... | sherlock_project/notify.py |
+| apify-client | unknown | Apify client library |  |
 

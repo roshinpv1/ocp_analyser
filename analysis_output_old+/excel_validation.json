@@ -1,0 +1,309 @@
+{
+  "component_name": "Assays sake kwekjw kejwkje kwjekj wejwkj ew",
+  "repo_url": "https://github.com/sherlock-project/sherlock",
+  "validation": {
+    "total_rows": 83,
+    "mandatory_fields": 83,
+    "git_repo_url": "https://github.com/sherlock-project/sherlock",
+    "git_repo_valid": true,
+    "is_valid": false,
+    "unanswered_mandatory": [
+      "Assays sake kwekjw kejwkje kwjekj wejwkj ew",
+      "Provide the GIT CD repo link and coresponding Prod equivalent branch name",
+      "Is the Prod Version of code running in DEV PCF?",
+      "Provide active Dev env name",
+      "Is the Prod Version of code running in SIT PCF?",
+      "Provide active Sit env name",
+      "Is the Prod Version of code running in UAT PCF?",
+      "Provide active UAT env name",
+      "What is the Dev PCF Foundation/ Org/Space the code is running?",
+      "What is the SIT PCF Foundation/ Org/Space the code is running?",
+      "What is the UAT PCF Foundation/ Org/Space the code is running?",
+      "Note : If you have additional Non Prod env Please mention those.",
+      "What is the target OCP env the app team would like to deploy the Component to? (Sterling / Lewisville / Manassas)",
+      "Provide the AD-ENT groups needed to work on the app? E.g. GIT access, Splunk Access etc.",
+      "Is there any test user that can be used during testing ? (Applicable for Ul app)",
+      "Does the App needs any Vanity URL if so any preference on the URL Please mention.",
+      "To implement Vanity URL, the migration team will need the Venafi CERT and the KEY",
+      "What are the Up stream and down stream app that might get impacted with this component?",
+      "Provide the CMP Link",
+      "Please share us the steps on how to request access to PCF app manager as lead engineer for DEV/SIT/UAT environments",
+      "What is the Performance PCF Foundation/ Org/Space the code is running?",
+      "Is the App currently actively running in PCF?",
+      "Is the component\n    1   existing parallelly in GitHub On-Prem and GitHub Cloud,\n    2   only existing in GitHub On-Prem,\n    3   only existing in GitHub Cloud (Github on-prem repo has been archived already)",
+      "Do we have Smoke test data available?",
+      "Is the application component a Batch(AutoSys) / Ul / API app?",
+      "Is the application component using Bridge Utility Server in PCF?",
+      "Is the application component using Java / net / Python / Angular / React",
+      "What is the current Build Pack (for example -Gradle, Maven, NPM etc.) used in this application component",
+      "is component using EPL/EPLX?",
+      "Is the component using Venafi?",
+      "Is the component using Redis?",
+      "Is the component using Channel Secure / PingFed?",
+      "Is the component using NAS / SMB?",
+      "If this component is using NAS/SMB, does app team have the AD-ENT or QA-ENT credentials to configure the same for volume mounts in OCP?",
+      "If this component is not using NAS/SMB, please ignore this question?",
+      "Is the component using SMTP?",
+      "Is the component using AutoSys?\nIs the component using CRON/quartz/spring batch or any other batch operation?",
+      "Is the component using MTLS / Mutual Auth Or hard rock pattem in the application?",
+      "Is the component using NDM?",
+      "Is the component using legacy JKS file?",
+      "Is the component using SOAP Calls?",
+      "Is the component using REST API?",
+      "Is the component using APIGEE?",
+      "Is the component using KAFKA?",
+      "Is the component using IBM MQ?",
+      "If the compoenent is using MQ, Is the component using any Cipher suite?",
+      "If the component is not using MQ, ignore this line item?",
+      "Is the component using LDAP?",
+      "Is the Component using Splunk?",
+      "Is the Component using AppD?",
+      "Is the Component using ELASTIC APM?",
+      "Is the component using Hamess or UCD for CI CD",
+      "Is the component storing secure values in Hashicorp vault Or any other external secure credential storage.\nPlease share the details of where the secure properties are stored?",
+      "Is the compone t using Bridge Utility server in PCF?",
+      "Is the Component using hardRock / MTLS auth?",
+      "Is the Component using AppDynamics?",
+      "Is the Component using RabbitMQ",
+      "Is the component using Database?",
+      "Is the component using MongoDB?",
+      "Is the component using SQLServer?",
+      "Is the component using MySQL?",
+      "Is the component using PostgreSQL?",
+      "Is the component using PostgreSQL?",
+      "Is the component using Oracle?",
+      "Is the component using Cassandra?",
+      "Is the component using Couchbase?",
+      "Is the component using Neo4j?",
+      "Is the component using Hadoop?",
+      "Is the component using Spark?",
+      "Is the component using Okta?",
+      "Is the component using SAML?",
+      "Is the component using Auth?",
+      "Is the component using JWT?",
+      "Is the component using OpenID?",
+      "Is the component using ADFS?",
+      "Is the component using SAN?",
+      "Is the component using MalwareScanner?",
+      "Is the component using any other service? Please share details of the same.",
+      "Are there any application URLs hardcoded in application code or property files?\nIf Yes, Please share details on the same."
+    ],
+    "component_questions": {
+      "venafi": {
+        "question": "Is the component using Venafi?",
+        "answer": "",
+        "is_yes": false
+      },
+      "redis": {
+        "question": "Is the component using Redis?",
+        "answer": "",
+        "is_yes": false
+      },
+      "channel secure / pingfed": {
+        "question": "Is the component using Channel Secure / PingFed?",
+        "answer": "",
+        "is_yes": false
+      },
+      "nas / smb": {
+        "question": "Is the component using NAS / SMB?",
+        "answer": "",
+        "is_yes": false
+      },
+      "smtp": {
+        "question": "Is the component using SMTP?",
+        "answer": "",
+        "is_yes": false
+      },
+      "autosys": {
+        "question": "Is the component using AutoSys?\nIs the component using CRON/quartz/spring batch or any other batch operation?",
+        "answer": "",
+        "is_yes": false
+      },
+      "mtls / mutual auth or hard rock pattem in the application": {
+        "question": "Is the component using MTLS / Mutual Auth Or hard rock pattem in the application?",
+        "answer": "",
+        "is_yes": false
+      },
+      "ndm": {
+        "question": "Is the component using NDM?",
+        "answer": "",
+        "is_yes": false
+      },
+      "legacy jks file": {
+        "question": "Is the component using legacy JKS file?",
+        "answer": "",
+        "is_yes": false
+      },
+      "soap calls": {
+        "question": "Is the component using SOAP Calls?",
+        "answer": "",
+        "is_yes": false
+      },
+      "rest api": {
+        "question": "Is the component using REST API?",
+        "answer": "",
+        "is_yes": false
+      },
+      "apigee": {
+        "question": "Is the component using APIGEE?",
+        "answer": "",
+        "is_yes": false
+      },
+      "kafka": {
+        "question": "Is the component using KAFKA?",
+        "answer": "",
+        "is_yes": false
+      },
+      "ibm mq": {
+        "question": "Is the component using IBM MQ?",
+        "answer": "",
+        "is_yes": false
+      },
+      "mq, is the component using any cipher suite": {
+        "question": "If the compoenent is using MQ, Is the component using any Cipher suite?",
+        "answer": "",
+        "is_yes": false
+      },
+      "ldap": {
+        "question": "Is the component using LDAP?",
+        "answer": "",
+        "is_yes": false
+      },
+      "splunk": {
+        "question": "Is the Component using Splunk?",
+        "answer": "",
+        "is_yes": false
+      },
+      "appd": {
+        "question": "Is the Component using AppD?",
+        "answer": "",
+        "is_yes": false
+      },
+      "elastic apm": {
+        "question": "Is the Component using ELASTIC APM?",
+        "answer": "",
+        "is_yes": false
+      },
+      "hamess or ucd for ci cd": {
+        "question": "Is the component using Hamess or UCD for CI CD",
+        "answer": "",
+        "is_yes": false
+      },
+      "hardrock / mtls auth": {
+        "question": "Is the Component using hardRock / MTLS auth?",
+        "answer": "",
+        "is_yes": false
+      },
+      "appdynamics": {
+        "question": "Is the Component using AppDynamics?",
+        "answer": "",
+        "is_yes": false
+      },
+      "rabbitmq": {
+        "question": "Is the Component using RabbitMQ",
+        "answer": "",
+        "is_yes": false
+      },
+      "database": {
+        "question": "Is the component using Database?",
+        "answer": "",
+        "is_yes": false
+      },
+      "mongodb": {
+        "question": "Is the component using MongoDB?",
+        "answer": "",
+        "is_yes": false
+      },
+      "sqlserver": {
+        "question": "Is the component using SQLServer?",
+        "answer": "",
+        "is_yes": false
+      },
+      "mysql": {
+        "question": "Is the component using MySQL?",
+        "answer": "",
+        "is_yes": false
+      },
+      "postgresql": {
+        "question": "Is the component using PostgreSQL?",
+        "answer": "",
+        "is_yes": false
+      },
+      "oracle": {
+        "question": "Is the component using Oracle?",
+        "answer": "",
+        "is_yes": false
+      },
+      "cassandra": {
+        "question": "Is the component using Cassandra?",
+        "answer": "",
+        "is_yes": false
+      },
+      "couchbase": {
+        "question": "Is the component using Couchbase?",
+        "answer": "",
+        "is_yes": false
+      },
+      "neo4j": {
+        "question": "Is the component using Neo4j?",
+        "answer": "",
+        "is_yes": false
+      },
+      "hadoop": {
+        "question": "Is the component using Hadoop?",
+        "answer": "",
+        "is_yes": false
+      },
+      "spark": {
+        "question": "Is the component using Spark?",
+        "answer": "",
+        "is_yes": false
+      },
+      "okta": {
+        "question": "Is the component using Okta?",
+        "answer": "",
+        "is_yes": false
+      },
+      "saml": {
+        "question": "Is the component using SAML?",
+        "answer": "",
+        "is_yes": false
+      },
+      "auth": {
+        "question": "Is the component using Auth?",
+        "answer": "",
+        "is_yes": false
+      },
+      "jwt": {
+        "question": "Is the component using JWT?",
+        "answer": "",
+        "is_yes": false
+      },
+      "openid": {
+        "question": "Is the component using OpenID?",
+        "answer": "",
+        "is_yes": false
+      },
+      "adfs": {
+        "question": "Is the component using ADFS?",
+        "answer": "",
+        "is_yes": false
+      },
+      "san": {
+        "question": "Is the component using SAN?",
+        "answer": "",
+        "is_yes": false
+      },
+      "malwarescanner": {
+        "question": "Is the component using MalwareScanner?",
+        "answer": "",
+        "is_yes": false
+      },
+      "any other service": {
+        "question": "Is the component using any other service? Please share details of the same.",
+        "answer": "",
+        "is_yes": false
+      }
+    }
+  }
+}

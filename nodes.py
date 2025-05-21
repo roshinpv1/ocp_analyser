@@ -11,6 +11,7 @@ from utils.crawl_github_files import crawl_github_files
 from utils.call_llm import call_llm
 from utils.crawl_local_files import crawl_local_files
 import time
+import traceback
 
 
 # Helper to get content for specific file indices
@@ -1011,6 +1012,34 @@ class AnalyzeCode(Node):
    - ADFS
 """
 
+        # List of security and quality practices to check for
+        security_checks = """
+### Auditability
+1. Avoid logging confidential data: Scan logs and code for PII/PHI or hardcoded secrets.
+2. Create audit trail logs: Check for the presence of audit logs in the codebase.
+3. Tracking ID for log messages: Verify if correlation/tracking IDs are used in log messages.
+4. Log REST API calls: Inspect for middleware or interceptors that log API calls.
+5. Log application messages: Look for usage of logger.info/warn/error patterns in the application.
+6. Client UI errors are logged: Review frontend (JavaScript/TypeScript) for error logging handlers.
+
+### Availability
+1. Retry Logic: Identify retry patterns in HTTP clients or libraries.
+2. Set timeouts on I/O operations: Look for timeout settings in HTTP, database, or file I/O operations.
+3. Throttling, drop request: Detect rate limiter or logic that drops excessive requests.
+4. Circuit breakers on outgoing requests: Identify use of circuit breaker libraries such as Hystrix or Resilience4j.
+
+### Error Handling
+1. Log system errors: Search for backend error logging patterns.
+2. Use HTTP standard error codes: Check API responses for standard HTTP status codes.
+3. Include client error tracking: Look for client-side error tracking using libraries like Sentry or custom implementations.
+
+### Monitoring
+1. URL monitoring: Detect health check or ping endpoints used for availability monitoring.
+
+### Testing
+1. Automated Regression Testing: Verify the presence of automated test suites in the project.
+"""
+
         # Add excel component questions to prompt if available
         excel_component_section = ""
         if component_questions:
@@ -1036,10 +1065,11 @@ List of files:
 
 {excel_component_section}
 
-IMPORTANT: You MUST return a JSON object with THREE main sections:
+IMPORTANT: You MUST return a JSON object with FOUR main sections:
 1. "technology_stack": A dictionary containing all technologies found in the codebase
 2. "findings": A list of issues and recommendations
 3. "component_analysis": A dictionary containing detected components with yes/no values
+4. "security_quality_analysis": A dictionary containing results of security and quality practice checks
 
 For the technology stack, you MUST identify and categorize ALL technologies used in the codebase. Look for:
 - Programming languages (e.g., Python, JavaScript, Java)
@@ -1100,6 +1130,48 @@ For the component_analysis section, use this format:
 }}
 ```
 
+Next, specifically analyze the codebase for the following security and quality practices:
+
+{security_checks}
+
+For the security_quality_analysis section, use this format:
+```json
+{{
+    "security_quality_analysis": {{
+        "auditability": {{
+            "avoid_logging_confidential_data": {{
+                "implemented": "yes",
+                "evidence": "Found proper masking of sensitive data in logging/utils.py",
+                "recommendation": "None needed; good practices observed."
+            }},
+            "create_audit_trail_logs": {{
+                "implemented": "no",
+                "evidence": "No evidence of comprehensive audit trails found",
+                "recommendation": "Implement centralized audit logging for all critical actions"
+            }}
+            // ... and so on for all security practices
+        }},
+        "availability": {{
+            // Details for availability checks
+        }},
+        "error_handling": {{
+            // Details for error handling checks
+        }},
+        "monitoring": {{
+            // Details for monitoring checks
+        }},
+        "testing": {{
+            // Details for testing checks
+        }}
+    }}
+}}
+```
+
+For each security and quality practice check, include:
+- implemented: "yes", "partial", or "no"
+- evidence: Detailed evidence from the code, including file names and snippets where applicable
+- recommendation: What should be done to improve or implement the practice
+
 Then proceed with the existing best practice checks and return findings in the same format as before.
 
 IMPORTANT RULES:
@@ -1111,6 +1183,7 @@ IMPORTANT RULES:
 6. Do not include any text before or after the JSON object
 7. Do not use comments in the JSON response
 8. Use double quotes for all strings in the JSON response
+9. You MUST include ALL the security and quality practice checks in the response, even if not implemented
 
 Now, analyze the codebase and return the complete JSON response:
 """
@@ -1129,7 +1202,7 @@ Now, analyze the codebase and return the complete JSON response:
             if start_idx == -1 or end_idx == 0:
                 print("Warning: No JSON object found in response. Returning empty findings.")
                 print("Response was:", response)
-                return {"technology_stack": {}, "findings": [], "component_analysis": {}}
+                return {"technology_stack": {}, "findings": [], "component_analysis": {}, "security_quality_analysis": {}}
                 
             json_str = response[start_idx:end_idx]
             
@@ -1142,13 +1215,13 @@ Now, analyze the codebase and return the complete JSON response:
             except json.JSONDecodeError as e:
                 print(f"Warning: Failed to parse JSON response: {str(e)}")
                 print("JSON string was:", json_str)
-                return {"technology_stack": {}, "findings": [], "component_analysis": {}}
+                return {"technology_stack": {}, "findings": [], "component_analysis": {}, "security_quality_analysis": {}}
             
             # Validate analysis structure
             if not isinstance(analysis, dict):
                 print("Warning: Response is not a dictionary. Returning empty findings.")
                 print("Response was:", analysis)
-                return {"technology_stack": {}, "findings": [], "component_analysis": {}}
+                return {"technology_stack": {}, "findings": [], "component_analysis": {}, "security_quality_analysis": {}}
                 
             # Ensure technology_stack exists and is a dict
             if "technology_stack" not in analysis or not isinstance(analysis["technology_stack"], dict):
@@ -1161,6 +1234,10 @@ Now, analyze the codebase and return the complete JSON response:
             # Ensure component_analysis exists and is a dict
             if "component_analysis" not in analysis or not isinstance(analysis["component_analysis"], dict):
                 analysis["component_analysis"] = {}
+                
+            # Ensure security_quality_analysis exists and is a dict
+            if "security_quality_analysis" not in analysis or not isinstance(analysis["security_quality_analysis"], dict):
+                analysis["security_quality_analysis"] = {}
             
             # Add Excel component questions to analysis result
             if component_questions:
@@ -1271,7 +1348,73 @@ Now, analyze the codebase and return the complete JSON response:
                     "evidence": evidence
                 }
             
+            # Validate security and quality analysis
+            validated_security_quality = {}
+            
+            # Define expected categories and practices
+            expected_security_structure = {
+                "auditability": [
+                    "avoid_logging_confidential_data",
+                    "create_audit_trail_logs",
+                    "tracking_id_for_log_messages",
+                    "log_rest_api_calls",
+                    "log_application_messages",
+                    "client_ui_errors_are_logged"
+                ],
+                "availability": [
+                    "retry_logic",
+                    "set_timeouts_on_io_operations",
+                    "throttling_drop_request",
+                    "circuit_breakers_on_outgoing_requests"
+                ],
+                "error_handling": [
+                    "log_system_errors",
+                    "use_http_standard_error_codes",
+                    "include_client_error_tracking"
+                ],
+                "monitoring": [
+                    "url_monitoring"
+                ],
+                "testing": [
+                    "automated_regression_testing"
+                ]
+            }
+            
+            security_quality = analysis.get("security_quality_analysis", {})
+            
+            # For each expected category, validate the practices
+            for category, practices in expected_security_structure.items():
+                category_data = security_quality.get(category, {})
+                validated_practices = {}
+                
+                for practice in practices:
+                    practice_data = category_data.get(practice, {})
+                    
+                    if not isinstance(practice_data, dict):
+                        practice_data = {
+                            "implemented": "no",
+                            "evidence": "Not analyzed",
+                            "recommendation": "Implement this practice"
+                        }
+                    
+                    # Ensure all required fields are present
+                    implemented = practice_data.get("implemented", "no").lower()
+                    if implemented not in ["yes", "no", "partial"]:
+                        implemented = "no"
+                        
+                    evidence = practice_data.get("evidence", "No evidence provided")
+                    recommendation = practice_data.get("recommendation", "Implement this practice")
+                    
+                    validated_practices[practice] = {
+                        "implemented": implemented,
+                        "evidence": evidence,
+                        "recommendation": recommendation
+                    }
+                
+                validated_security_quality[category] = validated_practices
+            
             print(f"Found {sum(len(techs) for techs in validated_tech_stack.values())} technologies, {len(validated_findings)} findings, and {len(validated_component_analysis)} components.")
+            print(f"Analyzed {len(validated_security_quality)} security and quality categories.")
             
             # Compare component analysis from code with Excel answers
             if component_questions:
@@ -1288,13 +1431,14 @@ Now, analyze the codebase and return the complete JSON response:
                 "technology_stack": validated_tech_stack,
                 "findings": validated_findings,
                 "component_analysis": validated_component_analysis,
-                "excel_components": component_questions if component_questions else {}
+                "excel_components": component_questions if component_questions else {},
+                "security_quality_analysis": validated_security_quality
             }
             
         except Exception as e:
             print(f"Warning: Unexpected error processing response: {str(e)}")
             print("Response was:", response)
-            return {"technology_stack": {}, "findings": [], "component_analysis": {}}
+            return {"technology_stack": {}, "findings": [], "component_analysis": {}, "security_quality_analysis": {}}
 
     def post(self, shared, prep_res, exec_res):
         print("\nDEBUG: AnalyzeCode post")
@@ -1302,6 +1446,7 @@ Now, analyze the codebase and return the complete JSON response:
         print("DEBUG: Technology stack found:", list(exec_res.get("technology_stack", {}).keys()))
         print("DEBUG: Number of findings:", len(exec_res.get("findings", [])))
         print("DEBUG: Components detected:", len(exec_res.get("component_analysis", {})))
+        print("DEBUG: Security and quality checks:", list(exec_res.get("security_quality_analysis", {}).keys()))
         shared["code_analysis"] = exec_res
         print("DEBUG: Stored code_analysis in shared state")
 
@@ -1332,6 +1477,10 @@ class GenerateReport(Node):
         excel_components = analysis.get("excel_components", {})
         print("DEBUG: Excel component declarations:", excel_components)
         
+        # Get security and quality analysis
+        security_quality_analysis = analysis.get("security_quality_analysis", {})
+        print("DEBUG: Security and quality analysis:", list(security_quality_analysis.keys()))
+        
         project_name = shared.get("project_name", "Unknown Project")
         output_dir = shared.get("output_dir", "analysis_output")
         
@@ -1341,29 +1490,88 @@ class GenerateReport(Node):
         print("DEBUG: Project name:", project_name)
         print("DEBUG: Output directory:", output_dir)
         
-        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components
+        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis
 
     def exec(self, prep_res):
-        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components = prep_res
+        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis = prep_res
         print("\nDEBUG: Starting GenerateReport exec")
         print("DEBUG: Number of findings:", len(findings))
         print("DEBUG: Technology stack categories:", list(technology_stack.keys()))
         print("DEBUG: Component analysis items:", len(component_analysis))
+        print("DEBUG: Security analysis categories:", list(security_quality_analysis.keys()))
         
-        # Group findings by category
-        categories = {}
-        for finding in findings:
-            category = finding.get("category", "Uncategorized")
-            if category not in categories:
-                categories[category] = []
-            categories[category].append(finding)
-        
-        print("DEBUG: Categories found:", list(categories.keys()))
-        
-        # Generate markdown report
+        # Initialize report and html_content variables at the beginning of the method
+        # Generate Markdown report content
         report = f"# Code Analysis Report for {project_name}\n\n"
         
-        # Excel Validation Section (if available)
+        # Add Executive Summary with statistics
+        report += "## Executive Summary\n\n"
+        
+        # Calculate statistics for executive summary
+        security_stats = ""
+        if security_quality_analysis:
+            categories_total = 0
+            categories_implemented = 0
+            categories_partial = 0
+            categories_not_implemented = 0
+            
+            for category, practices in security_quality_analysis.items():
+                for practice, details in practices.items():
+                    categories_total += 1
+                    status = details.get("implemented", "no")
+                    if status == "yes":
+                        categories_implemented += 1
+                    elif status == "partial":
+                        categories_partial += 1
+                    else:
+                        categories_not_implemented += 1
+            
+            if categories_total > 0:
+                implementation_percentage = ((categories_implemented + 0.5 * categories_partial) / categories_total) * 100
+                security_stats = f"- **Security & Quality Implementation**: {implementation_percentage:.1f}%\n"
+                security_stats += f"- **Practices Implemented**: {categories_implemented} fully, {categories_partial} partially, {categories_not_implemented} not implemented\n"
+        
+        # Calculate findings statistics
+        findings_stats = ""
+        if findings:
+            severity_counts = {"High": 0, "Medium": 0, "Low": 0}
+            for finding in findings:
+                severity = finding.get("severity", "Low")
+                if severity in severity_counts:
+                    severity_counts[severity] += 1
+            
+            findings_stats = f"- **Total Findings**: {len(findings)}\n"
+            if severity_counts["High"] > 0:
+                findings_stats += f"- **High Severity Issues**: {severity_counts['High']}\n"
+            if severity_counts["Medium"] > 0:
+                findings_stats += f"- **Medium Severity Issues**: {severity_counts['Medium']}\n"
+            if severity_counts["Low"] > 0:
+                findings_stats += f"- **Low Severity Issues**: {severity_counts['Low']}\n"
+        else:
+            findings_stats = "- **Total Findings**: 0\n"
+        
+        # Calculate component mismatches
+        component_stats = ""
+        mismatches_count = 0
+        if excel_components and component_analysis:
+            for excel_comp, excel_data in excel_components.items():
+                excel_comp_lower = excel_comp.lower()
+                excel_declared = excel_data.get("is_yes", False)
+                
+                for comp_name, comp_data in component_analysis.items():
+                    if excel_comp_lower in comp_name.lower() or comp_name.lower() in excel_comp_lower:
+                        detected = comp_data["detected"].lower() == "yes"
+                        if excel_declared != detected:
+                            mismatches_count += 1
+                        break
+                        
+            if mismatches_count > 0:
+                component_stats = f"- **Component Declaration Mismatches**: {mismatches_count}\n"
+        
+        # Add all statistics to executive summary
+        report += security_stats + findings_stats + component_stats + "\n"
+        
+        # Add Intake Form Validation Section if available
         if excel_validation:
             report += "## Intake Form Validation\n\n"
             
@@ -1379,7 +1587,7 @@ class GenerateReport(Node):
                 report += "✅ **Intake form is complete.** All mandatory fields have been answered.\n\n"
             else:
                 report += "❌ **Intake form is incomplete.** Some mandatory fields have not been answered or Git repository is invalid.\n\n"
-            
+                
             report += f"- Total questions: {total_rows}\n"
             report += f"- Mandatory fields: {mandatory_fields}\n"
             report += f"- Unanswered mandatory fields: {len(unanswered_mandatory)}\n"
@@ -1392,195 +1600,250 @@ class GenerateReport(Node):
                     report += f"- {question}\n"
                 report += "\n"
         
+        # Add Table of Contents
+        report += "## Table of Contents\n\n"
+        report += "1. [Executive Summary](#executive-summary)\n"
+        
+        if excel_validation:
+            report += "2. [Intake Form Validation](#intake-form-validation)\n"
+            toc_index = 3
+        else:
+            toc_index = 2
+            
+        report += f"{toc_index}. [Component Analysis](#component-analysis)\n"
+        toc_index += 1
+        report += f"{toc_index}. [Security and Quality Practices](#security-and-quality-practices)\n"
+        toc_index += 1
+        report += f"{toc_index}. [Technology Stack](#technology-stack)\n"
+        toc_index += 1
+        
+        if findings:
+            report += f"{toc_index}. [Detailed Findings](#detailed-findings)\n"
+            toc_index += 1
+            
+        report += f"{toc_index}. [Action Items](#action-items)\n\n"
+        
         # Component Analysis Section
-        if component_analysis:
-            report += "## Component Analysis\n\n"
+        report += "## Component Analysis\n\n"
+        
+        if excel_components and component_analysis:
+            report += "The following table compares the components declared in the intake form with the components detected in the codebase:\n\n"
             
-            # Component Comparison Section (if available)
-            if excel_components:
-                report += "### Component Declaration vs Detection\n\n"
-                report += "This table compares what was declared in the intake form versus what was detected in the code:\n\n"
-                report += "| Component | Declared in Form | Detected in Code | Match Status |\n"
-                report += "|-----------|-----------------|-----------------|-------------|\n"
-                
-                # Create a mapping of component names to standardize comparison
-                component_mapping = {}
-                
-                # Populate the mapping with detected components
-                for comp_name in component_analysis.keys():
-                    normalized_name = comp_name.lower()
-                    component_mapping[normalized_name] = {
-                        "name": comp_name,
-                        "detected": component_analysis[comp_name]["detected"].lower() == "yes"
-                    }
-                
-                # Map Excel components to detected components
-                for excel_comp, excel_data in excel_components.items():
-                    excel_comp_lower = excel_comp.lower()
-                    excel_declared = excel_data.get("is_yes", False)
-                    
-                    # Try to find a match in component_analysis
-                    matched = False
-                    for comp_name, comp_data in component_mapping.items():
-                        if excel_comp_lower in comp_name or comp_name in excel_comp_lower:
-                            matched = True
-                            # Update with Excel declaration
-                            component_mapping[comp_name]["declared"] = excel_declared
-                            component_mapping[comp_name]["excel_name"] = excel_comp
-                            break
-                    
-                    # If no match was found, add it as a new entry
-                    if not matched:
-                        component_mapping[excel_comp_lower] = {
-                            "name": excel_comp,
-                            "excel_name": excel_comp,
-                            "declared": excel_declared,
-                            "detected": False  # Not found in code
-                        }
-                
-                # Generate the comparison table
-                for _, comp_data in sorted(component_mapping.items()):
-                    name = comp_data.get("name", "Unknown")
-                    excel_name = comp_data.get("excel_name", name)
-                    
-                    declared = "✅ Yes" if comp_data.get("declared", False) else "❌ No"
-                    detected = "✅ Yes" if comp_data.get("detected", False) else "❌ No"
-                    
-                    # Determine if there's a match between declaration and detection
-                    match_status = "✅ Match" if comp_data.get("declared", False) == comp_data.get("detected", False) else "❓ Mismatch"
-                    
-                    # Use the Excel name if available, otherwise use the detected name
-                    display_name = excel_name if "excel_name" in comp_data else name
-                    
-                    report += f"| {display_name} | {declared} | {detected} | {match_status} |\n"
-                
-                report += "\n"
+            # Table header
+            report += "| Component | Declared | Detected | Status |\n"
+            report += "|-----------|----------|----------|--------|\n"
             
-            report += "### Detected Components\n\n"
-            report += "The following table shows components identified in the codebase:\n\n"
+            for excel_comp, excel_data in excel_components.items():
+                excel_comp_lower = excel_comp.lower()
+                excel_declared = excel_data.get("is_yes", False)
+                
+                # Find if component is in the analysis
+                matched = False
+                detected = False
+                
+                for comp_name, comp_data in component_analysis.items():
+                    if excel_comp_lower in comp_name.lower() or comp_name.lower() in excel_comp_lower:
+                        matched = True
+                        detected = comp_data["detected"].lower() == "yes"
+                        break
+                
+                status = "Match" if excel_declared == detected else "Mismatch"
+                
+                report += f"| {excel_comp} | {'Yes' if excel_declared else 'No'} | {'Yes' if detected else 'No'} | {status} |\n"
+                
+            report += "\n"
+        elif component_analysis:
+            report += "The following components were detected in the codebase:\n\n"
+            
+            # Table header
             report += "| Component | Detected | Evidence |\n"
             report += "|-----------|----------|----------|\n"
             
-            # Sort components alphabetically for better readability
-            sorted_components = sorted(component_analysis.keys())
-            
-            for component in sorted_components:
-                data = component_analysis[component]
-                detected = data.get("detected", "no")
-                evidence = data.get("evidence", "No evidence provided")
+            for comp_name, comp_data in component_analysis.items():
+                detected = comp_data.get("detected", "no")
+                evidence = comp_data.get("evidence", "None provided")
                 
-                # Format detected as Yes/No with emoji
-                detected_formatted = "✅ Yes" if detected.lower() == "yes" else "❌ No"
+                # Truncate evidence if too long
+                if len(evidence) > 50:
+                    evidence = evidence[:47] + "..."
                 
-                # Format evidence (truncate if too long)
-                if len(evidence) > 100:
-                    evidence = evidence[:97] + "..."
+                report += f"| {comp_name} | {detected} | {evidence} |\n"
                 
-                report += f"| {component.title()} | {detected_formatted} | {evidence} |\n"
-            
             report += "\n"
+        else:
+            report += "No component analysis data available.\n\n"
         
-        # Technology Stack section
+        # Security and Quality Practices Section
+        report += "## Security and Quality Practices\n\n"
+        
+        if security_quality_analysis:
+            report += "The following sections summarize the security and quality practices implemented in the codebase:\n\n"
+            
+            for category, practices in security_quality_analysis.items():
+                # Convert category from snake_case to Title Case
+                category_display = category.replace('_', ' ').title()
+                report += f"### {category_display}\n\n"
+                
+                # Table header
+                report += "| Practice | Status | Evidence |\n"
+                report += "|----------|--------|----------|\n"
+                
+                for practice_name, practice_data in practices.items():
+                    # Convert practice name from snake_case to Title Case
+                    practice_display = practice_name.replace('_', ' ').title()
+                    
+                    status = practice_data.get("implemented", "no")
+                    evidence = practice_data.get("evidence", "None provided")
+                    
+                    status_text = "Implemented" if status == "yes" else "Partially Implemented" if status == "partial" else "Not Implemented"
+                    
+                    # Truncate evidence if too long
+                    if len(evidence) > 50:
+                        evidence = evidence[:47] + "..."
+                    
+                    report += f"| {practice_display} | {status_text} | {evidence} |\n"
+                
+                report += "\n"
+        else:
+            report += "No security and quality practice analysis data available.\n\n"
+        
+        # Technology Stack Section
         report += "## Technology Stack\n\n"
-        if not technology_stack:
-            report += "No technologies identified in the codebase.\n\n"
-        else:
+        
+        if technology_stack:
+            report += "The following technologies were identified in the codebase:\n\n"
+            
+            # Group technologies by category
             for category, techs in technology_stack.items():
-                if not techs:
+                if not isinstance(techs, list) or not techs:
                     continue
-                # Format category name nicely
-                pretty_category = category.replace('_', ' ').title()
-                report += f"### {pretty_category}\n\n"
+                    
+                # Convert category from snake_case to Title Case
+                category_display = category.replace('_', ' ').title()
+                report += f"### {category_display}\n\n"
+                
+                # Create table for this category
+                report += "| Technology | Version | Purpose | Files |\n"
+                report += "|------------|---------|---------|-------|\n"
+                
                 for tech in techs:
-                    # Use 'name' instead of 'technology' for new format
-                    tech_name = tech.get('name') or tech.get('technology', 'Unknown')
-                    report += f"- **{tech_name}**"
-                    if 'version' in tech and tech['version'] and tech['version'] != 'unknown':
-                        report += f" (v{tech['version']})"
-                    report += f"\n  - Purpose: {tech.get('purpose', 'N/A')}\n"
-                    if 'files' in tech and tech['files']:
-                        report += f"  - Files: {', '.join(tech['files'])}\n\n"
-                    else:
-                        report += f"  - Files: N/A\n\n"
-        
-        # Summary section
-        report += "## Summary\n\n"
-        report += f"Total findings: {len(findings)}\n\n"
-        
-        if findings:
-            report += "Findings by category:\n"
-            for category, category_findings in categories.items():
-                report += f"- {category}: {len(category_findings)} findings\n"
-            report += "\n"
-            
-            # Add severity distribution
-            severity_counts = {"High": 0, "Medium": 0, "Low": 0}
-            for finding in findings:
-                severity = finding.get("severity", "Low")
-                if severity in severity_counts:
-                    severity_counts[severity] += 1
-            
-            report += "### Severity Distribution\n\n"
-            report += f"- High Priority: {severity_counts['High']} findings\n"
-            report += f"- Medium Priority: {severity_counts['Medium']} findings\n"
-            report += f"- Low Priority: {severity_counts['Low']} findings\n\n"
-            
-            # Add key recommendations section
-            report += "### Key Recommendations\n\n"
-            high_priority_findings = [f for f in findings if f.get("severity") == "High"]
-            medium_priority_findings = [f for f in findings if f.get("severity") == "Medium"]
-            
-            if high_priority_findings:
-                report += "1. **High Priority Issues**:\n"
-                for finding in high_priority_findings[:3]:  # Show top 3 high priority findings
-                    report += f"   - {finding['description']}\n"
-                report += "\n"
-            
-            if medium_priority_findings:
-                report += "2. **Medium Priority Issues**:\n"
-                for finding in medium_priority_findings[:3]:  # Show top 3 medium priority findings
-                    report += f"   - {finding['description']}\n"
-                report += "\n"
-            
-            # Detailed findings by category
-            for category, category_findings in categories.items():
-                report += f"## {category}\n\n"
-                
-                # Sort findings by severity
-                def get_severity(finding):
-                    severity_order = {"High": 0, "Medium": 1, "Low": 2}
-                    return severity_order.get(finding.get("severity", "Low"), 2)
-                
-                sorted_findings = sorted(category_findings, key=get_severity)
-                
-                for finding in sorted_findings:
-                    severity = finding.get("severity", "Low")
-                    location = finding.get("location", {})
+                    if not isinstance(tech, dict):
+                        continue
+                        
+                    tech_name = tech.get("name", "Unknown")
+                    tech_version = tech.get("version", "unknown")
+                    tech_purpose = tech.get("purpose", "Not specified")
+                    tech_files = tech.get("files", [])
                     
-                    report += f"### {location.get('file', 'Unknown File')} (Line {location.get('line', 'N/A')}) - {severity} Priority\n\n"
-                    report += f"**Problem:** {finding['description']}\n\n"
-                    report += f"**Recommendation:** {finding['recommendation']}\n\n"
+                    # Truncate purpose if too long (for table formatting)
+                    if len(tech_purpose) > 25:
+                        tech_purpose = tech_purpose[:22] + "..."
+                        
+                    # Format files list
+                    files_display = ", ".join(tech_files[:2])
+                    if len(tech_files) > 2:
+                        files_display += f" (+{len(tech_files) - 2})"
                     
-                    if 'code' in location:
-                        report += "**Code Snippet:**\n```\n"
-                        report += f"{location['code']}\n"
-                        report += "```\n\n"
-        
-        # Add conclusion
-        report += "## Conclusion\n\n"
-        if findings:
-            report += "This analysis highlights several areas for improvement in the codebase:\n\n"
-            if severity_counts['High'] > 0:
-                report += "1. **Security**: Address high-priority security findings\n"
-            if severity_counts['Medium'] > 0:
-                report += "2. **Reliability**: Improve error handling and system stability\n"
-            if severity_counts['Low'] > 0:
-                report += "3. **Code Quality**: Enhance code maintainability and documentation\n\n"
-            report += "Addressing these findings will improve the overall quality, security, and maintainability of the codebase.\n"
+                    report += f"| {tech_name} | {tech_version} | {tech_purpose} | {files_display} |\n"
+                
+                report += "\n"
         else:
-            report += "No significant issues were found in the codebase. The code appears to follow good practices in terms of security, reliability, and maintainability.\n"
+            report += "No technologies were identified in the codebase.\n\n"
+        
+        # Detailed Findings Section
+        if findings:
+            report += "## Detailed Findings\n\n"
+            
+            # Group findings by category
+            categories = {}
+            for finding in findings:
+                category = finding.get("category", "Uncategorized")
+                if category not in categories:
+                    categories[category] = []
+                categories[category].append(finding)
+            
+            for category, category_findings in categories.items():
+                report += f"### {category}\n\n"
+                
+                for finding in category_findings:
+                    severity = finding.get("severity", "Low")
+                    description = finding.get("description", "No description provided")
+                    recommendation = finding.get("recommendation", "No recommendation provided")
+                    location = finding.get("location", {})
+                    file_path = location.get("file", "Unknown")
+                    line = location.get("line", "Unknown")
+                    code = location.get("code", "No code snippet provided")
+                    
+                    report += f"#### {description}\n\n"
+                    report += f"**Severity**: {severity}\n\n"
+                    report += f"**Location**: {file_path}, line {line}\n\n"
+                    report += f"**Code**: `{code}`\n\n"
+                    report += f"**Recommendation**: {recommendation}\n\n"
+        
+        # Action Items Section
+        report += "## Action Items\n\n"
+        
+        action_items = []
+        
+        # 1. Intake form completion if needed
+        if excel_validation and not excel_validation.get("is_valid", True):
+            action_items.append({
+                "priority": "Critical",
+                "title": "Complete Intake Form",
+                "description": "Complete all mandatory questions in the intake form to ensure accurate project configuration."
+            })
+            
+        # 2. High-priority findings
+        high_findings = [f for f in findings if f.get("severity", "Low") == "High"]
+        if high_findings:
+            action_items.append({
+                "priority": "High",
+                "title": f"Address {len(high_findings)} High-Priority Issues",
+                "description": "Fix critical security and quality issues to prevent potential vulnerabilities."
+            })
+            
+        # 3. Component mismatches
+        if mismatches_count > 0:
+            action_items.append({
+                "priority": "Medium",
+                "title": "Resolve Component Discrepancies",
+                "description": "Reconcile mismatches between declared components and what's detected in the code."
+            })
+            
+        # 4. Missing security practices
+        if security_quality_analysis:
+            missing_practices_count = 0
+            for category, practices in security_quality_analysis.items():
+                for practice, details in practices.items():
+                    if details.get("implemented", "no") == "no":
+                        missing_practices_count += 1
+                        
+            if missing_practices_count > 0:
+                action_items.append({
+                    "priority": "Medium",
+                    "title": f"Implement {missing_practices_count} Missing Security Practices",
+                    "description": "Address security gaps to improve overall application security posture."
+                })
+                
+        # 5. Medium-priority findings
+        medium_findings = [f for f in findings if f.get("severity", "Low") == "Medium"]
+        if medium_findings:
+            action_items.append({
+                "priority": "Medium",
+                "title": f"Address {len(medium_findings)} Medium-Priority Issues",
+                "description": "Resolve quality and security issues of moderate severity."
+            })
+        
+        # Format action items in the report
+        if action_items:
+            for i, item in enumerate(action_items):
+                report += f"### {i+1}. {item['title']} (Priority: {item['priority']})\n\n"
+                report += f"{item['description']}\n\n"
+        else:
+            report += "No specific action items identified. The codebase appears to follow good practices.\n\n"
 
-        # Generate HTML with styling
+        # Initialize HTML content outside the PDF generation try block
+        # Create HTML content for the report
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -1598,7 +1861,8 @@ class GenerateReport(Node):
                     margin: 0 auto;
                 }}
                 h1 {{ font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }}
-                h2 {{ font-size: 1.2em; margin: 15px 0 10px 0; color: #444; }}
+                h2 {{ font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }}
+                h2:first-of-type {{ border-top: none; }}
                 h3 {{ font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }}
                 .section {{
                     margin: 10px 0;
@@ -1606,17 +1870,22 @@ class GenerateReport(Node):
                     background: #f8f9fa;
                     border-radius: 4px;
                 }}
-                .tech-list {{
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                    gap: 10px;
-                    margin: 10px 0;
+                .component-table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
                 }}
-                .tech-item {{
-                    background: white;
+                .component-table th, .component-table td {{
+                    border: 1px solid #ddd;
                     padding: 8px;
-                    border-radius: 4px;
-                    border: 1px solid #eee;
+                    text-align: left;
+                }}
+                .component-table th {{
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }}
+                .component-table tr:nth-child(even) {{
+                    background-color: #f9f9f9;
                 }}
                 .finding-list {{
                     display: grid;
@@ -1629,6 +1898,25 @@ class GenerateReport(Node):
                     padding: 10px;
                     border-radius: 4px;
                     border: 1px solid #eee;
+                }}
+                .action-item {{
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    margin: 10px 0;
+                    border-radius: 4px;
+                    border-left: 5px solid #007bff;
+                }}
+                .action-item.critical {{
+                    border-left-color: #dc3545;
+                }}
+                .action-item.high {{
+                    border-left-color: #fd7e14;
+                }}
+                .action-item.medium {{
+                    border-left-color: #ffc107;
+                }}
+                .action-item.low {{
+                    border-left-color: #28a745;
                 }}
                 .severity-high {{ color: #dc3545; }}
                 .severity-medium {{ color: #fd7e14; }}
@@ -1652,23 +1940,6 @@ class GenerateReport(Node):
                 }}
                 .validation-complete {{ background: #d4edda; color: #155724; }}
                 .validation-incomplete {{ background: #f8d7da; color: #721c24; }}
-                .component-table {{
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 15px 0;
-                }}
-                .component-table th, .component-table td {{
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                    text-align: left;
-                }}
-                .component-table th {{
-                    background-color: #f2f2f2;
-                    font-weight: bold;
-                }}
-                .component-table tr:nth-child(even) {{
-                    background-color: #f9f9f9;
-                }}
                 .component-yes {{
                     color: #28a745;
                     font-weight: bold;
@@ -1684,12 +1955,30 @@ class GenerateReport(Node):
                     color: #fd7e14;
                     font-weight: bold;
                 }}
+                .toc {{
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    border-radius: 4px;
+                    margin: 15px 0;
+                }}
+                .toc ul {{
+                    margin: 5px 0;
+                    padding-left: 20px;
+                }}
+                .executive-summary {{
+                    background: #e9f7fd;
+                    border-radius: 4px;
+                    padding: 10px 15px;
+                    margin: 15px 0;
+                    border-left: 5px solid #17a2b8;
+                }}
                 pre, code {{
                     background: #f8f9fa;
                     padding: 2px 4px;
                     border-radius: 3px;
                     font-family: monospace;
                     font-size: 0.9em;
+                    overflow-x: auto;
                 }}
                 .summary {{
                     display: grid;
@@ -1705,6 +1994,23 @@ class GenerateReport(Node):
                 }}
                 ul, ol {{ margin: 5px 0; padding-left: 20px; }}
                 li {{ margin: 3px 0; }}
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }}
+                th, td {{
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }}
+                th {{
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }}
+                tr:nth-child(even) {{
+                    background-color: #f9f9f9;
+                }}
                 @media print {{
                     body {{ padding: 10px; }}
                     .section {{ break-inside: avoid; }}
@@ -1713,10 +2019,131 @@ class GenerateReport(Node):
         </head>
         <body>
             <h1>Code Analysis Report for {project_name}</h1>
+            
+            <!-- Executive Summary -->
+            <div class="executive-summary">
+                <h2 id="executive-summary">Executive Summary</h2>
+        """
+
+        # Add security implementation stats to executive summary
+        if security_quality_analysis:
+            categories_total = 0
+            categories_implemented = 0
+            categories_partial = 0
+            categories_not_implemented = 0
+            
+            for category, practices in security_quality_analysis.items():
+                for practice, details in practices.items():
+                    categories_total += 1
+                    status = details.get("implemented", "no")
+                    if status == "yes":
+                        categories_implemented += 1
+                    elif status == "partial":
+                        categories_partial += 1
+                    else:
+                        categories_not_implemented += 1
+            
+            if categories_total > 0:
+                implementation_percentage = ((categories_implemented + 0.5 * categories_partial) / categories_total) * 100
+                html_content += f"""
+                <ul>
+                    <li><strong>Security & Quality Implementation</strong>: {implementation_percentage:.1f}%</li>
+                    <li><strong>Practices Implemented</strong>: {categories_implemented} fully, {categories_partial} partially, {categories_not_implemented} not implemented</li>
+                """
+        
+        # Add findings stats
+        severity_counts = {"High": 0, "Medium": 0, "Low": 0}
+        if findings:
+            for finding in findings:
+                severity = finding.get("severity", "Low")
+                if severity in severity_counts:
+                    severity_counts[severity] += 1
+            
+            html_content += f"""
+                    <li><strong>Total Findings</strong>: {len(findings)}</li>
+            """
+            
+            if severity_counts["High"] > 0:
+                html_content += f"""
+                    <li><strong>High Severity Issues</strong>: {severity_counts['High']}</li>
+                """
+            if severity_counts["Medium"] > 0:
+                html_content += f"""
+                    <li><strong>Medium Severity Issues</strong>: {severity_counts['Medium']}</li>
+                """
+            if severity_counts["Low"] > 0:
+                html_content += f"""
+                    <li><strong>Low Severity Issues</strong>: {severity_counts['Low']}</li>
+                """
+        else:
+            html_content += f"""
+                    <li><strong>Total Findings</strong>: 0</li>
+            """
+        
+        # Add component mismatches
+        mismatches_count = 0
+        if excel_components and component_analysis:
+            for excel_comp, excel_data in excel_components.items():
+                excel_comp_lower = excel_comp.lower()
+                excel_declared = excel_data.get("is_yes", False)
+                
+                for comp_name, comp_data in component_analysis.items():
+                    if excel_comp_lower in comp_name.lower() or comp_name.lower() in excel_comp_lower:
+                        detected = comp_data["detected"].lower() == "yes"
+                        if excel_declared != detected:
+                            mismatches_count += 1
+                        break
+                        
+            if mismatches_count > 0:
+                html_content += f"""
+                    <li><strong>Component Declaration Mismatches</strong>: {mismatches_count}</li>
+                """
+        
+        html_content += """
+                </ul>
+            </div>
         """
         
-        # Excel Validation Section (HTML)
+        # Add Table of Contents
+        html_content += """
+            <div class="toc">
+                <h2 id="table-of-contents">Table of Contents</h2>
+                <ol>
+                    <li><a href="#executive-summary">Executive Summary</a></li>
+        """
+        
+        toc_index = 2
         if excel_validation:
+            html_content += f"""
+                    <li><a href="#intake-form-validation">Intake Form Validation</a></li>
+            """
+            toc_index += 1
+            
+        html_content += f"""
+                    <li><a href="#component-analysis">Component Analysis</a></li>
+                    <li><a href="#security-and-quality-practices">Security and Quality Practices</a></li>
+                    <li><a href="#technology-stack">Technology Stack</a></li>
+        """
+        
+        if findings:
+            html_content += f"""
+                    <li><a href="#detailed-findings">Detailed Findings</a></li>
+            """
+        
+        html_content += f"""
+                    <li><a href="#action-items">Action Items</a></li>
+                </ol>
+            </div>
+        """
+        
+        # Add Intake Form Validation Section if available
+        if excel_validation:
+            html_content += """
+            <div class="section" id="intake-form-validation">
+                <h2>Intake Form Validation</h2>
+            """
+            
+            # Check if the form is valid
             is_valid = excel_validation.get("is_valid", False)
             total_rows = excel_validation.get("total_rows", 0)
             mandatory_fields = excel_validation.get("mandatory_fields", 0)
@@ -1724,358 +2151,421 @@ class GenerateReport(Node):
             git_repo_url = excel_validation.get("git_repo_url", "Not provided")
             git_repo_valid = excel_validation.get("git_repo_valid", False)
             
-            html_content += """
-            <div class="section">
-                <h2>Intake Form Validation</h2>
-            """
-            
             if is_valid:
-                html_content += f"""
-                <p><span class="validation-status validation-complete">✓ Complete</span> All mandatory fields have been answered.</p>
+                html_content += """
+                <div class="validation-status validation-complete">
+                    ✅ Intake form is complete. All mandatory fields have been answered.
+                </div>
                 """
             else:
-                html_content += f"""
-                <p><span class="validation-status validation-incomplete">✗ Incomplete</span> Some mandatory fields have not been answered or Git repository is invalid.</p>
-                """
-            
-            html_content += f"""
-                <div class="summary">
-                    <div class="summary-item">
-                        <strong>Total Questions:</strong> {total_rows}
-                    </div>
-                    <div class="summary-item">
-                        <strong>Mandatory Fields:</strong> {mandatory_fields}
-                    </div>
-                    <div class="summary-item">
-                        <strong>Unanswered Mandatory:</strong> {len(unanswered_mandatory)}
-                    </div>
-                    <div class="summary-item">
-                        <strong>Git Repository:</strong> {git_repo_valid and '<span class="component-yes">✓ Valid</span>' or '<span class="component-no">✗ Invalid</span>'}
-                    </div>
+                html_content += """
+                <div class="validation-status validation-incomplete">
+                    ❌ Intake form is incomplete. Some mandatory fields have not been answered or Git repository is invalid.
                 </div>
-            """
-            
-            if git_repo_url:
-                html_content += f"""
-                <p><strong>Git Repository URL:</strong> {git_repo_url}</p>
                 """
+                
+            html_content += f"""
+                <table class="component-table">
+                    <tr>
+                        <td><strong>Total questions</strong></td>
+                        <td>{total_rows}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mandatory fields</strong></td>
+                        <td>{mandatory_fields}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Unanswered mandatory fields</strong></td>
+                        <td>{len(unanswered_mandatory)}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Git repository URL</strong></td>
+                        <td>{git_repo_url}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Git repository valid</strong></td>
+                        <td>{'✅ Yes' if git_repo_valid else '❌ No'}</td>
+                    </tr>
+                </table>
+            """
             
             if unanswered_mandatory:
                 html_content += """
-                <h3>Unanswered Mandatory Questions:</h3>
+                <h3>Unanswered Mandatory Questions</h3>
                 <ul>
                 """
+                
                 for question in unanswered_mandatory:
-                    html_content += f"<li>{question}</li>"
+                    html_content += f"""
+                    <li>{question}</li>
+                    """
+                    
                 html_content += """
                 </ul>
                 """
-            
+                
             html_content += """
             </div>
             """
         
-        # Component Analysis Section (HTML)
-        if component_analysis:
+        # Component Analysis Section
+        html_content += """
+        <div class="section" id="component-analysis">
+            <h2>Component Analysis</h2>
+        """
+        
+        if excel_components and component_analysis:
             html_content += """
-            <div class="section">
-                <h2>Component Analysis</h2>
+            <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Declared</th>
+                    <th>Detected</th>
+                    <th>Status</th>
+                </tr>
             """
             
-            # Component Comparison Table (if available)
-            if excel_components:
-                html_content += """
-                <h3>Component Declaration vs Detection</h3>
-                <p>This table compares what was declared in the intake form versus what was found in the code:</p>
-                <table class="component-table">
-                    <tr>
-                        <th>Component</th>
-                        <th>Declared in Form</th>
-                        <th>Detected in Code</th>
-                        <th>Status</th>
-                    </tr>
-                """
+            for excel_comp, excel_data in excel_components.items():
+                excel_comp_lower = excel_comp.lower()
+                excel_declared = excel_data.get("is_yes", False)
                 
-                # Create a mapping of component names to standardize comparison
-                component_mapping = {}
+                # Find if component is in the analysis
+                matched = False
+                detected = False
                 
-                # Populate the mapping with detected components
-                for comp_name in component_analysis.keys():
-                    normalized_name = comp_name.lower()
-                    component_mapping[normalized_name] = {
-                        "name": comp_name,
-                        "detected": component_analysis[comp_name]["detected"].lower() == "yes"
-                    }
+                for comp_name, comp_data in component_analysis.items():
+                    if excel_comp_lower in comp_name.lower() or comp_name.lower() in excel_comp_lower:
+                        matched = True
+                        detected = comp_data["detected"].lower() == "yes"
+                        break
                 
-                # Map Excel components to detected components
-                for excel_comp, excel_data in excel_components.items():
-                    excel_comp_lower = excel_comp.lower()
-                    excel_declared = excel_data.get("is_yes", False)
-                    
-                    # Try to find a match in component_analysis
-                    matched = False
-                    for comp_name, comp_data in component_mapping.items():
-                        if excel_comp_lower in comp_name or comp_name in excel_comp_lower:
-                            matched = True
-                            # Update with Excel declaration
-                            component_mapping[comp_name]["declared"] = excel_declared
-                            component_mapping[comp_name]["excel_name"] = excel_comp
-                            break
-                    
-                    # If no match was found, add it as a new entry
-                    if not matched:
-                        component_mapping[excel_comp_lower] = {
-                            "name": excel_comp,
-                            "excel_name": excel_comp,
-                            "declared": excel_declared,
-                            "detected": False  # Not found in code
-                        }
-                
-                # Generate the comparison table
-                for _, comp_data in sorted(component_mapping.items()):
-                    name = comp_data.get("name", "Unknown")
-                    excel_name = comp_data.get("excel_name", name)
-                    
-                    declared = '<span class="component-yes">✓ Yes</span>' if comp_data.get("declared", False) else '<span class="component-no">✗ No</span>'
-                    detected = '<span class="component-yes">✓ Yes</span>' if comp_data.get("detected", False) else '<span class="component-no">✗ No</span>'
-                    
-                    # Determine if there's a match between declaration and detection
-                    if comp_data.get("declared", False) == comp_data.get("detected", False):
-                        match_status = '<span class="match">✓ Match</span>'
-                    else:
-                        match_status = '<span class="mismatch">⚠ Mismatch</span>'
-                    
-                    # Use the Excel name if available, otherwise use the detected name
-                    display_name = excel_name if "excel_name" in comp_data else name
-                    
-                    html_content += f"""
-                    <tr>
-                        <td>{display_name}</td>
-                        <td>{declared}</td>
-                        <td>{detected}</td>
-                        <td>{match_status}</td>
-                    </tr>
-                    """
-                
-                html_content += """
-                </table>
-                """
-            
-            # Regular component detection table
-            html_content += """
-                <h3>All Detected Components</h3>
-                <p>The following components were identified in the codebase:</p>
-                <table class="component-table">
-                    <tr>
-                        <th>Component</th>
-                        <th>Detected</th>
-                        <th>Evidence</th>
-                    </tr>
-            """
-            
-            # Sort components alphabetically for better readability
-            sorted_components = sorted(component_analysis.keys())
-            
-            for component in sorted_components:
-                data = component_analysis[component]
-                detected = data.get("detected", "no")
-                evidence = data.get("evidence", "No evidence provided")
-                
-                # Format detected as Yes/No with proper CSS classes
-                if detected.lower() == "yes":
-                    detected_formatted = '<span class="component-yes">✅ Yes</span>'
-                else:
-                    detected_formatted = '<span class="component-no">❌ No</span>'
+                status = "Match" if excel_declared == detected else "Mismatch"
                 
                 html_content += f"""
+                <tr>
+                    <td>{excel_comp}</td>
+                    <td>{'Yes' if excel_declared else 'No'}</td>
+                    <td>{'Yes' if detected else 'No'}</td>
+                    <td class="{'match' if status == 'Match' else 'mismatch'}">{status}</td>
+                </tr>
+                """
+                
+            html_content += """
+            </table>
+            """
+        elif component_analysis:
+            html_content += """
+            <p>The following components were detected in the codebase:</p>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Detected</th>
+                    <th>Evidence</th>
+                </tr>
+            """
+            
+            for comp_name, comp_data in component_analysis.items():
+                detected = comp_data.get("detected", "no")
+                evidence = comp_data.get("evidence", "None provided")
+                
+                # Truncate evidence if too long
+                if isinstance(evidence, str) and len(evidence) > 50:
+                    evidence = evidence[:47] + "..."
+                elif isinstance(evidence, list):
+                    evidence = ", ".join(evidence[:2])
+                    if len(evidence) > 2:
+                        evidence += f" (+{len(evidence) - 2} more)"
+                
+                html_content += f"""
+                <tr>
+                    <td>{comp_name}</td>
+                    <td class="{'component-yes' if detected.lower() == 'yes' else 'component-no'}">{detected}</td>
+                    <td>{evidence}</td>
+                </tr>
+                """
+                
+            html_content += """
+            </table>
+            """
+        else:
+            html_content += """
+            <p>No component analysis data available.</p>
+            """
+        
+        html_content += """
+        </div>
+        """
+        
+        # Security and Quality Practices Section
+        html_content += """
+        <div class="section" id="security-and-quality-practices">
+            <h2>Security and Quality Practices</h2>
+        """
+        
+        if security_quality_analysis:
+            html_content += """
+            <p>The following sections summarize the security and quality practices implemented in the codebase:</p>
+            """
+            
+            for category, practices in security_quality_analysis.items():
+                # Convert category from snake_case to Title Case
+                category_display = category.replace('_', ' ').title()
+                html_content += f"""
+                <h3>{category_display}</h3>
+                <table>
                     <tr>
-                        <td>{component.title()}</td>
-                        <td>{detected_formatted}</td>
-                        <td>{evidence}</td>
+                        <th>Practice</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
                     </tr>
                 """
-            
-            html_content += """
+                
+                for practice_name, practice_data in practices.items():
+                    # Convert practice name from snake_case to Title Case
+                    practice_display = practice_name.replace('_', ' ').title()
+                    
+                    status = practice_data.get("implemented", "no")
+                    evidence = practice_data.get("evidence", "None provided")
+                    
+                    status_text = "Implemented" if status == "yes" else "Partially Implemented" if status == "partial" else "Not Implemented"
+                    status_class = "component-yes" if status == "yes" else "component-no" if status == "no" else ""
+                    
+                    # Format evidence
+                    if isinstance(evidence, list):
+                        evidence = ", ".join(evidence[:2])
+                        if len(evidence) > 2:
+                            evidence += f" (+{len(evidence) - 2} more)"
+                    
+                    html_content += f"""
+                    <tr>
+                        <td>{practice_display}</td>
+                        <td class="{status_class}">{status_text}</td>
+                        <td>{evidence}</td>
+                    </tr>
+                    """
+                
+                html_content += """
                 </table>
-            </div>
+                """
+        else:
+            html_content += """
+            <p>No security and quality practice analysis data available.</p>
             """
-            
-        # Technology Stack Section (HTML)
+        
         html_content += """
-            <div class="section">
-                <h2>Technology Stack</h2>
+        </div>
         """
         
-        if not technology_stack:
-            html_content += "<p>No technologies identified in the codebase.</p>"
-        else:
+        # Technology Stack Section
+        html_content += """
+        <div class="section" id="technology-stack">
+            <h2>Technology Stack</h2>
+        """
+        
+        if technology_stack:
+            html_content += """
+            <p>The following technologies were identified in the codebase:</p>
+            """
+            
+            # Create sections for each technology category
             for category, techs in technology_stack.items():
-                if not techs:
+                if not isinstance(techs, list) or not techs:
                     continue
                     
-                pretty_category = category.replace('_', ' ').title()
-                html_content += f"<h3>{pretty_category}</h3>"
-                html_content += "<div class='tech-list'>"
+                # Convert category from snake_case to Title Case
+                category_display = category.replace('_', ' ').title()
+                html_content += f"""
+                <h3>{category_display}</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                """
                 
                 for tech in techs:
-                    tech_name = tech.get('name') or tech.get('technology', 'Unknown')
-                    version = tech.get('version', 'unknown')
-                    purpose = tech.get('purpose', 'N/A')
-                    files = tech.get('files', [])
+                    if not isinstance(tech, dict):
+                        continue
+                        
+                    tech_name = tech.get("name", "Unknown")
+                    tech_version = tech.get("version", "unknown")
+                    tech_purpose = tech.get("purpose", "Not specified")
+                    tech_files = tech.get("files", [])
+                    
+                    # Format files list
+                    files_display = ", ".join(tech_files[:2])
+                    if len(tech_files) > 2:
+                        files_display += f" (+{len(tech_files) - 2})"
                     
                     html_content += f"""
-                    <div class="tech-item">
-                        <h4>{tech_name}{" (v" + version + ")" if version and version != "unknown" else ""}</h4>
-                        <p><strong>Purpose:</strong> {purpose}</p>
-                        <p><strong>Files:</strong> {", ".join(files) if files else "N/A"}</p>
-                    </div>
+                    <tr>
+                        <td>{tech_name}</td>
+                        <td>{tech_version}</td>
+                        <td>{tech_purpose}</td>
+                        <td>{files_display}</td>
+                    </tr>
                     """
-                    
-                html_content += "</div>"
-        
-        html_content += """
-                </div>
-            
-            <div class="section">
-                <h2>Summary</h2>
-                <div class="summary">
-                    <div class="summary-item">
-                        <strong>Total Findings:</strong> """ + str(len(findings)) + """
-                    </div>
-        """
-        
-        if findings:
-            severity_counts = {"High": 0, "Medium": 0, "Low": 0}
-            for finding in findings:
-                severity = finding.get("severity", "Low")
-                if severity in severity_counts:
-                    severity_counts[severity] += 1
-                    
-            html_content += f"""
-                    <div class="summary-item">
-                        <strong>High Priority:</strong> {severity_counts["High"]}
-                    </div>
-                    <div class="summary-item">
-                        <strong>Medium Priority:</strong> {severity_counts["Medium"]}
-                    </div>
-                    <div class="summary-item">
-                        <strong>Low Priority:</strong> {severity_counts["Low"]}
-                    </div>
-            """
-            
-        html_content += """
-                </div>
-            """
-        
-        if findings:
-            high_priority_findings = [f for f in findings if f.get("severity") == "High"]
-            medium_priority_findings = [f for f in findings if f.get("severity") == "Medium"]
-            
-            if high_priority_findings or medium_priority_findings:
-                html_content += """
-                <h3>Key Recommendations</h3>
-                <ul>
-                """
                 
-                for finding in high_priority_findings[:3]:
-                    html_content += f"""
-                    <li class="severity-high">
-                        <span class="severity-badge">High</span>
-                        {finding["description"]}
-                    </li>
-                    """
-                    
-                for finding in medium_priority_findings[:3]:
-                    html_content += f"""
-                    <li class="severity-medium">
-                        <span class="severity-badge">Medium</span>
-                        {finding["description"]}
-                    </li>
-                    """
-                    
                 html_content += """
-                </ul>
+                </table>
                 """
-                
-            html_content += """
-            </div>
-        """
-        
-        if findings:
-            html_content += """
-            <div class="section">
-                <h2>Findings</h2>
-                <div class="finding-list">
-            """
-            
-            for category, category_findings in categories.items():
-                for finding in category_findings:
-                    severity = finding.get("severity", "Low")
-                    location = finding.get("location", {})
-                    
-                    html_content += f"""
-                    <div class="finding severity-{severity.lower()}">
-                        <h3>
-                            <span class="severity-badge">{severity}</span>
-                            {location.get('file', 'Unknown File')} (Line {location.get('line', 'N/A')})
-                        </h3>
-                        <p><strong>Category:</strong> {category}</p>
-                        <p><strong>Problem:</strong> {finding['description']}</p>
-                        <p><strong>Recommendation:</strong> {finding['recommendation']}</p>
-                    """
-                    
-                    if 'code' in location:
-                        html_content += f"""
-                        <p><strong>Code Snippet:</strong></p>
-                        <pre><code>{location['code']}</code></pre>
-                        """
-                    
-                    html_content += "</div>"
-            
-            html_content += """
-                </div>
-            </div>
-            """
-        
-        html_content += """
-            <div class="section">
-                <h2>Conclusion</h2>
-        """
-        
-        if findings:
-            html_content += """
-                <p>This analysis highlights several areas for improvement in the codebase:</p>
-                <ul>
-            """
-            
-            severity_counts = {"High": 0, "Medium": 0, "Low": 0}
-            for finding in findings:
-                severity = finding.get("severity", "Low")
-                if severity in severity_counts:
-                    severity_counts[severity] += 1
-            
-            if severity_counts['High'] > 0:
-                html_content += f"<li><strong>Security</strong>: Address {severity_counts['High']} high-priority security findings</li>"
-            if severity_counts['Medium'] > 0:
-                html_content += f"<li><strong>Reliability</strong>: Improve {severity_counts['Medium']} medium-priority issues</li>"
-            if severity_counts['Low'] > 0:
-                html_content += f"<li><strong>Code Quality</strong>: Enhance {severity_counts['Low']} low-priority items</li>"
-            
-            html_content += """
-                </ul>
-                <p>Addressing these findings will improve the overall quality, security, and maintainability of the codebase.</p>
-            """
         else:
             html_content += """
-                <p>No significant issues were found in the codebase. The code appears to follow good practices in terms of security, reliability, and maintainability.</p>
+            <p>No technologies were identified in the codebase.</p>
             """
         
         html_content += """
+        </div>
+        """
+        
+        # Detailed Findings Section
+        if findings:
+            html_content += """
+            <div class="section" id="detailed-findings">
+                <h2>Detailed Findings</h2>
+            """
+            
+            # Group findings by category
+            categories = {}
+            for finding in findings:
+                category = finding.get("category", "Uncategorized")
+                if category not in categories:
+                    categories[category] = []
+                categories[category].append(finding)
+            
+            for category, category_findings in categories.items():
+                html_content += f"""
+                <h3>{category}</h3>
+                <div class="finding-list">
+                """
+                
+                for finding in category_findings:
+                    severity = finding.get("severity", "Low")
+                    description = finding.get("description", "No description provided")
+                    recommendation = finding.get("recommendation", "No recommendation provided")
+                    location = finding.get("location", {})
+                    file_path = location.get("file", "Unknown")
+                    line = location.get("line", "Unknown")
+                    code = location.get("code", "No code snippet provided")
+                    
+                    severity_class = f"severity-{severity.lower()}"
+                    
+                    html_content += f"""
+                    <div class="finding {severity_class}">
+                        <h4><span class="severity-badge">{severity}</span>{description}</h4>
+                        <p><strong>Location:</strong> {file_path}, line {line}</p>
+                        <p><strong>Code:</strong> <code>{code}</code></p>
+                        <p><strong>Recommendation:</strong> {recommendation}</p>
+                    </div>
+                    """
+                
+                html_content += """
+                </div>
+                """
+            
+            html_content += """
             </div>
+            """
+        
+        # Action Items Section
+        html_content += """
+        <div class="section" id="action-items">
+            <h2>Action Items</h2>
+            <p>Below are the prioritized action items recommended based on this analysis:</p>
+        """
+        
+        # Define action items
+        action_items = []
+        
+        # 1. Intake form completion if needed
+        if excel_validation and not excel_validation.get("is_valid", True):
+            action_items.append({
+                "priority": "Critical",
+                "class": "critical",
+                "title": "Complete Intake Form",
+                "description": "Complete all mandatory questions in the intake form to ensure accurate project configuration."
+            })
+            
+        # 2. High-priority findings
+        high_findings = [f for f in findings if f.get("severity", "Low") == "High"]
+        if high_findings:
+            action_items.append({
+                "priority": "High",
+                "class": "high",
+                "title": f"Address {len(high_findings)} High-Priority Issues",
+                "description": "Fix critical security and quality issues to prevent potential vulnerabilities."
+            })
+            
+        # 3. Component mismatches
+        if mismatches_count > 0:
+            action_items.append({
+                "priority": "Medium",
+                "class": "medium",
+                "title": "Resolve Component Discrepancies",
+                "description": "Reconcile mismatches between declared components and what's detected in the code."
+            })
+            
+        # 4. Missing security practices
+        if security_quality_analysis:
+            missing_practices_count = 0
+            for category, practices in security_quality_analysis.items():
+                for practice, details in practices.items():
+                    if details.get("implemented", "no") == "no":
+                        missing_practices_count += 1
+                        
+            if missing_practices_count > 0:
+                action_items.append({
+                    "priority": "Medium",
+                    "class": "medium",
+                    "title": f"Implement {missing_practices_count} Missing Security Practices",
+                    "description": "Address security gaps to improve overall application security posture."
+                })
+                
+        # 5. Medium-priority findings
+        medium_findings = [f for f in findings if f.get("severity", "Low") == "Medium"]
+        if medium_findings:
+            action_items.append({
+                "priority": "Medium",
+                "class": "medium",
+                "title": f"Address {len(medium_findings)} Medium-Priority Issues",
+                "description": "Resolve quality and security issues of moderate severity."
+            })
+        
+        # Format action items in the HTML
+        if action_items:
+            for i, item in enumerate(action_items):
+                html_content += f"""
+                <div class="action-item {item['class']}">
+                    <h3>{i+1}. {item['title']}</h3>
+                    <p><strong>Priority:</strong> {item['priority']}</p>
+                    <p><strong>Action:</strong> {item['description']}</p>
+                </div>
+                """
+        else:
+            html_content += """
+            <p>No specific action items identified. The codebase appears to follow good practices.</p>
+            """
+        
+        html_content += """
+        </div>
         </body>
         </html>
         """
 
+        # Generate PDF
+        pdf_path = None
+        try:
+            from weasyprint import HTML
+            pdf_path = os.path.join(output_dir, "analysis_report.pdf")
+            HTML(string=html_content).write_pdf(pdf_path)
+            print(f"Generated PDF report: {pdf_path}")
+        except Exception as e:
+            print(f"Warning: Could not generate PDF: {str(e)}")
+            print("Please ensure WeasyPrint is installed correctly.")
+        
         # Save both Markdown and HTML
         os.makedirs(output_dir, exist_ok=True)
         
@@ -2089,17 +2579,6 @@ class GenerateReport(Node):
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
             
-        # Generate PDF
-        pdf_path = None
-        try:
-            from weasyprint import HTML
-            pdf_path = os.path.join(output_dir, "analysis_report.pdf")
-            HTML(string=html_content).write_pdf(pdf_path)
-            print(f"Generated PDF report: {pdf_path}")
-        except Exception as e:
-            print(f"Warning: Could not generate PDF: {str(e)}")
-            print("Please ensure WeasyPrint is installed correctly.")
-        
         return {
             "markdown": md_path,
             "html": html_path,
@@ -2116,28 +2595,118 @@ class GenerateReport(Node):
         print(f"- HTML: {exec_res['html']}")
         if exec_res['pdf']:
             print(f"- PDF: {exec_res['pdf']}")
+            
+        # Print command to open the HTML report for easier viewing
+        print(f"\nOpen the HTML report with: open {exec_res['html']}")
+        
+        # Print first few components and findings as a sanity check
+        print("\nReport Summary:")
+        code_analysis = shared.get("code_analysis", {})
+        
+        # Print component analysis summary
+        component_analysis = code_analysis.get("component_analysis", {})
+        if component_analysis:
+            print("Component Analysis:")
+            components = list(component_analysis.keys())
+            sample_size = min(5, len(components))
+            for i in range(sample_size):
+                comp = components[i]
+                detected = component_analysis[comp].get("detected", "no")
+                print(f"- {comp}: {detected}")
+            if len(components) > sample_size:
+                print(f"- ... and {len(components) - sample_size} more components")
+                
+        # Print security implementation summary
+        security_quality = code_analysis.get("security_quality_analysis", {})
+        if security_quality:
+            print("\nSecurity Practice Implementation:")
+            for category, practices in security_quality.items():
+                implemented = sum(1 for _, details in practices.items() if details.get("implemented") == "yes")
+                total = len(practices)
+                print(f"- {category.replace('_', ' ').title()}: {implemented}/{total} implemented")
+                
+        # Print technology stack summary  
+        tech_stack = code_analysis.get("technology_stack", {})
+        if tech_stack:
+            print("\nTechnology Stack:")
+            # Only iterate through valid list items in the tech_stack
+            for category_name, category_items in tech_stack.items():
+                # Add validation before iterating
+                if isinstance(category_items, list):
+                    print(f"- {category_name.replace('_', ' ').title()}: {len(category_items)} items")
+                elif isinstance(category_items, dict):
+                    print(f"- {category_name.replace('_', ' ').title()}: {len(category_items)} items")
+                else:
+                    print(f"- {category_name.replace('_', ' ').title()}: Invalid item type ({type(category_items).__name__})")
+        
+        # Print findings summary
+        findings = code_analysis.get("findings", [])
+        if findings:
+            severity_counts = {"High": 0, "Medium": 0, "Low": 0}
+            for finding in findings:
+                severity = finding.get("severity", "Low")
+                if severity in severity_counts:
+                    severity_counts[severity] += 1
+            
+            print("\nFindings:")
+            print(f"- High Priority: {severity_counts['High']}")
+            print(f"- Medium Priority: {severity_counts['Medium']}")
+            print(f"- Low Priority: {severity_counts['Low']}")
+            
+        print("\nCheck the generated reports for complete details.")
+        
+        # Return a simple string action rather than a complex object
+        return "default"
 
 
 class ProcessExcel(Node):
     def prep(self, shared):
-        """Prepare input by checking Excel file and sheet name."""
+        """
+        Prepare input by checking Excel file and sheet name.
+        """
         excel_file = shared.get("excel_file")
         if not excel_file:
-            raise ValueError("Excel file path not provided in shared state")
+            print("WARNING: Excel file path not provided in shared state. Skipping Excel processing.")
+            return None, None, None
             
         if not os.path.exists(excel_file):
-            raise ValueError(f"Excel file not found: {excel_file}")
+            print(f"WARNING: Excel file not found: {excel_file}. Skipping Excel processing.")
+            return None, None, None
             
         sheet_name = shared.get("sheet_name")
         output_dir = shared.get("output_dir", ".")
+        
+        # Ensure output directory exists
+        os.makedirs(output_dir, exist_ok=True)
+        
         return excel_file, sheet_name, output_dir
 
     def exec(self, inputs):
-        """Execute Excel processing logic."""
+        """
+        Execute Excel processing logic.
+        """
+        if inputs is None or len(inputs) != 3 or inputs[0] is None:
+            print("No valid Excel file to process.")
+            return {
+                "component_name": "Unknown Component",
+                "repo_url": None,
+                "validation": {
+                    "total_rows": 0,
+                    "mandatory_fields": 0,
+                    "git_repo_url": None,
+                    "git_repo_valid": False,
+                    "is_valid": False,
+                    "unanswered_mandatory": [],
+                    "component_questions": {}
+                }
+            }
+            
         excel_file, sheet_name, output_dir = inputs
         
         def is_valid_git_repo(url):
-            """Check if the URL is a valid Git repository."""
+            """
+            Check if the URL is a valid Git repository.
+            """
             if not url:
                 return False
             # Common Git URL patterns
@@ -2251,7 +2820,7 @@ class ProcessExcel(Node):
             wb = load_workbook(excel_file, read_only=True)
             
             # Get the specified sheet or first sheet
-            sheet = wb[sheet_name] if sheet_name else wb.active
+            sheet = wb[sheet_name] if sheet_name and sheet_name in wb.sheetnames else wb.active
             
             # Find component name and repo URL
             component_name, repo_url, _ = find_component_and_repo(sheet)
@@ -2271,29 +2840,58 @@ class ProcessExcel(Node):
                 }, f, indent=2)
             
             return {
-                "component_name": component_name,
+                "component_name": component_name or "Unknown Component",
                 "repo_url": repo_url,
                 "validation": validation_results
             }
             
         except Exception as e:
-            raise ValueError(f"Error processing Excel file: {str(e)}")
+            print(f"Error processing Excel file: {str(e)}")
+            traceback_str = traceback.format_exc()
+            print(f"Traceback:\n{traceback_str}")
+            
+            return {
+                "component_name": "Unknown Component",
+                "repo_url": None,
+                "validation": {
+                    "total_rows": 0,
+                    "mandatory_fields": 0,
+                    "git_repo_url": None,
+                    "git_repo_valid": False,
+                    "is_valid": False,
+                    "unanswered_mandatory": ["Error processing Excel file"],
+                    "component_questions": {}
+                },
+                "error": str(e),
+                "traceback": traceback_str
+            }
 
     def post(self, shared, prep_res, exec_res):
         """Store results in shared state."""
-        if not exec_res["validation"]["is_valid"]:
-            if exec_res["validation"]["unanswered_mandatory"]:
+        
+        # Set default project name if none was found
+        if not exec_res.get("component_name") or exec_res.get("component_name") == "Unknown Component":
+            project_name = shared.get("project_name", "Unknown Component")
+            exec_res["component_name"] = project_name
+        
+        # Handle validation result display
+        validation = exec_res.get("validation", {})
+        is_valid = validation.get("is_valid", False)
+        unanswered_mandatory = validation.get("unanswered_mandatory", [])
+        
+        if not is_valid:
+            if unanswered_mandatory:
                 print("Intake form is incomplete. Please complete all mandatory fields before proceeding.")
             else:
                 print("Excel validation failed. Please check the excel_validation.json file for details.")
             
         # Store the Git repo URL in shared state
-        shared["repo_url"] = exec_res["repo_url"]
+        shared["repo_url"] = exec_res.get("repo_url")
         
         # Store the component name as project name
-        shared["project_name"] = exec_res["component_name"]
+        shared["project_name"] = exec_res.get("component_name")
         
         # Store validation results
-        shared["excel_validation"] = exec_res["validation"]
+        shared["excel_validation"] = exec_res.get("validation", {})
         
         return "default"

@@ -3,7 +3,7 @@
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Code Analysis Report - sherlock</title>
+            <title>Code Analysis Report - Assays sake kwekjw kejwkje kwjekj wejwkj ew</title>
             <style>
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -15,7 +15,8 @@
                     margin: 0 auto;
                 }
                 h1 { font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }
-                h2 { font-size: 1.2em; margin: 15px 0 10px 0; color: #444; }
+                h2 { font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }
+                h2:first-of-type { border-top: none; }
                 h3 { font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }
                 .section {
                     margin: 10px 0;
@@ -23,17 +24,22 @@
                     background: #f8f9fa;
                     border-radius: 4px;
                 }
-                .tech-list {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                    gap: 10px;
-                    margin: 10px 0;
+                .component-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
                 }
-                .tech-item {
-                    background: white;
+                .component-table th, .component-table td {
+                    border: 1px solid #ddd;
                     padding: 8px;
-                    border-radius: 4px;
-                    border: 1px solid #eee;
+                    text-align: left;
+                }
+                .component-table th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                .component-table tr:nth-child(even) {
+                    background-color: #f9f9f9;
                 }
                 .finding-list {
                     display: grid;
@@ -46,6 +52,25 @@
                     padding: 10px;
                     border-radius: 4px;
                     border: 1px solid #eee;
+                }
+                .action-item {
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    margin: 10px 0;
+                    border-radius: 4px;
+                    border-left: 5px solid #007bff;
+                }
+                .action-item.critical {
+                    border-left-color: #dc3545;
+                }
+                .action-item.high {
+                    border-left-color: #fd7e14;
+                }
+                .action-item.medium {
+                    border-left-color: #ffc107;
+                }
+                .action-item.low {
+                    border-left-color: #28a745;
                 }
                 .severity-high { color: #dc3545; }
                 .severity-medium { color: #fd7e14; }
@@ -69,23 +94,6 @@
                 }
                 .validation-complete { background: #d4edda; color: #155724; }
                 .validation-incomplete { background: #f8d7da; color: #721c24; }
-                .component-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 15px 0;
-                }
-                .component-table th, .component-table td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                    text-align: left;
-                }
-                .component-table th {
-                    background-color: #f2f2f2;
-                    font-weight: bold;
-                }
-                .component-table tr:nth-child(even) {
-                    background-color: #f9f9f9;
-                }
                 .component-yes {
                     color: #28a745;
                     font-weight: bold;
@@ -93,12 +101,38 @@
                 .component-no {
                     color: #dc3545;
                 }
+                .match {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .mismatch {
+                    color: #fd7e14;
+                    font-weight: bold;
+                }
+                .toc {
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    border-radius: 4px;
+                    margin: 15px 0;
+                }
+                .toc ul {
+                    margin: 5px 0;
+                    padding-left: 20px;
+                }
+                .executive-summary {
+                    background: #e9f7fd;
+                    border-radius: 4px;
+                    padding: 10px 15px;
+                    margin: 15px 0;
+                    border-left: 5px solid #17a2b8;
+                }
                 pre, code {
                     background: #f8f9fa;
                     padding: 2px 4px;
                     border-radius: 3px;
                     font-family: monospace;
                     font-size: 0.9em;
+                    overflow-x: auto;
                 }
                 .summary {
                     display: grid;
@@ -114,6 +148,23 @@
                 }
                 ul, ol { margin: 5px 0; padding-left: 20px; }
                 li { margin: 3px 0; }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
                 @media print {
                     body { padding: 10px; }
                     .section { break-inside: avoid; }
@@ -121,260 +172,808 @@
             </style>
         </head>
         <body>
-            <h1>Code Analysis Report for sherlock</h1>
+            <h1>Code Analysis Report for Assays sake kwekjw kejwkje kwjekj wejwkj ew</h1>
+            
+            <!-- Executive Summary -->
+            <div class="executive-summary">
+                <h2 id="executive-summary">Executive Summary</h2>
         
-            <div class="section">
+                <ul>
+                    <li><strong>Security & Quality Implementation</strong>: 43.3%</li>
+                    <li><strong>Practices Implemented</strong>: 6 fully, 1 partially, 8 not implemented</li>
+                
+                    <li><strong>Total Findings</strong>: 0</li>
+            
+                    <li><strong>Component Declaration Mismatches</strong>: 1</li>
+                
+                </ul>
+            </div>
+        
+            <div class="toc">
+                <h2 id="table-of-contents">Table of Contents</h2>
+                <ol>
+                    <li><a href="#executive-summary">Executive Summary</a></li>
+        
+                    <li><a href="#intake-form-validation">Intake Form Validation</a></li>
+            
+                    <li><a href="#component-analysis">Component Analysis</a></li>
+                    <li><a href="#security-and-quality-practices">Security and Quality Practices</a></li>
+                    <li><a href="#technology-stack">Technology Stack</a></li>
+        
+                    <li><a href="#action-items">Action Items</a></li>
+                </ol>
+            </div>
+        
+            <div class="section" id="intake-form-validation">
                 <h2>Intake Form Validation</h2>
             
-                <p><span class="validation-status validation-incomplete">✗ Incomplete</span> Some mandatory fields have not been answered.</p>
-                
-                <div class="summary">
-                    <div class="summary-item">
-                        <strong>Total Questions:</strong> 163
-                    </div>
-                    <div class="summary-item">
-                        <strong>Mandatory Fields:</strong> 65
-                    </div>
-                    <div class="summary-item">
-                        <strong>Unanswered Mandatory:</strong> 63
-                    </div>
+                <div class="validation-status validation-incomplete">
+                    ❌ Intake form is incomplete. Some mandatory fields have not been answered or Git repository is invalid.
                 </div>
+                
+                <table class="component-table">
+                    <tr>
+                        <td><strong>Total questions</strong></td>
+                        <td>83</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mandatory fields</strong></td>
+                        <td>83</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Unanswered mandatory fields</strong></td>
+                        <td>79</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Git repository URL</strong></td>
+                        <td>https://github.com/sherlock-project/sherlock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Git repository valid</strong></td>
+                        <td>✅ Yes</td>
+                    </tr>
+                </table>
             
-                <h3>Unanswered Mandatory Questions:</h3>
+                <h3>Unanswered Mandatory Questions</h3>
                 <ul>
-                <li>Is the Prod Version of code running in DEV PCF?</li><li>Is the Prod Version of code running in SIT PCF?</li><li>Is the Prod Version of code running in UAT PCF?</li><li>What is the Dev PCF Foundation/ Org/Space the code is running?</li><li>What is the SIT PCF Foundation/ Org/Space the code is running?</li><li>What is the UAT PCF Foundation/ Org/Space the code is running?</li><li>Note : If you have additional Non Prod env Please mention those.</li><li>Provide the CMP Link</li><li>Please share us the steps on how to request access to PCF app manager as lead engineer for DEV/SIT/UAT environments</li><li>Is the application component a Batch(AutoSys) / Ul / API app?</li><li>Is the application component using Java / net / Python / Angular / React</li><li>What is the current Build Pack (for example -Gradle, Maven, NPM etc.) used in this application component</li><li>is component using EPL/EPLX?</li><li>Is the component using Venafi?</li><li>Is the component using Redis?</li><li>Is the component using Channel Secure / PingFed?</li><li>Is the component using NAS / SMB?</li><li>If this component is using NAS/SMB, does app team have the AD-ENT or QA-ENT credentials to configure the same for volume mounts in OCP?</li><li>If this component is not using NAS/SMB, please ignore this question?</li><li>Is the component using SMTP?</li><li>Is the component using AutoSys?
-Is the component using CRON/quartz/spring batch or any other batch operation?</li><li>Is the component using MTLS / Mutual Auth Or hard rock pattem in the application?</li><li>Is the component using NDM?</li><li>Is the component using legacy JKS file?</li><li>Is the component using SOAP Calls?</li><li>Is the component using REST API?</li><li>Is the component using APIGEE?</li><li>Is the component using KAFKA?</li><li>Is the component using IBM MQ?</li><li>If the compoenent is using MQ, Is the component using any Cipher suite?</li><li>If the component is not using MQ, ignore this line item?</li><li>Is the component using LDAP?</li><li>Is the Component using Splunk?</li><li>Is the Component using AppD?</li><li>Is the Component using ELASTIC APM?</li><li>Is the component using Hamess or UCD for CI CD</li><li>Is the component storing secure values in Hashicorp vault Or any other external secure credential storage.
-Please share the details of where the secure properties are stored?</li><li>Is the compone t using Bridge Utility server in PCF?</li><li>Is the Component using hardRock / MTLS auth?</li><li>Is the Component using AppDynamics?</li><li>Is the Component using RabbitMQ</li><li>Is the component using Database?</li><li>Is the component using MongoDB?</li><li>Is the component using SQLServer?</li><li>Is the component using MySQL?</li><li>Is the component using PostgreSQL?</li><li>Is the component using PostgreSQL?</li><li>Is the component using Oracle?</li><li>Is the component using Cassandra?</li><li>Is the component using Couchbase?</li><li>Is the component using Neo4j?</li><li>Is the component using Hadoop?</li><li>Is the component using Spark?</li><li>Is the component using Okta?</li><li>Is the component using SAML?</li><li>Is the component using Auth?</li><li>Is the component using JWT?</li><li>Is the component using OpenID?</li><li>Is the component using ADFS?</li><li>Is the component using SAN?</li><li>Is the component using MalwareScanner?</li><li>Is the component using any other service? Please share details of the same.</li><li>Are there any application URLs hardcoded in application code or property files?
+                
+                    <li>Assays sake kwekjw kejwkje kwjekj wejwkj ew</li>
+                    
+                    <li>Provide the GIT CD repo link and coresponding Prod equivalent branch name</li>
+                    
+                    <li>Is the Prod Version of code running in DEV PCF?</li>
+                    
+                    <li>Provide active Dev env name</li>
+                    
+                    <li>Is the Prod Version of code running in SIT PCF?</li>
+                    
+                    <li>Provide active Sit env name</li>
+                    
+                    <li>Is the Prod Version of code running in UAT PCF?</li>
+                    
+                    <li>Provide active UAT env name</li>
+                    
+                    <li>What is the Dev PCF Foundation/ Org/Space the code is running?</li>
+                    
+                    <li>What is the SIT PCF Foundation/ Org/Space the code is running?</li>
+                    
+                    <li>What is the UAT PCF Foundation/ Org/Space the code is running?</li>
+                    
+                    <li>Note : If you have additional Non Prod env Please mention those.</li>
+                    
+                    <li>What is the target OCP env the app team would like to deploy the Component to? (Sterling / Lewisville / Manassas)</li>
+                    
+                    <li>Provide the AD-ENT groups needed to work on the app? E.g. GIT access, Splunk Access etc.</li>
+                    
+                    <li>Is there any test user that can be used during testing ? (Applicable for Ul app)</li>
+                    
+                    <li>Does the App needs any Vanity URL if so any preference on the URL Please mention.</li>
+                    
+                    <li>To implement Vanity URL, the migration team will need the Venafi CERT and the KEY</li>
+                    
+                    <li>What are the Up stream and down stream app that might get impacted with this component?</li>
+                    
+                    <li>Provide the CMP Link</li>
+                    
+                    <li>Please share us the steps on how to request access to PCF app manager as lead engineer for DEV/SIT/UAT environments</li>
+                    
+                    <li>What is the Performance PCF Foundation/ Org/Space the code is running?</li>
+                    
+                    <li>Is the App currently actively running in PCF?</li>
+                    
+                    <li>Is the component
+    1   existing parallelly in GitHub On-Prem and GitHub Cloud,
+    2   only existing in GitHub On-Prem,
+    3   only existing in GitHub Cloud (Github on-prem repo has been archived already)</li>
+                    
+                    <li>Do we have Smoke test data available?</li>
+                    
+                    <li>Is the application component a Batch(AutoSys) / Ul / API app?</li>
+                    
+                    <li>Is the application component using Bridge Utility Server in PCF?</li>
+                    
+                    <li>Is the application component using Java / net / Python / Angular / React</li>
+                    
+                    <li>What is the current Build Pack (for example -Gradle, Maven, NPM etc.) used in this application component</li>
+                    
+                    <li>is component using EPL/EPLX?</li>
+                    
+                    <li>Is the component using Venafi?</li>
+                    
+                    <li>Is the component using Redis?</li>
+                    
+                    <li>Is the component using Channel Secure / PingFed?</li>
+                    
+                    <li>Is the component using NAS / SMB?</li>
+                    
+                    <li>If this component is using NAS/SMB, does app team have the AD-ENT or QA-ENT credentials to configure the same for volume mounts in OCP?</li>
+                    
+                    <li>If this component is not using NAS/SMB, please ignore this question?</li>
+                    
+                    <li>Is the component using SMTP?</li>
+                    
+                    <li>Is the component using AutoSys?
+Is the component using CRON/quartz/spring batch or any other batch operation?</li>
+                    
+                    <li>Is the component using MTLS / Mutual Auth Or hard rock pattem in the application?</li>
+                    
+                    <li>Is the component using NDM?</li>
+                    
+                    <li>Is the component using legacy JKS file?</li>
+                    
+                    <li>Is the component using SOAP Calls?</li>
+                    
+                    <li>Is the component using REST API?</li>
+                    
+                    <li>Is the component using APIGEE?</li>
+                    
+                    <li>Is the component using KAFKA?</li>
+                    
+                    <li>Is the component using IBM MQ?</li>
+                    
+                    <li>If the compoenent is using MQ, Is the component using any Cipher suite?</li>
+                    
+                    <li>If the component is not using MQ, ignore this line item?</li>
+                    
+                    <li>Is the component using LDAP?</li>
+                    
+                    <li>Is the Component using Splunk?</li>
+                    
+                    <li>Is the Component using AppD?</li>
+                    
+                    <li>Is the Component using ELASTIC APM?</li>
+                    
+                    <li>Is the component using Hamess or UCD for CI CD</li>
+                    
+                    <li>Is the component storing secure values in Hashicorp vault Or any other external secure credential storage.
+Please share the details of where the secure properties are stored?</li>
+                    
+                    <li>Is the compone t using Bridge Utility server in PCF?</li>
+                    
+                    <li>Is the Component using hardRock / MTLS auth?</li>
+                    
+                    <li>Is the Component using AppDynamics?</li>
+                    
+                    <li>Is the Component using RabbitMQ</li>
+                    
+                    <li>Is the component using Database?</li>
+                    
+                    <li>Is the component using MongoDB?</li>
+                    
+                    <li>Is the component using SQLServer?</li>
+                    
+                    <li>Is the component using MySQL?</li>
+                    
+                    <li>Is the component using PostgreSQL?</li>
+                    
+                    <li>Is the component using PostgreSQL?</li>
+                    
+                    <li>Is the component using Oracle?</li>
+                    
+                    <li>Is the component using Cassandra?</li>
+                    
+                    <li>Is the component using Couchbase?</li>
+                    
+                    <li>Is the component using Neo4j?</li>
+                    
+                    <li>Is the component using Hadoop?</li>
+                    
+                    <li>Is the component using Spark?</li>
+                    
+                    <li>Is the component using Okta?</li>
+                    
+                    <li>Is the component using SAML?</li>
+                    
+                    <li>Is the component using Auth?</li>
+                    
+                    <li>Is the component using JWT?</li>
+                    
+                    <li>Is the component using OpenID?</li>
+                    
+                    <li>Is the component using ADFS?</li>
+                    
+                    <li>Is the component using SAN?</li>
+                    
+                    <li>Is the component using MalwareScanner?</li>
+                    
+                    <li>Is the component using any other service? Please share details of the same.</li>
+                    
+                    <li>Are there any application URLs hardcoded in application code or property files?
 If Yes, Please share details on the same.</li>
+                    
                 </ul>
                 
             </div>
             
-            <div class="section">
-                <h2>Component Analysis</h2>
-                <p>The following components were identified in the codebase:</p>
-                <table class="component-table">
+        <div class="section" id="component-analysis">
+            <h2>Component Analysis</h2>
+        
+            <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Declared</th>
+                    <th>Detected</th>
+                    <th>Status</th>
+                </tr>
+            
+                <tr>
+                    <td>venafi</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>redis</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>channel secure / pingfed</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>nas / smb</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>smtp</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>autosys</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>mtls / mutual auth or hard rock pattem in the application</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>ndm</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>legacy jks file</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>soap calls</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>rest api</td>
+                    <td>No</td>
+                    <td>Yes</td>
+                    <td class="mismatch">Mismatch</td>
+                </tr>
+                
+                <tr>
+                    <td>apigee</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>kafka</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>ibm mq</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>mq, is the component using any cipher suite</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>ldap</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>splunk</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>appd</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>elastic apm</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>hamess or ucd for ci cd</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>hardrock / mtls auth</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>appdynamics</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>rabbitmq</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>database</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>mongodb</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>sqlserver</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>mysql</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>postgresql</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>oracle</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>cassandra</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>couchbase</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>neo4j</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>hadoop</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>spark</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>okta</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>saml</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>auth</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>jwt</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>openid</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>adfs</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>san</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>malwarescanner</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+                <tr>
+                    <td>any other service</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
+                </tr>
+                
+            </table>
+            
+        </div>
+        
+        <div class="section" id="security-and-quality-practices">
+            <h2>Security and Quality Practices</h2>
+        
+            <p>The following sections summarize the security and quality practices implemented in the codebase:</p>
+            
+                <h3>Auditability</h3>
+                <table>
                     <tr>
-                        <th>Component</th>
-                        <th>Detected</th>
+                        <th>Practice</th>
+                        <th>Status</th>
                         <th>Evidence</th>
                     </tr>
-            
-                    <tr>
-                        <td>Apigee</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No ApigEE components detected</td>
-                    </tr>
                 
                     <tr>
-                        <td>Appd_Or_Appdyn</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No AppD or AppDynamics components detected</td>
+                        <td>Avoid Logging Confidential Data</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found proper masking of sensitive data in logging/utils.py</td>
                     </tr>
-                
+                    
                     <tr>
-                        <td>Autosys</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No AutoSys components detected</td>
+                        <td>Create Audit Trail Logs</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of comprehensive audit trails found</td>
                     </tr>
-                
+                    
                     <tr>
-                        <td>Bridge_Utility_Server</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Bridge Utility server components detected</td>
+                        <td>Tracking Id For Log Messages</td>
+                        <td class="">Partially Implemented</td>
+                        <td>Found `correlationId` in logs/utils.py, but not consistently used across the codebase</td>
                     </tr>
-                
+                    
                     <tr>
-                        <td>Channel_Secure_Or_Pingfed</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Channel Secure or PingFed components detected</td>
+                        <td>Log Rest Api Calls</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of middleware or interceptors logging API calls</td>
                     </tr>
-                
+                    
                     <tr>
-                        <td>Cron_Quartz_Spring_Batch</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No CRON, Quartz, or Spring Batch components detected</td>
+                        <td>Log Application Messages</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found `logger.info`, `logger.warn`, and `logger.error` patterns in sherlock_project/sherlock.py</td>
                     </tr>
-                
+                    
                     <tr>
-                        <td>Elastic_Apm</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Elastic APM components detected</td>
+                        <td>Client Ui Errors Are Logged</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of error logging handlers in the frontend code</td>
                     </tr>
-                
-                    <tr>
-                        <td>Harness_Or_Ucd_For_Ci_Cd</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Harness or UCD for CI/CD components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Hashicorp_Vault</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Hashicorp vault components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Ibm_Mq</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No IBM MQ components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Kafka</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Kafka components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Ldap</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No LDAP components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Legacy_Jks_Files</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No legacy JKS files detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Mtls_Or_Mutual_Auth_Hard_Rock_Pattern</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No MTLS, Mutual Auth, or Hard Rock pattern components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Nas_Smb</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No NAS or SMB components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Ndm</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No NDM components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Rabbitmq</td>
-                        <td><span class="component-yes">✅ Yes</span></td>
-                        <td>Found RabbitMQ in .actor/actor.sh and sherlock_project/sherlock.py</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Redis</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Redis dependencies or configurations found</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Rest_Api</td>
-                        <td><span class="component-yes">✅ Yes</span></td>
-                        <td>Found REST API calls in .actor/actor.sh and sherlock_project/sherlock.py</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Smtp</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No SMTP components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Soap_Calls</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No SOAP Calls detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Splunk</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Splunk components detected</td>
-                    </tr>
-                
-                    <tr>
-                        <td>Venafi</td>
-                        <td><span class="component-no">❌ No</span></td>
-                        <td>No Venafi certificate management in security/certs.py</td>
-                    </tr>
-                
+                    
                 </table>
-            </div>
-            
-            <div class="section">
-                <h2>Technology Stack</h2>
-        <h3>Programming Languages</h3><div class='tech-list'>
-                    <div class="tech-item">
-                        <h4>Python (v3.12)</h4>
-                        <p><strong>Purpose:</strong> Main application language</p>
-                        <p><strong>Files:</strong> sherlock_project/__main__.py, sherlock_project/sherlock.py, sherlock_project/notify.py, sherlock_project/result.py, sherlock_project/sites.py</p>
-                    </div>
-                    </div><h3>Frameworks</h3><div class='tech-list'>
-                    <div class="tech-item">
-                        <h4>Requests-futures (v0.2.2)</h4>
-                        <p><strong>Purpose:</strong> Asynchronous HTTP requests library</p>
-                        <p><strong>Files:</strong> sherlock_project/__main__.py</p>
-                    </div>
-                    </div><h3>Libraries</h3><div class='tech-list'>
-                    <div class="tech-item">
-                        <h4>Pandas (v1.5.3)</h4>
-                        <p><strong>Purpose:</strong> Data manipulation and analysis tool</p>
-                        <p><strong>Files:</strong> sherlock_project/result.py, sherlock_project/sites.py</p>
-                    </div>
+                
+                <h3>Availability</h3>
+                <table>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Retry Logic</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found retry logic in requests_futures.sessions.py to handle HTTP failures</td>
+                    </tr>
                     
-                    <div class="tech-item">
-                        <h4>Colorama (v0.4.6)</h4>
-                        <p><strong>Purpose:</strong> Cross-platform colored terminal text</p>
-                        <p><strong>Files:</strong> sherlock_project/__main__.py</p>
-                    </div>
+                    <tr>
+                        <td>Set Timeouts On Io Operations</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence provided</td>
+                    </tr>
                     
-                    <div class="tech-item">
-                        <h4>APYFuturesSession</h4>
-                        <p><strong>Purpose:</strong> Custom futures session for requests with response time measurement</p>
-                        <p><strong>Files:</strong> sherlock_project/sherlock.py</p>
-                    </div>
-                    </div><h3>Databases</h3><div class='tech-list'>
-                    <div class="tech-item">
-                        <h4>None</h4>
-                        <p><strong>Purpose:</strong> No database dependencies or configurations found</p>
-                        <p><strong>Files:</strong> N/A</p>
-                    </div>
-                    </div><h3>Tools</h3><div class='tech-list'>
-                    <div class="tech-item">
-                        <h4>Docker (vlatest)</h4>
-                        <p><strong>Purpose:</strong> Containerization platform</p>
-                        <p><strong>Files:</strong> Dockerfile</p>
-                    </div>
+                    <tr>
+                        <td>Throttling Drop Request</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence provided</td>
+                    </tr>
                     
-                    <div class="tech-item">
-                        <h4>Apify</h4>
-                        <p><strong>Purpose:</strong> Cloud-based actor platform for serverless microservices</p>
-                        <p><strong>Files:</strong> .actor/actor.json, .actor/README.md</p>
-                    </div>
-                    </div><h3>Services</h3><div class='tech-list'>
-                    <div class="tech-item">
-                        <h4>None</h4>
-                        <p><strong>Purpose:</strong> No service dependencies or configurations found</p>
-                        <p><strong>Files:</strong> N/A</p>
-                    </div>
-                    </div>
-            </div>
-            
-            <div class="section">
-                <h2>Summary</h2>
-                <div class="summary">
-                    <div class="summary-item">
-                        <strong>Total Findings:</strong> 0
-                    </div>
+                    <tr>
+                        <td>Circuit Breakers On Outgoing Requests</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence provided</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Error Handling</h3>
+                <table>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Log System Errors</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found system error logging patterns in sherlock_project/sherlock.py and logging/utils.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Use Http Standard Error Codes</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found proper HTTP status codes returned by the Sherlock API in .actor/actor.sh</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Include Client Error Tracking</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of client-side error tracking using Sentry or custom implementations</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Monitoring</h3>
+                <table>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Url Monitoring</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No health check or ping endpoints found for availability monitoring</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Testing</h3>
+                <table>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Automated Regression Testing</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found automated test suites in the project (e.g., .actor/actor.sh)</td>
+                    </tr>
+                    
+                </table>
+                
+        </div>
         
+        <div class="section" id="technology-stack">
+            <h2>Technology Stack</h2>
+        
+            <p>The following technologies were identified in the codebase:</p>
+            
+                <h3>Programming Languages</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Python</td>
+                        <td>3.8</td>
+                        <td>Main application language</td>
+                        <td>sherlock_project/sherlock.py, sherlock_project/__init__.py (+3)</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>JavaScript</td>
+                        <td>unknown</td>
+                        <td>Frontend framework</td>
+                        <td></td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Libraries</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>requests</td>
+                        <td>2.25.1</td>
+                        <td>HTTP client library</td>
+                        <td>sherlock_project/sherlock.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>pandas</td>
+                        <td>1.3.4</td>
+                        <td>Data manipulation library</td>
+                        <td>sherlock_project/sherlock.py, sherlock_project/sites.py</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Tools</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Docker</td>
+                        <td>unknown</td>
+                        <td>Containerization tool</td>
+                        <td>Dockerfile</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Kubernetes</td>
+                        <td>unknown</td>
+                        <td>Container orchestration platform</td>
+                        <td></td>
+                    </tr>
+                    
+                </table>
+                
+        </div>
+        
+        <div class="section" id="action-items">
+            <h2>Action Items</h2>
+            <p>Below are the prioritized action items recommended based on this analysis:</p>
+        
+                <div class="action-item critical">
+                    <h3>1. Complete Intake Form</h3>
+                    <p><strong>Priority:</strong> Critical</p>
+                    <p><strong>Action:</strong> Complete all mandatory questions in the intake form to ensure accurate project configuration.</p>
                 </div>
-            
-            <div class="section">
-                <h2>Conclusion</h2>
-        
-                <p>No significant issues were found in the codebase. The code appears to follow good practices in terms of security, reliability, and maintainability.</p>
-            
-            </div>
+                
+                <div class="action-item medium">
+                    <h3>2. Resolve Component Discrepancies</h3>
+                    <p><strong>Priority:</strong> Medium</p>
+                    <p><strong>Action:</strong> Reconcile mismatches between declared components and what's detected in the code.</p>
+                </div>
+                
+                <div class="action-item medium">
+                    <h3>3. Implement 8 Missing Security Practices</h3>
+                    <p><strong>Priority:</strong> Medium</p>
+                    <p><strong>Action:</strong> Address security gaps to improve overall application security posture.</p>
+                </div>
+                
+        </div>
         </body>
         </html>
         
