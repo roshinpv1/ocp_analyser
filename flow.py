@@ -4,7 +4,8 @@ from nodes import (
     FetchRepo,
     AnalyzeCode,
     GenerateReport,
-    ProcessExcel
+    ProcessExcel,
+    FetchJiraStories
 )
 
 def create_analysis_flow():
@@ -13,10 +14,11 @@ def create_analysis_flow():
     # Instantiate nodes
     fetch_repo = FetchRepo()
     analyze_code = AnalyzeCode(max_retries=5, wait=20)
+    fetch_jira = FetchJiraStories()
     generate_report = GenerateReport()
 
     # Connect nodes in sequence
-    fetch_repo >> analyze_code >> generate_report
+    fetch_repo >> analyze_code >> fetch_jira >> generate_report
 
     # Create the flow starting with FetchRepo
     analysis_flow = Flow(start=fetch_repo)
@@ -30,10 +32,11 @@ def create_excel_analysis_flow():
     process_excel = ProcessExcel()
     fetch_repo = FetchRepo()
     analyze_code = AnalyzeCode(max_retries=5, wait=20)
+    fetch_jira = FetchJiraStories()
     generate_report = GenerateReport()
 
     # Connect nodes in sequence
-    process_excel >> fetch_repo >> analyze_code >> generate_report
+    process_excel >> fetch_repo >> analyze_code >> fetch_jira >> generate_report
 
     # Create the flow starting with ProcessExcel
     analysis_flow = Flow(start=process_excel)

@@ -28,6 +28,13 @@ def main():
     parser.add_argument("--output", default="./analysis_output", help="Output directory for analysis report")
     parser.add_argument("--no-cache", action="store_true", help="Disable LLM response caching")
     parser.add_argument("--github-token", help="GitHub authentication token for private repositories")
+    
+    # Add Jira integration arguments
+    parser.add_argument("--jira-url", help="Jira server URL (e.g., https://your-domain.atlassian.net)")
+    parser.add_argument("--jira-username", help="Jira username or email")
+    parser.add_argument("--jira-api-token", help="Jira API token")
+    parser.add_argument("--jira-project-key", default="XYZ", help="Jira project key to search for (default: XYZ)")
+    
     args = parser.parse_args()
 
     # Validate input arguments
@@ -52,7 +59,12 @@ def main():
         "max_file_size": args.max_size,
         "use_cache": not args.no_cache,
         "output_dir": args.output,
-        "github_token": github_token
+        "github_token": github_token,
+        # Add Jira configuration
+        "jira_url": args.jira_url,
+        "jira_username": args.jira_username,
+        "jira_api_token": args.jira_api_token,
+        "jira_project_key": args.jira_project_key
     }
 
     # If Excel is provided, set excel_file and (optionally) sheet_name

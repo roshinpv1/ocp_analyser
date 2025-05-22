@@ -1481,6 +1481,10 @@ class GenerateReport(Node):
         security_quality_analysis = analysis.get("security_quality_analysis", {})
         print("DEBUG: Security and quality analysis:", list(security_quality_analysis.keys()))
         
+        # Get Jira stories if available
+        jira_stories = shared.get("jira_stories", [])
+        print("DEBUG: Number of Jira stories:", len(jira_stories))
+        
         project_name = shared.get("project_name", "Unknown Project")
         output_dir = shared.get("output_dir", "analysis_output")
         
@@ -1490,10 +1494,10 @@ class GenerateReport(Node):
         print("DEBUG: Project name:", project_name)
         print("DEBUG: Output directory:", output_dir)
         
-        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis
+        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis, jira_stories
 
     def exec(self, prep_res):
-        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis = prep_res
+        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis, jira_stories = prep_res
         print("\nDEBUG: Starting GenerateReport exec")
         print("DEBUG: Number of findings:", len(findings))
         print("DEBUG: Technology stack categories:", list(technology_stack.keys()))
@@ -1603,25 +1607,15 @@ class GenerateReport(Node):
         # Add Table of Contents
         report += "## Table of Contents\n\n"
         report += "1. [Executive Summary](#executive-summary)\n"
+        report += "2. [Component Analysis](#component-analysis)\n"
+        report += "3. [Security and Quality Practices](#security-and-quality-practices)\n"
+        report += "4. [Technology Stack](#technology-stack)\n"
         
-        if excel_validation:
-            report += "2. [Intake Form Validation](#intake-form-validation)\n"
-            toc_index = 3
+        if jira_stories:
+            report += "5. [Jira Stories](#jira-stories)\n"
+            report += "6. [Action Items](#action-items)\n"
         else:
-            toc_index = 2
-            
-        report += f"{toc_index}. [Component Analysis](#component-analysis)\n"
-        toc_index += 1
-        report += f"{toc_index}. [Security and Quality Practices](#security-and-quality-practices)\n"
-        toc_index += 1
-        report += f"{toc_index}. [Technology Stack](#technology-stack)\n"
-        toc_index += 1
-        
-        if findings:
-            report += f"{toc_index}. [Detailed Findings](#detailed-findings)\n"
-            toc_index += 1
-            
-        report += f"{toc_index}. [Action Items](#action-items)\n\n"
+            report += "5. [Action Items](#action-items)\n"
         
         # Component Analysis Section
         report += "## Component Analysis\n\n"
@@ -1842,16 +1836,43 @@ class GenerateReport(Node):
         else:
             report += "No specific action items identified. The codebase appears to follow good practices.\n\n"
 
+        # Add Jira Stories Section if available
+        if jira_stories:
+            report += "## Jira Stories\n\n"
+            report += "The following Jira stories are relevant to this project:\n\n"
+            
+            for story in jira_stories:
+                report += f"### {story['key']}: {story['summary']}\n\n"
+                report += f"**Status**: {story['status']}\n\n"
+                report += f"**Created**: {story['created']}\n\n"
+                report += f"**Last Updated**: {story['updated']}\n\n"
+                
+                if story['description']:
+                    report += f"**Description**:\n\n{story['description']}\n\n"
+                
+                if story['comments']:
+                    report += "**Comments**:\n\n"
+                    for comment in story['comments']:
+                        report += f"- **{comment['author']}** ({comment['created']}):\n  {comment['body']}\n\n"
+                
+                if story['attachments']:
+                    report += "**Attachments**:\n\n"
+                    for attachment in story['attachments']:
+                        report += f"- {attachment['filename']} ({attachment['size']} bytes)\n"
+                    report += "\n"
+            
+            report += "\n"
+
         # Initialize HTML content outside the PDF generation try block
         # Create HTML content for the report
-        html_content = f"""
+        html_content = """
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Code Analysis Report - {project_name}</title>
+            <title>Code Analysis Report - """ + project_name + """</title>
             <style>
-                body {{
+                body {
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                     line-height: 1.4;
                     margin: 0;
@@ -1859,166 +1880,187 @@ class GenerateReport(Node):
                     color: #333;
                     max-width: 1200px;
                     margin: 0 auto;
-                }}
-                h1 {{ font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }}
-                h2 {{ font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }}
-                h2:first-of-type {{ border-top: none; }}
-                h3 {{ font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }}
-                .section {{
+                }
+                h1 { font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }
+                h2 { font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }
+                h2:first-of-type { border-top: none; }
+                h3 { font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }
+                .section {
                     margin: 10px 0;
                     padding: 10px;
                     background: #f8f9fa;
                     border-radius: 4px;
-                }}
-                .component-table {{
+                }
+                .component-table {
                     width: 100%;
                     border-collapse: collapse;
                     margin: 15px 0;
-                }}
-                .component-table th, .component-table td {{
+                }
+                .component-table th, .component-table td {
                     border: 1px solid #ddd;
                     padding: 8px;
                     text-align: left;
-                }}
-                .component-table th {{
+                }
+                .component-table th {
                     background-color: #f2f2f2;
                     font-weight: bold;
-                }}
-                .component-table tr:nth-child(even) {{
+                }
+                .component-table tr:nth-child(even) {
                     background-color: #f9f9f9;
-                }}
-                .finding-list {{
+                }
+                .finding-list {
                     display: grid;
                     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
                     gap: 10px;
                     margin: 10px 0;
-                }}
-                .finding {{
+                }
+                .finding {
                     background: white;
                     padding: 10px;
                     border-radius: 4px;
                     border: 1px solid #eee;
-                }}
-                .action-item {{
+                }
+                .action-item {
                     background: #f8f9fa;
                     padding: 10px 15px;
                     margin: 10px 0;
                     border-radius: 4px;
                     border-left: 5px solid #007bff;
-                }}
-                .action-item.critical {{
+                }
+                .action-item.critical {
                     border-left-color: #dc3545;
-                }}
-                .action-item.high {{
+                }
+                .action-item.high {
                     border-left-color: #fd7e14;
-                }}
-                .action-item.medium {{
+                }
+                .action-item.medium {
                     border-left-color: #ffc107;
-                }}
-                .action-item.low {{
+                }
+                .action-item.low {
                     border-left-color: #28a745;
-                }}
-                .severity-high {{ color: #dc3545; }}
-                .severity-medium {{ color: #fd7e14; }}
-                .severity-low {{ color: #28a745; }}
-                .severity-badge {{
+                }
+                .severity-high { color: #dc3545; }
+                .severity-medium { color: #fd7e14; }
+                .severity-low { color: #28a745; }
+                .severity-badge {
                     display: inline-block;
                     padding: 2px 6px;
                     border-radius: 3px;
                     font-size: 0.9em;
                     font-weight: 500;
                     margin-right: 8px;
-                }}
-                .severity-high .severity-badge {{ background: #dc3545; color: white; }}
-                .severity-medium .severity-badge {{ background: #fd7e14; color: white; }}
-                .severity-low .severity-badge {{ background: #28a745; color: white; }}
-                .validation-status {{
+                }
+                .severity-high .severity-badge { background: #dc3545; color: white; }
+                .severity-medium .severity-badge { background: #fd7e14; color: white; }
+                .severity-low .severity-badge { background: #28a745; color: white; }
+                .validation-status {
                     display: inline-block;
                     padding: 5px 10px;
                     border-radius: 4px;
                     font-weight: bold;
-                }}
-                .validation-complete {{ background: #d4edda; color: #155724; }}
-                .validation-incomplete {{ background: #f8d7da; color: #721c24; }}
-                .component-yes {{
+                }
+                .validation-complete { background: #d4edda; color: #155724; }
+                .validation-incomplete { background: #f8d7da; color: #721c24; }
+                .component-yes {
                     color: #28a745;
                     font-weight: bold;
-                }}
-                .component-no {{
+                }
+                .component-no {
                     color: #dc3545;
-                }}
-                .match {{
+                }
+                .match {
                     color: #28a745;
                     font-weight: bold;
-                }}
-                .mismatch {{
+                }
+                .mismatch {
                     color: #fd7e14;
                     font-weight: bold;
-                }}
-                .toc {{
+                }
+                .toc {
                     background: #f8f9fa;
                     padding: 10px 15px;
                     border-radius: 4px;
                     margin: 15px 0;
-                }}
-                .toc ul {{
+                }
+                .toc ul {
                     margin: 5px 0;
                     padding-left: 20px;
-                }}
-                .executive-summary {{
+                }
+                .executive-summary {
                     background: #e9f7fd;
                     border-radius: 4px;
                     padding: 10px 15px;
                     margin: 15px 0;
                     border-left: 5px solid #17a2b8;
-                }}
-                pre, code {{
+                }
+                pre, code {
                     background: #f8f9fa;
                     padding: 2px 4px;
                     border-radius: 3px;
                     font-family: monospace;
                     font-size: 0.9em;
                     overflow-x: auto;
-                }}
-                .summary {{
+                }
+                .summary {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                     gap: 10px;
                     margin: 10px 0;
-                }}
-                .summary-item {{
+                }
+                .summary-item {
                     background: white;
                     padding: 10px;
                     border-radius: 4px;
                     border: 1px solid #eee;
-                }}
-                ul, ol {{ margin: 5px 0; padding-left: 20px; }}
-                li {{ margin: 3px 0; }}
-                table {{
+                }
+                .attachments {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 15px;
+                    margin: 15px 0;
+                }
+                .attachment {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                    text-align: center;
+                }
+                .attachment img {
+                    margin: 10px auto;
+                    display: block;
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 3px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                }
+                ul, ol { margin: 5px 0; padding-left: 20px; }
+                li { margin: 3px 0; }
+                table {
                     width: 100%;
                     border-collapse: collapse;
                     margin: 15px 0;
-                }}
-                th, td {{
+                }
+                th, td {
                     border: 1px solid #ddd;
                     padding: 8px;
                     text-align: left;
-                }}
-                th {{
+                }
+                th {
                     background-color: #f2f2f2;
                     font-weight: bold;
-                }}
-                tr:nth-child(even) {{
+                }
+                tr:nth-child(even) {
                     background-color: #f9f9f9;
-                }}
-                @media print {{
-                    body {{ padding: 10px; }}
-                    .section {{ break-inside: avoid; }}
-                }}
+                }
+                @media print {
+                    body { padding: 10px; }
+                    .section { break-inside: avoid; }
+                }
             </style>
         </head>
         <body>
-            <h1>Code Analysis Report for {project_name}</h1>
+            <h1>Code Analysis Report for """ + project_name + """</h1>
             
             <!-- Executive Summary -->
             <div class="executive-summary">
@@ -2114,23 +2156,28 @@ class GenerateReport(Node):
         
         toc_index = 2
         if excel_validation:
-            html_content += f"""
+            html_content += """
                     <li><a href="#intake-form-validation">Intake Form Validation</a></li>
             """
             toc_index += 1
             
-        html_content += f"""
+        html_content += """
                     <li><a href="#component-analysis">Component Analysis</a></li>
                     <li><a href="#security-and-quality-practices">Security and Quality Practices</a></li>
                     <li><a href="#technology-stack">Technology Stack</a></li>
         """
         
         if findings:
-            html_content += f"""
+            html_content += """
                     <li><a href="#detailed-findings">Detailed Findings</a></li>
             """
         
-        html_content += f"""
+        if jira_stories:
+            html_content += """
+                    <li><a href="#jira-stories">Jira Stories</a></li>
+            """
+            
+        html_content += """
                     <li><a href="#action-items">Action Items</a></li>
                 </ol>
             </div>
@@ -2470,6 +2517,81 @@ class GenerateReport(Node):
             </div>
             """
         
+        # Add Jira Stories Section if available
+        if jira_stories:
+            html_content += """
+        <div class="section" id="jira-stories">
+            <h2>Jira Stories</h2>
+        
+            <p>The following Jira stories are relevant to this project:</p>
+        """
+            
+            for story in jira_stories:
+                html_content += f"""
+                <div class="action-item">
+                    <h3>{story['key']}: {story['summary']}</h3>
+                    <p><strong>Status:</strong> {story['status']}</p>
+                    <p><strong>Created:</strong> {story['created']}</p>
+                    <p><strong>Last Updated:</strong> {story['updated']}</p>
+                """
+                
+                if story['description']:
+                    html_content += f"""
+                    <p><strong>Description:</strong></p>
+                    <pre>{story['description']}</pre>
+                    """
+                
+                if story['comments']:
+                    html_content += """
+                    <p><strong>Comments:</strong></p>
+                    <ul>
+                    """
+                    
+                    for comment in story['comments']:
+                        html_content += f"""
+                        <li>
+                            <strong>{comment['author']}</strong> ({comment['created']}):
+                            <p>{comment['body']}</p>
+                        </li>
+                        """
+                        
+                    html_content += """
+                    </ul>
+                    """
+                
+                if story['attachments']:
+                    html_content += """
+                    <p><strong>Attachments:</strong></p>
+                    <div class="attachments">
+                    """
+                    
+                    for attachment in story['attachments']:
+                        if attachment.get('is_image') and 'local_path' in attachment:
+                            html_content += f"""
+                            <div class="attachment">
+                                <p>{attachment['filename']} ({attachment['size']} bytes)</p>
+                                <img src="{attachment['local_path']}" alt="{attachment['filename']}" style="max-width: 100%; max-height: 300px;">
+                            </div>
+                            """
+                        else:
+                            html_content += f"""
+                            <div class="attachment">
+                                <p>{attachment['filename']} ({attachment['size']} bytes)</p>
+                            </div>
+                            """
+                            
+                    html_content += """
+                    </div>
+                    """
+                
+                html_content += """
+                </div>
+                """
+            
+            html_content += """
+        </div>
+        """
+
         # Action Items Section
         html_content += """
         <div class="section" id="action-items">
@@ -2894,4 +3016,272 @@ class ProcessExcel(Node):
         # Store validation results
         shared["excel_validation"] = exec_res.get("validation", {})
         
+        return "default"
+
+
+class FetchJiraStories(Node):
+    def prep(self, shared):
+        print("\nDEBUG: Starting FetchJiraStories prep")
+        
+        # Get Jira credentials and configuration from environment variables
+        # or let users pass them as command line arguments
+        jira_url = os.environ.get("JIRA_URL", shared.get("jira_url"))
+        jira_username = os.environ.get("JIRA_USERNAME", shared.get("jira_username"))
+        jira_api_token = os.environ.get("JIRA_API_TOKEN", shared.get("jira_api_token"))
+        jira_project_key = os.environ.get("JIRA_PROJECT_KEY", shared.get("jira_project_key", "XYZ"))
+        output_dir = shared.get("output_dir", "analysis_output")
+        
+        # DEBUG FLAG - Set to True to use sample data instead of real Jira
+        use_sample_data = True
+        
+        if use_sample_data:
+            print("Using sample Jira data for testing")
+            return {"use_sample": True, "output_dir": output_dir, "project_key": jira_project_key}
+            
+        if not jira_url or not jira_username or not jira_api_token:
+            print("Warning: Jira credentials not found. Skipping Jira integration.")
+            return None
+            
+        return {"use_sample": False, "jira_url": jira_url, "jira_username": jira_username, 
+                "jira_api_token": jira_api_token, "project_key": jira_project_key, "output_dir": output_dir}
+        
+    def exec(self, prep_res):
+        if not prep_res:
+            # Skip Jira integration if credentials aren't available
+            print("Skipping Jira integration due to missing credentials")
+            return None
+            
+        # Check if we should use sample data
+        if prep_res.get("use_sample", False):
+            return self._generate_sample_stories(prep_res["project_key"], prep_res["output_dir"])
+            
+        jira_url = prep_res["jira_url"]
+        jira_username = prep_res["jira_username"]
+        jira_api_token = prep_res["jira_api_token"]
+        jira_project_key = prep_res["project_key"]
+        output_dir = prep_res["output_dir"]
+        
+        try:
+            from jira import JIRA
+            
+            print(f"Connecting to Jira at {jira_url} with username {jira_username}")
+            print(f"Using project key: {jira_project_key}")
+            
+            # Connect to Jira
+            try:
+                jira = JIRA(
+                    server=jira_url,
+                    basic_auth=(jira_username, jira_api_token)
+                )
+                
+                # Verify connection by trying to access the server info
+                server_info = jira.server_info()
+                print(f"Successfully connected to Jira server version: {server_info.get('version', 'unknown')}")
+            except Exception as conn_error:
+                print(f"Error connecting to Jira: {str(conn_error)}")
+                return None
+            
+            # Search for issues that start with the specified project key
+            try:
+                jql_query = f'project = "{jira_project_key}" ORDER BY updated DESC'
+                print(f"Executing JQL query: {jql_query}")
+                issues = jira.search_issues(jql_query, maxResults=10)
+                print(f"Found {len(issues)} Jira issues")
+            except Exception as query_error:
+                print(f"Error searching for Jira issues: {str(query_error)}")
+                return None
+            
+            if not issues:
+                print(f"No issues found for project key: {jira_project_key}")
+                return []
+                
+            # Extract relevant information from each issue
+            stories = []
+            for issue in issues:
+                print(f"Processing issue: {issue.key}")
+                # Get issue details
+                story = {
+                    'key': issue.key,
+                    'summary': issue.fields.summary,
+                    'status': issue.fields.status.name,
+                    'description': issue.fields.description or '',
+                    'created': issue.fields.created,
+                    'updated': issue.fields.updated,
+                    'comments': [],
+                    'attachments': []
+                }
+                
+                # Get comments
+                if hasattr(issue.fields, 'comment'):
+                    for comment in issue.fields.comment.comments:
+                        story['comments'].append({
+                            'author': comment.author.displayName,
+                            'body': comment.body,
+                            'created': comment.created
+                        })
+                
+                # Get attachments - especially images
+                if hasattr(issue.fields, 'attachment'):
+                    for attachment in issue.fields.attachment:
+                        is_image = attachment.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp'))
+                        
+                        # For images, save them locally
+                        attachment_data = {
+                            'filename': attachment.filename,
+                            'created': attachment.created,
+                            'is_image': is_image,
+                            'content_type': attachment.mimeType,
+                            'size': attachment.size
+                        }
+                        
+                        if is_image:
+                            try:
+                                # Download image and save it
+                                image_data = jira.download_attachment(attachment.id)
+                                attachments_dir = os.path.join(output_dir, 'jira_attachments')
+                                os.makedirs(attachments_dir, exist_ok=True)
+                                
+                                image_path = os.path.join(attachments_dir, attachment.filename)
+                                with open(image_path, 'wb') as f:
+                                    f.write(image_data)
+                                    
+                                # Store relative path for embedding in HTML
+                                # Use a relative path that works in HTML context
+                                attachment_data['local_path'] = f"jira_attachments/{attachment.filename}"
+                                print(f"Saved attachment: {image_path}")
+                            except Exception as e:
+                                print(f"Error downloading attachment {attachment.filename}: {str(e)}")
+                        
+                        story['attachments'].append(attachment_data)
+                
+                stories.append(story)
+            
+            return stories
+            
+        except ImportError:
+            print("Error: Jira package not installed. Please install it using 'pip install jira'.")
+            return None
+        except Exception as e:
+            print(f"Error fetching Jira stories: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return None
+    
+    def _generate_sample_stories(self, project_key, output_dir):
+        """Generate sample Jira stories for testing"""
+        print("Generating sample Jira stories for testing")
+        
+        # Create sample stories
+        stories = []
+        
+        # Story 1 - Feature request with comments and attachments
+        story1 = {
+            'key': f'{project_key}-101',
+            'summary': 'Implement Jira integration for code analyzer',
+            'status': 'In Progress',
+            'description': 'As a user, I want to see my relevant Jira stories in the code analysis report so that I can track issues related to my codebase.\n\n**Acceptance Criteria:**\n- Fetch stories from Jira API\n- Display summary, status, and description\n- Show comments and attachments\n- Integrate with existing report',
+            'created': '2023-05-15T10:30:00.000+0000',
+            'updated': '2023-05-16T14:45:00.000+0000',
+            'comments': [
+                {
+                    'author': 'John Developer',
+                    'body': 'I\'ve started working on this. Initial API connection is working.',
+                    'created': '2023-05-15T15:22:00.000+0000'
+                },
+                {
+                    'author': 'Maria Manager',
+                    'body': 'Great! Make sure to handle authentication errors gracefully.',
+                    'created': '2023-05-15T16:05:00.000+0000'
+                }
+            ],
+            'attachments': []
+        }
+        
+        # Create a sample image attachment
+        try:
+            # Create a simple image
+            from PIL import Image, ImageDraw, ImageFont
+            import random
+            
+            attachments_dir = os.path.join(output_dir, 'jira_attachments')
+            os.makedirs(attachments_dir, exist_ok=True)
+            
+            # Create a colored rectangle with text
+            img = Image.new('RGB', (400, 200), color=(73, 109, 137))
+            d = ImageDraw.Draw(img)
+            d.text((10, 10), f"Sample Jira Image\n{project_key}-101", fill=(255, 255, 0))
+            d.rectangle([(50, 50), (350, 150)], outline=(255, 255, 255))
+            
+            image_filename = f"{project_key}_design_mockup.png"
+            image_path = os.path.join(attachments_dir, image_filename)
+            
+            # Save the image
+            img.save(image_path)
+            
+            # Add to story attachments
+            story1['attachments'].append({
+                'filename': image_filename,
+                'created': '2023-05-15T12:00:00.000+0000',
+                'is_image': True,
+                'content_type': 'image/png',
+                'size': os.path.getsize(image_path),
+                'local_path': f"jira_attachments/{image_filename}"
+            })
+            
+            print(f"Created sample image attachment: {image_path}")
+            
+        except ImportError:
+            print("PIL library not available, skipping image generation")
+        except Exception as e:
+            print(f"Error creating sample image: {str(e)}")
+        
+        # Story 2 - Bug report
+        story2 = {
+            'key': f'{project_key}-102',
+            'summary': 'Fix broken CSS in report generation',
+            'status': 'To Do',
+            'description': 'The CSS styles in the generated report are not being applied correctly. The Jira stories section is not displaying images properly.\n\n**Steps to reproduce:**\n1. Generate a report with Jira stories\n2. Open the HTML report\n3. Notice the images are not displayed',
+            'created': '2023-05-17T09:15:00.000+0000',
+            'updated': '2023-05-17T09:15:00.000+0000',
+            'comments': [],
+            'attachments': []
+        }
+        
+        # Story 3 - Completed task
+        story3 = {
+            'key': f'{project_key}-100',
+            'summary': 'Set up project structure and dependencies',
+            'status': 'Done',
+            'description': 'Create the initial project structure with requirements.txt, main.py, and necessary modules.',
+            'created': '2023-05-10T08:00:00.000+0000',
+            'updated': '2023-05-12T16:30:00.000+0000',
+            'comments': [
+                {
+                    'author': 'John Developer',
+                    'body': 'Completed and ready for review.',
+                    'created': '2023-05-12T15:45:00.000+0000'
+                },
+                {
+                    'author': 'Sarah Reviewer',
+                    'body': 'Looks good! Approved.',
+                    'created': '2023-05-12T16:30:00.000+0000'
+                }
+            ],
+            'attachments': []
+        }
+        
+        # Add the stories to the list
+        stories.extend([story1, story2, story3])
+        
+        print(f"Generated {len(stories)} sample Jira stories")
+        return stories
+    
+    def post(self, shared, prep_res, exec_res):
+        if exec_res:
+            print(f"\nFetched {len(exec_res)} Jira stories")
+            shared["jira_stories"] = exec_res
+        else:
+            print("No Jira stories fetched or error occurred")
+            shared["jira_stories"] = []
+            
         return "default"
