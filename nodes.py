@@ -1094,7 +1094,7 @@ Example technology stack format:
                 "name": "Python",
                 "version": "3.8",
                 "purpose": "Main application language",
-                "files": ["main.py", "utils.py"]
+                "files": []
             }}
         ],
         "frameworks": [
@@ -1102,7 +1102,7 @@ Example technology stack format:
                 "name": "Flask",
                 "version": "2.0",
                 "purpose": "Web framework",
-                "files": ["app.py"]
+                "files": []
             }}
         ]
     }}
@@ -1119,7 +1119,7 @@ For the component_analysis section, use this format:
     "component_analysis": {{
         "venafi": {{
             "detected": "yes",
-            "evidence": "Found Venafi certificate management in security/certs.py"
+            "evidence": "Found Venafi certificate management"
         }},
         "redis": {{
             "detected": "no",
@@ -1134,14 +1134,14 @@ Next, specifically analyze the codebase for the following security and quality p
 
 {security_checks}
 
-For the security_quality_analysis section, use this format:
+For the security_quality_analysis section, use this format with the actual data:
 ```json
 {{
     "security_quality_analysis": {{
         "auditability": {{
             "avoid_logging_confidential_data": {{
                 "implemented": "yes",
-                "evidence": "Found proper masking of sensitive data in logging/utils.py",
+                "evidence": "Found proper masking of sensitive data in logging",
                 "recommendation": "None needed; good practices observed."
             }},
             "create_audit_trail_logs": {{
@@ -2874,12 +2874,17 @@ class ProcessExcel(Node):
             
             # Get component name, repo URL and its row
             component_name, repo_url, git_repo_row = find_component_and_repo(sheet)
+            component_name_row = None
             
             # Validate Git repo URL
             git_repo_valid = is_valid_git_repo(repo_url) if repo_url else False
             
             # Process all rows (questions and answers)
             for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
+                # Check if this is the component name row (first row with content)
+                if len(row) >= 1 and row[0].value and str(row[0].value).strip() == component_name:
+                    component_name_row = row
+                    
                 if len(row) >= 3 and row[1].value:  # Question in second column
                     question = str(row[1].value).strip()
                     answer = row[2].value
@@ -2887,6 +2892,7 @@ class ProcessExcel(Node):
                     total_rows += 1
                     
                     # Check if this is a component question
+                    is_component_question = False
                     # Look for patterns like "Is the component using X?" or "Does this use Y?"
                     if any(pattern in question.lower() for pattern in ["is the component using", "does this use", "are you using"]):
                         # Extract component name from question
@@ -2909,10 +2915,20 @@ class ProcessExcel(Node):
                                 "answer": answer_text,
                                 "is_yes": is_yes
                             }
+                            is_component_question = True
                     
-                    # Check if this is a mandatory question (for now, consider all as mandatory)
-                    # In a future update, you can specify which questions are mandatory
+                    # Check if this is a mandatory question
+                    # Exclude component questions from mandatory checks
                     is_mandatory = True
+                    
+                    # Skip component name questions when checking for mandatory fields
+                    if is_component_question:
+                        is_mandatory = False
+                    
+                    # Skip component name row and Git repo row
+                    if (component_name_row and row[0].coordinate == component_name_row[0].coordinate) or \
+                       (git_repo_row and row[0].coordinate == git_repo_row[0].coordinate):
+                        is_mandatory = False
                     
                     if is_mandatory:
                         mandatory_count += 1

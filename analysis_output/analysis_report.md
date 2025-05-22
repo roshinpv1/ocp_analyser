@@ -1,9 +1,9 @@
-# Code Analysis Report for ocp_analyser
+# Code Analysis Report for cloudview
 
 ## Executive Summary
 
-- **Security & Quality Implementation**: 53.3%
-- **Practices Implemented**: 8 fully, 0 partially, 7 not implemented
+- **Security & Quality Implementation**: 46.7%
+- **Practices Implemented**: 7 fully, 0 partially, 8 not implemented
 - **Total Findings**: 0
 
 ## Table of Contents
@@ -12,37 +12,37 @@
 2. [Component Analysis](#component-analysis)
 3. [Security and Quality Practices](#security-and-quality-practices)
 4. [Technology Stack](#technology-stack)
-5. [Action Items](#action-items)
-
+5. [Jira Stories](#jira-stories)
+6. [Action Items](#action-items)
 ## Component Analysis
 
 The following components were detected in the codebase:
 
 | Component | Detected | Evidence |
 |-----------|----------|----------|
-| venafi | no | No evidence of Venafi certificate management fo... |
-| redis | no | No Redis dependencies or configurations found. |
-| channel_secure | no | No evidence of Channel Secure or PingFed servic... |
-| nas_smb | no | No evidence of NAS/SMB file systems found. |
-| smtp | no | No SMTP configurations or libraries found. |
-| autosys | no | No evidence of AutoSys job scheduling found. |
-| cron_quartz_spring_batch | yes | ['found cron jobs in .actor/actor.sh and .actor/README.md'] |
-| mtls_hardware_rock_pattern | no | No evidence of MTLS/Hard Rock pattern found. |
-| ndm | no | No evidence of NDM (Network Device Manager) found. |
-| legacy_jks_files | no | No legacy JKS files found. |
-| soap_calls | no | No SOAP call libraries or configurations found. |
-| rest_api | yes | ['.actor/actor.sh: `curl` command for REST API calls'] |
-| apigee | no | No evidence of ApigEE APIs found. |
-| kafka | no | No Kafka configurations or libraries found. |
-| ibm_mq | no | No IBM MQ configurations or libraries found. |
-| ldap | no | No LDAP configurations or libraries found. |
-| splunk | no | No evidence of Splunk monitoring found. |
-| appdynamics | no | No evidence of AppDynamics tools found. |
-| elastic_apm | no | No evidence of Elastic APM for monitoring found. |
-| harness_ucd_ci_cd | no | No evidence of Harness or UCD CI/CD tools found. |
-| hashicorp_vault | no | No evidence of HashiCorp Vault for secrets mana... |
-| bridge_utility_server | no | No evidence of bridge utility server found. |
-| rabbitmq | yes | ['.actor/actor.sh: `rabbitmq` command for RabbitMQ integration'] |
+| venafi | no | No Venafi dependencies or configurations found |
+| redis | no | No Redis dependencies or configurations found |
+| channel_secure/pingfed | no | No Channel Secure / PingFed dependencies or con... |
+| nas/smb | no | No NAS / SMB dependencies or configurations found |
+| smtp | yes | Found SMTP libraries or functions in the codeba... |
+| autosys | no | No Autosys dependencies or configurations found |
+| cron/quartz/spring batch | yes | Found cron scheduling functions or libraries in... |
+| mtls/mutual auth/hard rock pattern | no | No MTLS / Mutual Auth / Hard Rock pattern depen... |
+| ndm | no | No NDM dependencies or configurations found |
+| legacy jks files | yes | Found `jks` files in the codebase, which are us... |
+| soap calls | no | No SOAP dependencies or configurations found |
+| rest api | yes | Found REST API functions and libraries in the c... |
+| apigee | no | No APIGEE dependencies or configurations found |
+| kafka | yes | Found Kafka libraries and functions in the code... |
+| ibm mq | no | No IBM MQ dependencies or configurations found |
+| ldap | yes | Found LDAP libraries and functions in the codeb... |
+| splunk | no | No Splunk dependencies or configurations found |
+| appd/appdyn | no | No AppDynamics dependencies or configurations f... |
+| elastic apm | yes | Found Elastic APM libraries and functions in th... |
+| harness/ucd for ci/cd | no | No Harness or UCD dependencies or configuration... |
+| hashicorp vault | yes | Found HashiCorp Vault libraries and functions i... |
+| bridge utility server | no | No Bridge Utility server dependencies or config... |
+| rabbitmq | yes | Found RabbitMQ libraries and functions in the c... |
 
 ## Security and Quality Practices
 
@@ -52,41 +52,41 @@ The following sections summarize the security and quality practices implemented 
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Avoid Logging Confidential Data | Not Implemented | [] |
-| Create Audit Trail Logs | Not Implemented | [] |
-| Tracking Id For Log Messages | Not Implemented | [] |
-| Log Rest Api Calls | Implemented | ['.actor/actor.sh: `curl` command for logging REST API calls'] |
-| Log Application Messages | Not Implemented | [] |
-| Client Ui Errors Are Logged | Implemented | ['.actor/actor.sh: `curl` command for client-side error tracking'] |
+| Avoid Logging Confidential Data | Implemented | Found proper masking of sensitive data in loggi... |
+| Create Audit Trail Logs | Not Implemented | No evidence of comprehensive audit trails found. |
+| Tracking Id For Log Messages | Implemented | Found `correlationId` in log messages, which he... |
+| Log Rest Api Calls | Not Implemented | No evidence of logging REST API calls in the co... |
+| Log Application Messages | Implemented | Found logger.info/warn/error patterns in the ap... |
+| Client Ui Errors Are Logged | Not Implemented | No evidence of logging client-side UI errors in... |
 
 ### Availability
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Retry Logic | Implemented | ['.actor/actor.sh: `timeout` setting for HTTP requests'] |
-| Set Timeouts On Io Operations | Implemented | ['.actor/actor.sh: `timeout` settings for file I/O operations'] |
-| Throttling Drop Request | Not Implemented | [] |
-| Circuit Breakers On Outgoing Requests | Implemented | [".actor/README.md: 'Apify Console' for automated testing"] |
+| Retry Logic | Implemented | Found retry logic implemented in HTTP clients, ... |
+| Set Timeouts On Io Operations | Not Implemented | No evidence of setting timeouts on I/O operatio... |
+| Throttling Drop Request | Not Implemented | No evidence of throttling or dropping requests ... |
+| Circuit Breakers On Outgoing Requests | Not Implemented | No evidence of circuit breaker implementations ... |
 
 ### Error Handling
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Log System Errors | Implemented | ['.actor/actor.sh: `curl` command for logging system errors'] |
-| Use Http Standard Error Codes | Not Implemented | [] |
-| Include Client Error Tracking | Implemented | ['.actor/actor.sh: `curl` command for client-side error tracking'] |
+| Log System Errors | Implemented | Found backend error logging patterns using `log... |
+| Use Http Standard Error Codes | Not Implemented | No evidence of using standard HTTP status codes... |
+| Include Client Error Tracking | Implemented | Found client-side error tracking mechanisms, su... |
 
 ### Monitoring
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Url Monitoring | Not Implemented | [] |
+| Url Monitoring | Implemented | Found health check endpoints in the codebase, s... |
 
 ### Testing
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Automated Regression Testing | Implemented | [".actor/README.md: 'Apify Console' for automated testing"] |
+| Automated Regression Testing | Not Implemented | No evidence of automated regression test suites... |
 
 ## Technology Stack
 
@@ -96,26 +96,53 @@ The following technologies were identified in the codebase:
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Python | 3.10 | Main application language | main.py |
+| Python | 3.8 | Main application language |  |
+
+### Frameworks
+
+| Technology | Version | Purpose | Files |
+|------------|---------|---------|-------|
+| FastAPI | 0.104.0 | Backend API framework | backend/app.py |
+| Next.js | undefined | Frontend web framework | frontend/pages/api/analyze-cloud.ts, frontend/pages/api/delete-tutorial.ts (+2) |
 
 ### Libraries
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| pocketflow | 0.0.1 | LLM framework for code... | flow.py |
-| pyyaml | 6.0 | Library for parsing an... | main.py |
-| requests | 2.28.0 | HTTP library for makin... | utils/call_llm.py |
+| pyyaml | 6.0 | Config file parser | backend/requirements.txt |
+| requests | 2.28.0 | HTTP client library | backend/requirements.txt, frontend/pages/api/cloud-evaluation/[evaluationId].ts |
+| gitpython | 3.1.0 | Git interaction library | backend/requirements.txt |
+
+### Databases
+
+| Technology | Version | Purpose | Files |
+|------------|---------|---------|-------|
+| MongoDB | unknown | Database for storing c... |  |
+| SQLServer | unknown | Database for storing c... |  |
+| MySQL | unknown | Database for storing c... |  |
+| PostgreSQL | unknown | Database for storing c... |  |
+| Oracle | unknown | Database for storing c... |  |
+| Cassandra | unknown | Database for storing c... |  |
+| Couchbase | unknown | Database for storing c... |  |
+
+### Tools
+
+| Technology | Version | Purpose | Files |
+|------------|---------|---------|-------|
+| Docker | undefined | Containerization tool | kubernetes/deployment.yml, backend/requirements.txt |
+| Kubernetes | undefined | Orchestration platform... | kubernetes/deployment.yml |
 
 ### Services
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| GitHub API | unknown | Integration with GitHu... |  |
-| AI model | GPT-4 | LLM for generating tut... | utils/call_llm.py |
+| AWS | unknown | Cloud provider |  |
+| Azure | unknown | Cloud provider |  |
+| GCP | unknown | Cloud provider |  |
 
 ## Action Items
 
-### 1. Implement 7 Missing Security Practices (Priority: Medium)
+### 1. Implement 8 Missing Security Practices (Priority: Medium)
 
 Address security gaps to improve overall application security posture.
 

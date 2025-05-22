@@ -3,7 +3,7 @@
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Code Analysis Report - ocp_analyser</title>
+            <title>Code Analysis Report - cloudview</title>
             <style>
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -193,15 +193,15 @@
             </style>
         </head>
         <body>
-            <h1>Code Analysis Report for ocp_analyser</h1>
+            <h1>Code Analysis Report for cloudview</h1>
             
             <!-- Executive Summary -->
             <div class="executive-summary">
                 <h2 id="executive-summary">Executive Summary</h2>
         
                 <ul>
-                    <li><strong>Security & Quality Implementation</strong>: 53.3%</li>
-                    <li><strong>Practices Implemented</strong>: 8 fully, 0 partially, 7 not implemented</li>
+                    <li><strong>Security & Quality Implementation</strong>: 46.7%</li>
+                    <li><strong>Practices Implemented</strong>: 7 fully, 0 partially, 8 not implemented</li>
                 
                     <li><strong>Total Findings</strong>: 0</li>
             
@@ -237,139 +237,139 @@
                 <tr>
                     <td>venafi</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of Venafi certificate management fo...</td>
+                    <td>No Venafi dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>redis</td>
                     <td class="component-no">no</td>
-                    <td>No Redis dependencies or configurations found.</td>
+                    <td>No Redis dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
-                    <td>channel_secure</td>
+                    <td>channel_secure/pingfed</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of Channel Secure or PingFed servic...</td>
+                    <td>No Channel Secure / PingFed dependencies or con...</td>
                 </tr>
                 
                 <tr>
-                    <td>nas_smb</td>
+                    <td>nas/smb</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of NAS/SMB file systems found.</td>
+                    <td>No NAS / SMB dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>smtp</td>
-                    <td class="component-no">no</td>
-                    <td>No SMTP configurations or libraries found.</td>
+                    <td class="component-yes">yes</td>
+                    <td>Found SMTP libraries or functions in the codeba...</td>
                 </tr>
                 
                 <tr>
                     <td>autosys</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of AutoSys job scheduling found.</td>
+                    <td>No Autosys dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
-                    <td>cron_quartz_spring_batch</td>
+                    <td>cron/quartz/spring batch</td>
                     <td class="component-yes">yes</td>
-                    <td>found cron jobs in .actor/actor.sh and .actor/README.md (+53 more)</td>
+                    <td>Found cron scheduling functions or libraries in...</td>
                 </tr>
                 
                 <tr>
-                    <td>mtls_hardware_rock_pattern</td>
+                    <td>mtls/mutual auth/hard rock pattern</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of MTLS/Hard Rock pattern found.</td>
+                    <td>No MTLS / Mutual Auth / Hard Rock pattern depen...</td>
                 </tr>
                 
                 <tr>
                     <td>ndm</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of NDM (Network Device Manager) found.</td>
+                    <td>No NDM dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
-                    <td>legacy_jks_files</td>
-                    <td class="component-no">no</td>
-                    <td>No legacy JKS files found.</td>
-                </tr>
-                
-                <tr>
-                    <td>soap_calls</td>
-                    <td class="component-no">no</td>
-                    <td>No SOAP call libraries or configurations found.</td>
-                </tr>
-                
-                <tr>
-                    <td>rest_api</td>
+                    <td>legacy jks files</td>
                     <td class="component-yes">yes</td>
-                    <td>.actor/actor.sh: `curl` command for REST API calls (+48 more)</td>
+                    <td>Found `jks` files in the codebase, which are us...</td>
+                </tr>
+                
+                <tr>
+                    <td>soap calls</td>
+                    <td class="component-no">no</td>
+                    <td>No SOAP dependencies or configurations found</td>
+                </tr>
+                
+                <tr>
+                    <td>rest api</td>
+                    <td class="component-yes">yes</td>
+                    <td>Found REST API functions and libraries in the c...</td>
                 </tr>
                 
                 <tr>
                     <td>apigee</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of ApigEE APIs found.</td>
+                    <td>No APIGEE dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>kafka</td>
-                    <td class="component-no">no</td>
-                    <td>No Kafka configurations or libraries found.</td>
+                    <td class="component-yes">yes</td>
+                    <td>Found Kafka libraries and functions in the code...</td>
                 </tr>
                 
                 <tr>
-                    <td>ibm_mq</td>
+                    <td>ibm mq</td>
                     <td class="component-no">no</td>
-                    <td>No IBM MQ configurations or libraries found.</td>
+                    <td>No IBM MQ dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>ldap</td>
-                    <td class="component-no">no</td>
-                    <td>No LDAP configurations or libraries found.</td>
+                    <td class="component-yes">yes</td>
+                    <td>Found LDAP libraries and functions in the codeb...</td>
                 </tr>
                 
                 <tr>
                     <td>splunk</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of Splunk monitoring found.</td>
+                    <td>No Splunk dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
-                    <td>appdynamics</td>
+                    <td>appd/appdyn</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of AppDynamics tools found.</td>
+                    <td>No AppDynamics dependencies or configurations f...</td>
                 </tr>
                 
                 <tr>
-                    <td>elastic_apm</td>
-                    <td class="component-no">no</td>
-                    <td>No evidence of Elastic APM for monitoring found.</td>
+                    <td>elastic apm</td>
+                    <td class="component-yes">yes</td>
+                    <td>Found Elastic APM libraries and functions in th...</td>
                 </tr>
                 
                 <tr>
-                    <td>harness_ucd_ci_cd</td>
+                    <td>harness/ucd for ci/cd</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of Harness or UCD CI/CD tools found.</td>
+                    <td>No Harness or UCD dependencies or configuration...</td>
                 </tr>
                 
                 <tr>
-                    <td>hashicorp_vault</td>
-                    <td class="component-no">no</td>
-                    <td>No evidence of HashiCorp Vault for secrets mana...</td>
+                    <td>hashicorp vault</td>
+                    <td class="component-yes">yes</td>
+                    <td>Found HashiCorp Vault libraries and functions i...</td>
                 </tr>
                 
                 <tr>
-                    <td>bridge_utility_server</td>
+                    <td>bridge utility server</td>
                     <td class="component-no">no</td>
-                    <td>No evidence of bridge utility server found.</td>
+                    <td>No Bridge Utility server dependencies or config...</td>
                 </tr>
                 
                 <tr>
                     <td>rabbitmq</td>
                     <td class="component-yes">yes</td>
-                    <td>.actor/actor.sh: `rabbitmq` command for RabbitMQ integration (+58 more)</td>
+                    <td>Found RabbitMQ libraries and functions in the c...</td>
                 </tr>
                 
             </table>
@@ -391,38 +391,38 @@
                 
                     <tr>
                         <td>Avoid Logging Confidential Data</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found proper masking of sensitive data in logging, such as using `***` for user credentials.</td>
                     </tr>
                     
                     <tr>
                         <td>Create Audit Trail Logs</td>
                         <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td>No evidence of comprehensive audit trails found.</td>
                     </tr>
                     
                     <tr>
                         <td>Tracking Id For Log Messages</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found `correlationId` in log messages, which helps in tracking user actions across different systems.</td>
                     </tr>
                     
                     <tr>
                         <td>Log Rest Api Calls</td>
-                        <td class="component-yes">Implemented</td>
-                        <td>.actor/actor.sh: `curl` command for logging REST API calls (+56 more)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of logging REST API calls in the codebase.</td>
                     </tr>
                     
                     <tr>
                         <td>Log Application Messages</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found logger.info/warn/error patterns in the application, such as logging user activities and errors.</td>
                     </tr>
                     
                     <tr>
                         <td>Client Ui Errors Are Logged</td>
-                        <td class="component-yes">Implemented</td>
-                        <td>.actor/actor.sh: `curl` command for client-side error tracking (+60 more)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of logging client-side UI errors in the frontend codebase.</td>
                     </tr>
                     
                 </table>
@@ -438,25 +438,25 @@
                     <tr>
                         <td>Retry Logic</td>
                         <td class="component-yes">Implemented</td>
-                        <td>.actor/actor.sh: `timeout` setting for HTTP requests (+50 more)</td>
+                        <td>Found retry logic implemented in HTTP clients, such as using `requests` library with retries.</td>
                     </tr>
                     
                     <tr>
                         <td>Set Timeouts On Io Operations</td>
-                        <td class="component-yes">Implemented</td>
-                        <td>.actor/actor.sh: `timeout` settings for file I/O operations (+57 more)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of setting timeouts on I/O operations in the codebase.</td>
                     </tr>
                     
                     <tr>
                         <td>Throttling Drop Request</td>
                         <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td>No evidence of throttling or dropping requests found.</td>
                     </tr>
                     
                     <tr>
                         <td>Circuit Breakers On Outgoing Requests</td>
-                        <td class="component-yes">Implemented</td>
-                        <td>.actor/README.md: 'Apify Console' for automated testing (+53 more)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of circuit breaker implementations on outgoing requests.</td>
                     </tr>
                     
                 </table>
@@ -472,19 +472,19 @@
                     <tr>
                         <td>Log System Errors</td>
                         <td class="component-yes">Implemented</td>
-                        <td>.actor/actor.sh: `curl` command for logging system errors (+55 more)</td>
+                        <td>Found backend error logging patterns using `logging` library.</td>
                     </tr>
                     
                     <tr>
                         <td>Use Http Standard Error Codes</td>
                         <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td>No evidence of using standard HTTP status codes in API responses.</td>
                     </tr>
                     
                     <tr>
                         <td>Include Client Error Tracking</td>
                         <td class="component-yes">Implemented</td>
-                        <td>.actor/actor.sh: `curl` command for client-side error tracking (+60 more)</td>
+                        <td>Found client-side error tracking mechanisms, such as using `sentry` or custom error handlers.</td>
                     </tr>
                     
                 </table>
@@ -499,8 +499,8 @@
                 
                     <tr>
                         <td>Url Monitoring</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found health check endpoints in the codebase, such as `/jobs` and `/status`, to monitor application availability.</td>
                     </tr>
                     
                 </table>
@@ -515,8 +515,8 @@
                 
                     <tr>
                         <td>Automated Regression Testing</td>
-                        <td class="component-yes">Implemented</td>
-                        <td>.actor/README.md: 'Apify Console' for automated testing (+53 more)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of automated regression test suites in the project.</td>
                     </tr>
                     
                 </table>
@@ -539,9 +539,34 @@
                 
                     <tr>
                         <td>Python</td>
-                        <td>3.10</td>
+                        <td>3.8</td>
                         <td>Main application language</td>
-                        <td>main.py</td>
+                        <td></td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Frameworks</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>FastAPI</td>
+                        <td>0.104.0</td>
+                        <td>Backend API framework</td>
+                        <td>backend/app.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Next.js</td>
+                        <td>undefined</td>
+                        <td>Frontend web framework</td>
+                        <td>frontend/pages/api/analyze-cloud.ts, frontend/pages/api/delete-tutorial.ts (+2)</td>
                     </tr>
                     
                 </table>
@@ -556,24 +581,109 @@
                     </tr>
                 
                     <tr>
-                        <td>pocketflow</td>
-                        <td>0.0.1</td>
-                        <td>LLM framework for code analysis</td>
-                        <td>flow.py</td>
-                    </tr>
-                    
-                    <tr>
                         <td>pyyaml</td>
                         <td>6.0</td>
-                        <td>Library for parsing and emitting YAML configuration files</td>
-                        <td>main.py</td>
+                        <td>Config file parser</td>
+                        <td>backend/requirements.txt</td>
                     </tr>
                     
                     <tr>
                         <td>requests</td>
                         <td>2.28.0</td>
-                        <td>HTTP library for making requests to APIs</td>
-                        <td>utils/call_llm.py</td>
+                        <td>HTTP client library</td>
+                        <td>backend/requirements.txt, frontend/pages/api/cloud-evaluation/[evaluationId].ts</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>gitpython</td>
+                        <td>3.1.0</td>
+                        <td>Git interaction library</td>
+                        <td>backend/requirements.txt</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Databases</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>MongoDB</td>
+                        <td>unknown</td>
+                        <td>Database for storing codebase metadata and tutorial data</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>SQLServer</td>
+                        <td>unknown</td>
+                        <td>Database for storing codebase metadata and tutorial data</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>MySQL</td>
+                        <td>unknown</td>
+                        <td>Database for storing codebase metadata and tutorial data</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>PostgreSQL</td>
+                        <td>unknown</td>
+                        <td>Database for storing codebase metadata and tutorial data</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Oracle</td>
+                        <td>unknown</td>
+                        <td>Database for storing codebase metadata and tutorial data</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cassandra</td>
+                        <td>unknown</td>
+                        <td>Database for storing codebase metadata and tutorial data</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Couchbase</td>
+                        <td>unknown</td>
+                        <td>Database for storing codebase metadata and tutorial data</td>
+                        <td></td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Tools</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Docker</td>
+                        <td>undefined</td>
+                        <td>Containerization tool</td>
+                        <td>kubernetes/deployment.yml, backend/requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Kubernetes</td>
+                        <td>undefined</td>
+                        <td>Orchestration platform for containerized applications</td>
+                        <td>kubernetes/deployment.yml</td>
                     </tr>
                     
                 </table>
@@ -588,17 +698,24 @@
                     </tr>
                 
                     <tr>
-                        <td>GitHub API</td>
+                        <td>AWS</td>
                         <td>unknown</td>
-                        <td>Integration with GitHub to fetch repository information</td>
+                        <td>Cloud provider</td>
                         <td></td>
                     </tr>
                     
                     <tr>
-                        <td>AI model</td>
-                        <td>GPT-4</td>
-                        <td>LLM for generating tutorial content</td>
-                        <td>utils/call_llm.py</td>
+                        <td>Azure</td>
+                        <td>unknown</td>
+                        <td>Cloud provider</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>GCP</td>
+                        <td>unknown</td>
+                        <td>Cloud provider</td>
+                        <td></td>
                     </tr>
                     
                 </table>
@@ -701,7 +818,7 @@
             <p>Below are the prioritized action items recommended based on this analysis:</p>
         
                 <div class="action-item medium">
-                    <h3>1. Implement 7 Missing Security Practices</h3>
+                    <h3>1. Implement 8 Missing Security Practices</h3>
                     <p><strong>Priority:</strong> Medium</p>
                     <p><strong>Action:</strong> Address security gaps to improve overall application security posture.</p>
                 </div>
