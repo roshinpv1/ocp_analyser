@@ -2,8 +2,8 @@
 
 ## Executive Summary
 
-- **Security & Quality Implementation**: 46.7%
-- **Practices Implemented**: 7 fully, 0 partially, 8 not implemented
+- **Security & Quality Implementation**: 26.7%
+- **Practices Implemented**: 4 fully, 0 partially, 11 not implemented
 - **Total Findings**: 0
 
 ## Table of Contents
@@ -20,29 +20,29 @@ The following components were detected in the codebase:
 
 | Component | Detected | Evidence |
 |-----------|----------|----------|
-| venafi | no | No Venafi dependencies or configurations found |
+| venafi | no | No Venafi certificate management code found |
 | redis | no | No Redis dependencies or configurations found |
-| channel_secure/pingfed | no | No Channel Secure / PingFed dependencies or con... |
-| nas/smb | no | No NAS / SMB dependencies or configurations found |
-| smtp | yes | Found SMTP libraries or functions in the codeba... |
-| autosys | no | No Autosys dependencies or configurations found |
-| cron/quartz/spring batch | yes | Found cron scheduling functions or libraries in... |
-| mtls/mutual auth/hard rock pattern | no | No MTLS / Mutual Auth / Hard Rock pattern depen... |
-| ndm | no | No NDM dependencies or configurations found |
-| legacy jks files | yes | Found `jks` files in the codebase, which are us... |
-| soap calls | no | No SOAP dependencies or configurations found |
-| rest api | yes | Found REST API functions and libraries in the c... |
-| apigee | no | No APIGEE dependencies or configurations found |
-| kafka | yes | Found Kafka libraries and functions in the code... |
-| ibm mq | no | No IBM MQ dependencies or configurations found |
-| ldap | yes | Found LDAP libraries and functions in the codeb... |
-| splunk | no | No Splunk dependencies or configurations found |
-| appd/appdyn | no | No AppDynamics dependencies or configurations f... |
-| elastic apm | yes | Found Elastic APM libraries and functions in th... |
-| harness/ucd for ci/cd | no | No Harness or UCD dependencies or configuration... |
-| hashicorp vault | yes | Found HashiCorp Vault libraries and functions i... |
-| bridge utility server | no | No Bridge Utility server dependencies or config... |
-| rabbitmq | yes | Found RabbitMQ libraries and functions in the c... |
+| channel_secure | no | No Channel Secure/ PingFed usage detected |
+| nas_smb | no | No NAS/SMB configuration or usage found |
+| smtp | no | No SMTP configurations or usage found |
+| autosys | no | No AutSys configurations or usage found |
+| cron_quartz_spring_batch | yes | ['Found cron logic in utils/crawl_github_files.py (line 54)', 'Found Quartz scheduler configuration in flow.py (line 23)'] |
+| mtls_mutual_auth_hard_rock_pattern | no | No MTLS/Mutual Authentication pattern found |
+| ndm | no | No NDM usage detected |
+| legacy_jks_files | no | No legacy JKS file references found |
+| soap_calls | no | No SOAP call logic found |
+| rest_api | yes | ['Found REST API calls in core/genflow.py (line 34)', 'Used Flask routes for REST endpoints'] |
+| apigee | no | No Apigee usage detected |
+| kafka | no | No Kafka usage found |
+| ibm_mq | no | No IBM MQ usage detected |
+| ldap | no | No LDAP configuration or usage found |
+| splunk | no | No Splunk usage detected |
+| appd_appdynamics | no | No AppDynamics usage detected |
+| elastic_apm | no | No Elastic APM usage detected |
+| harness_ucd_ci_cd | no | No Harness or UCD usage detected for CI/CD |
+| hashicorp_vault | no | No HashiCorp Vault usage found |
+| bridge_utility_server | no | No Bridge Utility Server usage detected |
+| rabbitmq | yes | ['Found RabbitMQ configuration in flow.py (line 30)', 'RabbitMQ used for message passing'] |
 
 ## Security and Quality Practices
 
@@ -52,41 +52,41 @@ The following sections summarize the security and quality practices implemented 
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Avoid Logging Confidential Data | Implemented | Found proper masking of sensitive data in loggi... |
-| Create Audit Trail Logs | Not Implemented | No evidence of comprehensive audit trails found. |
-| Tracking Id For Log Messages | Implemented | Found `correlationId` in log messages, which he... |
-| Log Rest Api Calls | Not Implemented | No evidence of logging REST API calls in the co... |
-| Log Application Messages | Implemented | Found logger.info/warn/error patterns in the ap... |
-| Client Ui Errors Are Logged | Not Implemented | No evidence of logging client-side UI errors in... |
+| Avoid Logging Confidential Data | Implemented | ['Found masking of sensitive data in utils/logging_utils.py (line 25)'] |
+| Create Audit Trail Logs | Not Implemented | [] |
+| Tracking Id For Log Messages | Not Implemented | No evidence provided |
+| Log Rest Api Calls | Not Implemented | No evidence provided |
+| Log Application Messages | Not Implemented | No evidence provided |
+| Client Ui Errors Are Logged | Not Implemented | No evidence provided |
 
 ### Availability
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Retry Logic | Implemented | Found retry logic implemented in HTTP clients, ... |
-| Set Timeouts On Io Operations | Not Implemented | No evidence of setting timeouts on I/O operatio... |
-| Throttling Drop Request | Not Implemented | No evidence of throttling or dropping requests ... |
-| Circuit Breakers On Outgoing Requests | Not Implemented | No evidence of circuit breaker implementations ... |
+| Retry Logic | Implemented | ['Found retry logic in utils/crawl_github_files.py (lines 42-45)'] |
+| Set Timeouts On Io Operations | Implemented | ['Set timeouts on database connections in database.py (line 30)'] |
+| Throttling Drop Request | Not Implemented | No evidence provided |
+| Circuit Breakers On Outgoing Requests | Not Implemented | No evidence provided |
 
 ### Error Handling
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Log System Errors | Implemented | Found backend error logging patterns using `log... |
-| Use Http Standard Error Codes | Not Implemented | No evidence of using standard HTTP status codes... |
-| Include Client Error Tracking | Implemented | Found client-side error tracking mechanisms, su... |
+| Log System Errors | Not Implemented | [] |
+| Use Http Standard Error Codes | Implemented | ['Used Flask response codes (e.g., 404) for API responses'] |
+| Include Client Error Tracking | Not Implemented | No evidence provided |
 
 ### Monitoring
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Url Monitoring | Implemented | Found health check endpoints in the codebase, s... |
+| Url Monitoring | Not Implemented | [] |
 
 ### Testing
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Automated Regression Testing | Not Implemented | No evidence of automated regression test suites... |
+| Automated Regression Testing | Not Implemented | [] |
 
 ## Technology Stack
 
@@ -96,53 +96,17 @@ The following technologies were identified in the codebase:
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Python | 3.8 | Main application language |  |
+| Python | 3.8 | Main application language | main.py |
 
 ### Frameworks
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| FastAPI | 0.104.0 | Backend API framework | backend/app.py |
-| Next.js | undefined | Frontend web framework | frontend/pages/api/analyze-cloud.ts, frontend/pages/api/delete-tutorial.ts (+2) |
-
-### Libraries
-
-| Technology | Version | Purpose | Files |
-|------------|---------|---------|-------|
-| pyyaml | 6.0 | Config file parser | backend/requirements.txt |
-| requests | 2.28.0 | HTTP client library | backend/requirements.txt, frontend/pages/api/cloud-evaluation/[evaluationId].ts |
-| gitpython | 3.1.0 | Git interaction library | backend/requirements.txt |
-
-### Databases
-
-| Technology | Version | Purpose | Files |
-|------------|---------|---------|-------|
-| MongoDB | unknown | Database for storing c... |  |
-| SQLServer | unknown | Database for storing c... |  |
-| MySQL | unknown | Database for storing c... |  |
-| PostgreSQL | unknown | Database for storing c... |  |
-| Oracle | unknown | Database for storing c... |  |
-| Cassandra | unknown | Database for storing c... |  |
-| Couchbase | unknown | Database for storing c... |  |
-
-### Tools
-
-| Technology | Version | Purpose | Files |
-|------------|---------|---------|-------|
-| Docker | undefined | Containerization tool | kubernetes/deployment.yml, backend/requirements.txt |
-| Kubernetes | undefined | Orchestration platform... | kubernetes/deployment.yml |
-
-### Services
-
-| Technology | Version | Purpose | Files |
-|------------|---------|---------|-------|
-| AWS | unknown | Cloud provider |  |
-| Azure | unknown | Cloud provider |  |
-| GCP | unknown | Cloud provider |  |
+| Flask | 2.0 | Web framework |  |
 
 ## Action Items
 
-### 1. Implement 8 Missing Security Practices (Priority: Medium)
+### 1. Implement 11 Missing Security Practices (Priority: Medium)
 
 Address security gaps to improve overall application security posture.
 

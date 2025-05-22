@@ -1083,7 +1083,7 @@ For each technology, provide:
 - name: The technology name
 - version: The version if found, or "unknown"
 - purpose: What it's used for in this codebase
-- files: List of files where it's used
+- files: List of files where it's used - YOU MUST INCLUDE ACTUAL FILE PATHS
 
 Example technology stack format:
 ```json
@@ -1094,7 +1094,7 @@ Example technology stack format:
                 "name": "Python",
                 "version": "3.8",
                 "purpose": "Main application language",
-                "files": []
+                "files": ["main.py", "utils.py", "core/genflow.py"]
             }}
         ],
         "frameworks": [
@@ -1102,7 +1102,7 @@ Example technology stack format:
                 "name": "Flask",
                 "version": "2.0",
                 "purpose": "Web framework",
-                "files": []
+                "files": ["app.py", "routes/api.py"]
             }}
         ]
     }}
@@ -1119,7 +1119,7 @@ For the component_analysis section, use this format:
     "component_analysis": {{
         "venafi": {{
             "detected": "yes",
-            "evidence": "Found Venafi certificate management"
+            "evidence": "Found Venafi certificate management in security/certs.py (line 42)"
         }},
         "redis": {{
             "detected": "no",
@@ -1141,7 +1141,7 @@ For the security_quality_analysis section, use this format with the actual data:
         "auditability": {{
             "avoid_logging_confidential_data": {{
                 "implemented": "yes",
-                "evidence": "Found proper masking of sensitive data in logging",
+                "evidence": "Found proper masking of sensitive data in logging/utils.py (line 25)",
                 "recommendation": "None needed; good practices observed."
             }},
             "create_audit_trail_logs": {{
@@ -1169,21 +1169,22 @@ For the security_quality_analysis section, use this format with the actual data:
 
 For each security and quality practice check, include:
 - implemented: "yes", "partial", or "no"
-- evidence: Detailed evidence from the code, including file names and snippets where applicable
+- evidence: Detailed evidence from the code, including specific file names and line numbers where applicable
 - recommendation: What should be done to improve or implement the practice
 
 Then proceed with the existing best practice checks and return findings in the same format as before.
 
 IMPORTANT RULES:
 1. You MUST identify and return the technology stack, even if you find no issues
-2. For each technology, you MUST provide at least one file where it's used
-3. If you can't determine a version, use "unknown"
-4. If you can't determine a purpose, provide a general description
-5. The response MUST be valid JSON that can be parsed by json.loads()
-6. Do not include any text before or after the JSON object
-7. Do not use comments in the JSON response
-8. Use double quotes for all strings in the JSON response
-9. You MUST include ALL the security and quality practice checks in the response, even if not implemented
+2. For each technology, you MUST provide at least one file where it's used with SPECIFIC FILE PATHS
+3. All evidence should include SPECIFIC FILE PATHS and line numbers when possible
+4. If you can't determine a version, use "unknown"
+5. If you can't determine a purpose, provide a general description
+6. The response MUST be valid JSON that can be parsed by json.loads()
+7. Do not include any text before or after the JSON object
+8. Do not use comments in the JSON response
+9. Use double quotes for all strings in the JSON response
+10. You MUST include ALL the security and quality practice checks in the response, even if not implemented
 
 Now, analyze the codebase and return the complete JSON response:
 """
