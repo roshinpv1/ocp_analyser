@@ -110,10 +110,17 @@ The output must be formatted as a structured assessment report with clear sectio
 successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an executive summary with go/no-go recommendation,
 followed by detailed technical sections.
 Each finding must include evidence from the intake data and reference to relevant OpenShift constraints or requirements.
-The output should be formateed well to view in html documents."""
+The output should be formatted well to view in html documents."""
         
-        # Format the user content with our Excel data
-        user_content = f"Perform the OCP intake assessment for the following data and generate the assessment report as html file with good formatting: {json.dumps(excel_data, indent=2)}"
+        # Instruct the LLM to return content suitable for HTML embedding, not a full HTML document
+        user_content = f"""Perform the OCP intake assessment for the following data and generate the assessment report content (HTML compatible):
+
+{json.dumps(excel_data, indent=2)}
+
+DO NOT return a full HTML document with <html>, <head>, or <body> tags.
+Instead, return only the content that would go inside the <body> tag, with proper HTML formatting and styling.
+Use <div>, <h1>, <h2>, <p>, <table>, etc. elements to structure your report.
+"""
         
         # Combine into a complete prompt
         prompt = f"""
@@ -121,7 +128,8 @@ System: {system_prompt}
 
 User: {user_content}
 
-Please generate a complete OpenShift migration assessment report in HTML format based on the data above.
+Generate a well-structured OpenShift migration assessment report with HTML formatting (excluding html/head/body tags).
+Include detailed scoring with a clear go/no-go recommendation and use tables for comparison data.
 """
         
         try:
@@ -129,85 +137,215 @@ Please generate a complete OpenShift migration assessment report in HTML format 
             print("Calling LLM for OpenShift migration assessment...")
             response = call_llm(prompt, use_cache=(False))  # Always generate fresh assessment
             
-            # Check if response contains HTML
-            if "<html" in response.lower():
-                report_html = response
-            else:
-                # If not in HTML format, wrap it in basic HTML structure
-                report_html = f"""
+            # Use the same styling as the main analysis report for consistency
+            css_styles = """
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    line-height: 1.4;
+                    margin: 0;
+                    padding: 15px;
+                    color: #333;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                h1 { font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }
+                h2 { font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }
+                h2:first-of-type { border-top: none; }
+                h3 { font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }
+                .section {
+                    margin: 10px 0;
+                    padding: 10px;
+                    background: #f8f9fa;
+                    border-radius: 4px;
+                }
+                .component-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }
+                .component-table th, .component-table td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                .component-table th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                .component-table tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                .finding-list {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .finding {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                .action-item {
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    margin: 10px 0;
+                    border-radius: 4px;
+                    border-left: 5px solid #007bff;
+                }
+                .action-item.critical {
+                    border-left-color: #dc3545;
+                }
+                .action-item.high {
+                    border-left-color: #fd7e14;
+                }
+                .action-item.medium {
+                    border-left-color: #ffc107;
+                }
+                .action-item.low {
+                    border-left-color: #28a745;
+                }
+                .severity-high { color: #dc3545; }
+                .severity-medium { color: #fd7e14; }
+                .severity-low { color: #28a745; }
+                .severity-badge {
+                    display: inline-block;
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    font-size: 0.9em;
+                    font-weight: 500;
+                    margin-right: 8px;
+                }
+                .severity-high .severity-badge { background: #dc3545; color: white; }
+                .severity-medium .severity-badge { background: #fd7e14; color: white; }
+                .severity-low .severity-badge { background: #28a745; color: white; }
+                .validation-status {
+                    display: inline-block;
+                    padding: 5px 10px;
+                    border-radius: 4px;
+                    font-weight: bold;
+                }
+                .validation-complete { background: #d4edda; color: #155724; }
+                .validation-incomplete { background: #f8d7da; color: #721c24; }
+                .component-yes {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .component-no {
+                    color: #dc3545;
+                }
+                .match {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .mismatch {
+                    color: #fd7e14;
+                    font-weight: bold;
+                }
+                .toc {
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    border-radius: 4px;
+                    margin: 15px 0;
+                }
+                .toc ul {
+                    margin: 5px 0;
+                    padding-left: 20px;
+                }
+                .executive-summary {
+                    background: #e9f7fd;
+                    border-radius: 4px;
+                    padding: 10px 15px;
+                    margin: 15px 0;
+                    border-left: 5px solid #17a2b8;
+                }
+                pre, code {
+                    background: #f8f9fa;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    font-family: monospace;
+                    font-size: 0.9em;
+                    overflow-x: auto;
+                }
+                .summary {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .summary-item {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                .score-high { color: #28a745; font-weight: bold; }
+                .score-medium { color: #fd7e14; font-weight: bold; }
+                .score-low { color: #dc3545; font-weight: bold; }
+                .assessment-score {
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin: 10px 0;
+                    padding: 10px;
+                    border-radius: 4px;
+                }
+                .go-recommendation {
+                    font-size: 18px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin: 10px 0;
+                    padding: 10px;
+                    border-radius: 4px;
+                }
+                .go { background-color: #d4edda; color: #155724; }
+                .no-go { background-color: #f8d7da; color: #721c24; }
+                .conditional-go { background-color: #fff3cd; color: #856404; }
+                @media print {
+                    body { padding: 10px; }
+                    .section { break-inside: avoid; }
+                }
+            """
+            
+            # Wrap the response in a properly structured HTML document
+            report_html = f"""
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>OpenShift Migration Assessment Report - {excel_data.get('component_name', 'Unknown Component')}</title>
     <style>
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.4;
-            margin: 0;
-            padding: 15px;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-        }}
-        h1 {{ font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }}
-        h2 {{ font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }}
-        h2:first-of-type {{ border-top: none; }}
-        h3 {{ font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }}
-        .section {{
-            margin: 10px 0;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }}
-        th, td {{
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }}
-        th {{
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }}
-        tr:nth-child(even) {{
-            background-color: #f9f9f9;
-        }}
-        .high {{ color: #28a745; }}
-        .medium {{ color: #fd7e14; }}
-        .low {{ color: #dc3545; }}
-        .score {{ 
-            font-weight: bold;
-            font-size: 1.2em;
-        }}
-        .executive-summary {{
-            background: #e9f7fd;
-            border-radius: 4px;
-            padding: 10px 15px;
-            margin: 15px 0;
-            border-left: 5px solid #17a2b8;
-        }}
+{css_styles}
     </style>
 </head>
 <body>
     <h1>OpenShift Migration Assessment Report - {excel_data.get('component_name', 'Unknown Component')}</h1>
     
-    <div class="executive-summary">
-        <h2>Executive Summary</h2>
-        <p>This report provides an assessment of the feasibility of migrating {excel_data.get('component_name', 'Unknown Component')} to OpenShift.</p>
-    </div>
-
     <div class="section">
-        {response}
+{response}
     </div>
 </body>
 </html>
 """
-
+            
             # Save the report
             os.makedirs(output_dir, exist_ok=True)
             ocp_report_path = os.path.join(output_dir, "ocp_assessment_report.html")
@@ -248,7 +386,7 @@ Please generate a complete OpenShift migration assessment report in HTML format 
             print(f"Error generating OpenShift migration assessment: {str(e)}")
             traceback.print_exc()
             
-            # Return a basic error report
+            # Return a basic error report using the same styling
             error_report_path = os.path.join(output_dir, "ocp_assessment_error.html")
             with open(error_report_path, "w", encoding="utf-8") as f:
                 f.write(f"""
@@ -258,28 +396,12 @@ Please generate a complete OpenShift migration assessment report in HTML format 
     <meta charset="UTF-8">
     <title>OpenShift Migration Assessment Error</title>
     <style>
-        body {{
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.4;
-            margin: 0;
-            padding: 15px;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-        }}
-        h1 {{ color: #dc3545; }}
-        .error-box {{
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 15px 0;
-        }}
+{css_styles}
     </style>
 </head>
 <body>
     <h1>OpenShift Migration Assessment Error</h1>
-    <div class="error-box">
+    <div class="section" style="background: #f8d7da; color: #721c24;">
         <p>An error occurred while generating the OpenShift migration assessment report:</p>
         <pre>{str(e)}</pre>
     </div>
