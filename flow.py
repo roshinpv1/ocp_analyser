@@ -5,7 +5,8 @@ from nodes import (
     AnalyzeCode,
     GenerateReport,
     ProcessExcel,
-    FetchJiraStories
+    FetchJiraStories,
+    OcpAssessmentNode
 )
 
 def create_analysis_flow():
@@ -30,13 +31,21 @@ def create_excel_analysis_flow():
 
     # Instantiate nodes
     process_excel = ProcessExcel()
+    ocp_assessment = OcpAssessmentNode(max_retries=3, wait=10)  # Add retry logic for LLM calls
     fetch_repo = FetchRepo()
     analyze_code = AnalyzeCode(max_retries=5, wait=20)
     fetch_jira = FetchJiraStories()
     generate_report = GenerateReport()
 
-    # Connect nodes in sequence
-    process_excel >> fetch_repo >> analyze_code >> fetch_jira >> generate_report
+    # Define additional actions for error handling
+    process_excel - "error" >> process_excel  # End the flow if Excel processing fails
+    process_excel - "success" >> ocp_assessment  # Run OCP assessment on successful Excel processing
+    
+    # Connect OCP assessment to continue the normal flow
+    ocp_assessment >> fetch_repo
+    
+    # Connect nodes in sequence for successful flow
+    fetch_repo >> analyze_code >> fetch_jira >> generate_report
 
     # Create the flow starting with ProcessExcel
     analysis_flow = Flow(start=process_excel)

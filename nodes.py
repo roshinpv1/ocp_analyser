@@ -14,6 +14,305 @@ import time
 import traceback
 
 
+# OpenShift Assessment Node
+class OcpAssessmentNode(Node):
+    def prep(self, shared):
+        print("\nDEBUG: Starting OcpAssessmentNode prep")
+        
+        # Get Excel validation data from the shared state
+        excel_validation = shared.get("excel_validation", {})
+        excel_file = shared.get("excel_file")
+        component_name = shared.get("project_name", "Unknown Component")
+        output_dir = shared.get("output_dir", "analysis_output")
+        
+        # Extract Excel data to be used for OCP assessment
+        excel_data = {
+            "component_name": component_name,
+            "validation_results": excel_validation,
+            "excel_file_path": excel_file
+        }
+        
+        # If we have component questions, include them
+        if "component_questions" in excel_validation:
+            excel_data["component_questions"] = excel_validation["component_questions"]
+            
+        # Add additional data from the Excel file if needed
+        try:
+            if excel_file and os.path.exists(excel_file):
+                wb = load_workbook(excel_file, read_only=True)
+                sheet = wb.active
+                
+                # Extract a more comprehensive dataset from Excel
+                all_data = {}
+                
+                for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
+                    if len(row) >= 3 and row[1].value:  # Question in second column
+                        question = str(row[1].value).strip() if row[1].value else ""
+                        answer = str(row[2].value).strip() if row[2].value else ""
+                        
+                        if question:
+                            all_data[question] = answer
+                
+                excel_data["all_form_data"] = all_data
+        except Exception as e:
+            print(f"Error extracting additional Excel data: {str(e)}")
+            
+        return excel_data, output_dir
+
+    def exec(self, prep_res):
+        excel_data, output_dir = prep_res
+        print(f"\nPerforming OpenShift migration assessment for component: {excel_data.get('component_name', 'Unknown')}")
+        
+        # Define the system prompt for the OpenShift assessment
+        system_prompt = """You are an OpenShift migration intake assessment agent, designed to evaluate if application components can be migrated to OpenShift.
+Your primary functions are:
+1. Parse intake forms submitted as Excel documents, extracting all relevant application metadata including:
+- Application name, ID, and business criticality
+- Current hosting environment details and configurations
+- Application dependencies and integration points
+- Current resource utilization metrics and patterns
+2. Identify source platforms (TAS, TKGI, on-prem VM, traditional servers) and their specific characteristics
+- Operating system details and version compatibility
+- Middleware components and their OpenShift equivalence
+- External service dependencies and communication patterns
+- Current deployment and operational procedures
+- Existing monitoring and logging mechanisms
+3. Perform comprehensive validation of intake form data including:
+- Required field completion with specific validation rules for each field
+- Data consistency across related fields and dependencies
+- Technical feasibility checks against OpenShift compatibility matrix
+- Resource specification validation against OpenShift limits and quotas
+- Identification of missing critical information with specific requests for completion
+- List down all the missing information in tabuler format
+4. Conduct detailed migration assessment considering the given data if the application component can be migrated to openshift platform or not.
+5. Generate structured assessment reports that include:
+- Migration feasibility score (High/Medium/Low) with numeric ratings (0-100)
+- Detailed scoring breakdown across 10+ technical dimensions
+- Identified migration blockers or concerns with severity classification
+- Required architectural changes with component-level details
+- Suggested migration strategy (lift-and-shift,
+re-platform, or re-architect) with justification
+- Risk assessment with likelihood and impact analysis
+- Do not include Assessment Date in the final repost
+6. Provide actionable recommendations to address migration challenges:
+- Configuration changes required for OpenShift compatibility
+- Data migration approaches for stateful components
+- Network configuration recommendations for service communication
+- Security posture improvements for containerized environment
+- Required application code changes with examples where applicable
+- Testing strategy recommendations for migration validation
+7. Identify potential optimization opportunities for containerized workloads:
+- Resource right-sizing recommendations based on utilization patterns
+- Horizontal vs vertical scaling
+recommendations
+- Service mesh adoption benefits for the specific application
+The output must be formatted as a structured assessment report with clear sections, using tables where appropriate for comparative data. Do not extrapolate any data - be specific to display if the OpenShift assessment is
+successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an executive summary with go/no-go recommendation,
+followed by detailed technical sections.
+Each finding must include evidence from the intake data and reference to relevant OpenShift constraints or requirements.
+The output should be formateed well to view in html documents."""
+        
+        # Format the user content with our Excel data
+        user_content = f"Perform the OCP intake assessment for the following data and generate the assessment report as html file with good formatting: {json.dumps(excel_data, indent=2)}"
+        
+        # Combine into a complete prompt
+        prompt = f"""
+System: {system_prompt}
+
+User: {user_content}
+
+Please generate a complete OpenShift migration assessment report in HTML format based on the data above.
+"""
+        
+        try:
+            # Call LLM with the prompt
+            print("Calling LLM for OpenShift migration assessment...")
+            response = call_llm(prompt, use_cache=(False))  # Always generate fresh assessment
+            
+            # Check if response contains HTML
+            if "<html" in response.lower():
+                report_html = response
+            else:
+                # If not in HTML format, wrap it in basic HTML structure
+                report_html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OpenShift Migration Assessment Report - {excel_data.get('component_name', 'Unknown Component')}</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.4;
+            margin: 0;
+            padding: 15px;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+        }}
+        h1 {{ font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }}
+        h2 {{ font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }}
+        h2:first-of-type {{ border-top: none; }}
+        h3 {{ font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }}
+        .section {{
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }}
+        th, td {{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f9f9f9;
+        }}
+        .high {{ color: #28a745; }}
+        .medium {{ color: #fd7e14; }}
+        .low {{ color: #dc3545; }}
+        .score {{ 
+            font-weight: bold;
+            font-size: 1.2em;
+        }}
+        .executive-summary {{
+            background: #e9f7fd;
+            border-radius: 4px;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-left: 5px solid #17a2b8;
+        }}
+    </style>
+</head>
+<body>
+    <h1>OpenShift Migration Assessment Report - {excel_data.get('component_name', 'Unknown Component')}</h1>
+    
+    <div class="executive-summary">
+        <h2>Executive Summary</h2>
+        <p>This report provides an assessment of the feasibility of migrating {excel_data.get('component_name', 'Unknown Component')} to OpenShift.</p>
+    </div>
+
+    <div class="section">
+        {response}
+    </div>
+</body>
+</html>
+"""
+
+            # Save the report
+            os.makedirs(output_dir, exist_ok=True)
+            ocp_report_path = os.path.join(output_dir, "ocp_assessment_report.html")
+            
+            with open(ocp_report_path, "w", encoding="utf-8") as f:
+                f.write(report_html)
+                
+            print(f"OpenShift migration assessment completed. Report saved to: {ocp_report_path}")
+            
+            # Also save as Markdown for consistency
+            try:
+                # Basic conversion from HTML to Markdown
+                markdown_content = response.replace("<h1>", "# ").replace("</h1>", "\n\n")
+                markdown_content = markdown_content.replace("<h2>", "## ").replace("</h2>", "\n\n")
+                markdown_content = markdown_content.replace("<h3>", "### ").replace("</h3>", "\n\n")
+                markdown_content = markdown_content.replace("<p>", "").replace("</p>", "\n\n")
+                markdown_content = markdown_content.replace("<br>", "\n")
+                markdown_content = markdown_content.replace("<strong>", "**").replace("</strong>", "**")
+                markdown_content = markdown_content.replace("<em>", "*").replace("</em>", "*")
+                
+                # Save markdown version
+                md_path = os.path.join(output_dir, "ocp_assessment_report.md")
+                with open(md_path, "w", encoding="utf-8") as f:
+                    f.write(f"# OpenShift Migration Assessment Report - {excel_data.get('component_name', 'Unknown Component')}\n\n")
+                    f.write(markdown_content)
+                
+                print(f"Markdown version saved to: {md_path}")
+                
+            except Exception as e:
+                print(f"Error saving Markdown version: {str(e)}")
+            
+            return {
+                "html_report": ocp_report_path,
+                "component_name": excel_data.get('component_name', 'Unknown Component')
+            }
+            
+        except Exception as e:
+            print(f"Error generating OpenShift migration assessment: {str(e)}")
+            traceback.print_exc()
+            
+            # Return a basic error report
+            error_report_path = os.path.join(output_dir, "ocp_assessment_error.html")
+            with open(error_report_path, "w", encoding="utf-8") as f:
+                f.write(f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OpenShift Migration Assessment Error</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.4;
+            margin: 0;
+            padding: 15px;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+        }}
+        h1 {{ color: #dc3545; }}
+        .error-box {{
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }}
+    </style>
+</head>
+<body>
+    <h1>OpenShift Migration Assessment Error</h1>
+    <div class="error-box">
+        <p>An error occurred while generating the OpenShift migration assessment report:</p>
+        <pre>{str(e)}</pre>
+    </div>
+    <p>Please check the Excel file and try again.</p>
+</body>
+</html>
+""")
+            
+            return {
+                "html_report": error_report_path,
+                "component_name": excel_data.get('component_name', 'Unknown Component'),
+                "error": str(e)
+            }
+
+    def post(self, shared, prep_res, exec_res):
+        if not exec_res:
+            print("No OpenShift assessment results available.")
+            return "default"
+            
+        # Store the assessment report path in shared state
+        shared["ocp_assessment_report"] = exec_res.get("html_report")
+        
+        # Print the report path
+        print(f"\nOpenShift Migration Assessment completed for {exec_res.get('component_name')}!")
+        print(f"Report saved to: {exec_res.get('html_report')}")
+        
+        if "error" in exec_res:
+            print(f"Note: An error occurred during assessment: {exec_res['error']}")
+        
+        # Continue the normal flow
+        return "default"
+
+
 # Helper to get content for specific file indices
 def get_content_for_indices(files_data, indices):
     content_map = {}
@@ -96,7 +395,7 @@ class FetchRepo(Node):
                     else:
                         print("\nAll retry attempts failed. Last error:")
                         raise ValueError(f"Failed to clone repository after {max_retries} attempts: {str(e)}")
-        else:
+        elif prep_res["local_dir"]:
             print(f"Crawling directory: {prep_res['local_dir']}...")
             result = crawl_local_files(
                 directory=prep_res["local_dir"],
@@ -105,6 +404,10 @@ class FetchRepo(Node):
                 max_file_size=prep_res["max_file_size"],
                 use_relative_paths=prep_res["use_relative_paths"]
             )
+        else:
+            # Neither repo_url nor local_dir is specified
+            print("Error: No repository URL or local directory specified.")
+            raise ValueError("No repository URL or local directory specified. Cannot proceed with code analysis.")
 
         # Convert dict to list of tuples: [(path, content), ...]
         files_list = list(result.get("files", {}).items())
@@ -2927,8 +3230,10 @@ class ProcessExcel(Node):
                         is_mandatory = False
                     
                     # Skip component name row and Git repo row
-                    if (component_name_row and row[0].coordinate == component_name_row[0].coordinate) or \
-                       (git_repo_row and row[0].coordinate == git_repo_row[0].coordinate):
+                    if (component_name_row and hasattr(row[0], 'coordinate') and hasattr(component_name_row[0], 'coordinate') and 
+                        row[0].coordinate == component_name_row[0].coordinate) or \
+                       (git_repo_row and hasattr(row[0], 'coordinate') and hasattr(git_repo_row[0], 'coordinate') and 
+                        row[0].coordinate == git_repo_row[0].coordinate):
                         is_mandatory = False
                     
                     if is_mandatory:
@@ -3033,7 +3338,16 @@ class ProcessExcel(Node):
         # Store validation results
         shared["excel_validation"] = exec_res.get("validation", {})
         
-        return "default"
+        # Check if we have either a valid repo URL or a local directory to proceed
+        if (shared.get("repo_url") or shared.get("local_dir")) and not exec_res.get("error"):
+            print(f"Excel processing successful. Component: {shared['project_name']}")
+            print(f"Repository URL: {shared.get('repo_url', 'Not specified')}")
+            print(f"Local directory: {shared.get('local_dir', 'Not specified')}")
+            return "success"
+        else:
+            print("Excel processing completed, but no repository URL or local directory available.")
+            print("Cannot proceed with code analysis. Please check the Excel file and try again.")
+            return "error"
 
 
 class FetchJiraStories(Node):

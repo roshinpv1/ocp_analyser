@@ -1,6 +1,7 @@
 import os
 import argparse
 import glob
+import re
 from flow import create_analysis_flow, create_excel_analysis_flow
 
 def main():
@@ -65,39 +66,75 @@ def main():
             print(f"No Excel files found in directory: {args.excel_dir}")
             return
         
-        # Process each Excel file
-        print(f"Found {len(excel_files)} Excel files to process")
+        # Filter out Excel temporary files (starting with ~$)
+        valid_excel_files = [f for f in excel_files if not os.path.basename(f).startswith("~$")]
         
-        for i, excel_file in enumerate(excel_files):
+        skipped_files = len(excel_files) - len(valid_excel_files)
+        if skipped_files > 0:
+            print(f"Skipping {skipped_files} temporary Excel files (names starting with ~$)")
+        
+        if not valid_excel_files:
+            print("No valid Excel files found after filtering out temporary files.")
+            return
+        
+        # Process each Excel file
+        print(f"Found {len(valid_excel_files)} valid Excel files to process")
+        
+        success_count = 0
+        failure_count = 0
+        
+        for i, excel_file in enumerate(valid_excel_files):
             excel_filename = os.path.basename(excel_file)
-            print(f"\n[{i+1}/{len(excel_files)}] Processing Excel file: {excel_filename}")
+            print(f"\n[{i+1}/{len(valid_excel_files)}] Processing Excel file: {excel_filename}")
             
-            # Create a separate output directory for each Excel file
-            file_output_dir = os.path.join(args.output, os.path.splitext(excel_filename)[0])
-            os.makedirs(file_output_dir, exist_ok=True)
-            
-            # Initialize shared state for this Excel file
-            shared = {
-                "repo_url": None,  # Will be set by ProcessExcel
-                "local_dir": args.dir,
-                "include_patterns": args.include,
-                "exclude_patterns": args.exclude,
-                "max_file_size": args.max_size,
-                "use_cache": not args.no_cache,
-                "output_dir": file_output_dir,
-                "github_token": github_token,
-                "excel_file": excel_file,
-                # Add Jira configuration
-                "jira_url": args.jira_url,
-                "jira_username": args.jira_username,
-                "jira_api_token": args.jira_api_token,
-                "jira_project_key": args.jira_project_key
-            }
-            
-            if args.sheet:
-                shared["sheet_name"] = args.sheet
-            
-            process_single_excel(shared)
+            try:
+                # Create a separate output directory for each Excel file
+                # Clean the filename for directory name (remove special characters)
+                safe_filename = re.sub(r'[^a-zA-Z0-9_-]', '_', os.path.splitext(excel_filename)[0])
+                file_output_dir = os.path.join(args.output, safe_filename)
+                os.makedirs(file_output_dir, exist_ok=True)
+                
+                # Initialize shared state for this Excel file
+                shared = {
+                    "repo_url": None,  # Will be set by ProcessExcel
+                    "local_dir": args.dir,
+                    "include_patterns": args.include,
+                    "exclude_patterns": args.exclude,
+                    "max_file_size": args.max_size,
+                    "use_cache": not args.no_cache,
+                    "output_dir": file_output_dir,
+                    "github_token": github_token,
+                    "excel_file": excel_file,
+                    # Add Jira configuration
+                    "jira_url": args.jira_url,
+                    "jira_username": args.jira_username,
+                    "jira_api_token": args.jira_api_token,
+                    "jira_project_key": args.jira_project_key
+                }
+                
+                if args.sheet:
+                    shared["sheet_name"] = args.sheet
+                
+                # Process the Excel file
+                result = process_single_excel(shared)
+                
+                if result:
+                    success_count += 1
+                else:
+                    failure_count += 1
+                    
+            except Exception as e:
+                print(f"Error processing file {excel_filename}: {str(e)}")
+                failure_count += 1
+                import traceback
+                traceback.print_exc()
+        
+        # Print summary
+        print(f"\n===== Processing Summary =====")
+        print(f"Total Excel files processed: {len(valid_excel_files)}")
+        print(f"Successful: {success_count}")
+        print(f"Failed: {failure_count}")
+        
     else:
         # Initialize shared state for standard processing
         shared = {
@@ -118,6 +155,12 @@ def main():
 
         # If Excel is provided, set excel_file and (optionally) sheet_name
         if args.excel:
+            # Check if file is a temporary Excel file
+            if os.path.basename(args.excel).startswith("~$"):
+                print(f"Error: The provided Excel file '{args.excel}' appears to be a temporary file.")
+                print("Please close the file in Excel and try again with the actual Excel file.")
+                return
+                
             shared["excel_file"] = args.excel
             if args.sheet:
                 shared["sheet_name"] = args.sheet
@@ -129,11 +172,28 @@ def main():
 def process_single_excel(shared):
     """Process a single Excel file or repository."""
     try:
-        # Choose the correct flow based on input type
+        # Check if the file is a valid Excel file (if one is specified)
         if "excel_file" in shared and shared["excel_file"]:
-            print(f"Processing Excel file: {shared['excel_file']}")
+            excel_file = shared["excel_file"]
+            
+            # Check if file exists
+            if not os.path.exists(excel_file):
+                print(f"Error: Excel file '{excel_file}' does not exist.")
+                return False
+                
+            # Check file size (extremely small files are likely empty or corrupt)
+            if os.path.getsize(excel_file) < 100:
+                print(f"Error: Excel file '{excel_file}' is too small to be valid.")
+                return False
+            
+            print(f"Processing Excel file: {excel_file}")
             analysis_flow = create_excel_analysis_flow()
         else:
+            # For non-Excel processing
+            if not shared.get("repo_url") and not shared.get("local_dir"):
+                print("Error: No repository URL or local directory specified.")
+                return False
+                
             analysis_flow = create_analysis_flow()
             
         analysis_flow.run(shared)
@@ -146,15 +206,26 @@ def process_single_excel(shared):
             print(f"- HTML: {shared['analysis_report']['html']}")
             if shared['analysis_report']['pdf']:
                 print(f"- PDF: {shared['analysis_report']['pdf']}")
+            
+            # Print OpenShift assessment report info if available
+            if "ocp_assessment_report" in shared:
+                print(f"- OpenShift Assessment Report: {shared['ocp_assessment_report']}")
+                
+            return True
+        else:
+            print("Warning: Analysis completed but no reports were generated.")
+            return False
         
     except ValueError as e:
         print(f"\nError: {str(e)}")
         print("\nTry adjusting the include/exclude patterns to match your codebase.")
         print("Example: python main.py --repo <url> --include '*.py' '*.js' --exclude 'tests/*'")
+        return False
     except Exception as e:
         print(f"\nUnexpected error: {str(e)}")
         import traceback
         traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
     main()
