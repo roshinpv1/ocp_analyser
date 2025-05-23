@@ -200,13 +200,11 @@
                 <h2 id="executive-summary">Executive Summary</h2>
         
                 <ul>
-                    <li><strong>Security & Quality Implementation</strong>: 16.7%</li>
-                    <li><strong>Practices Implemented</strong>: 1 fully, 3 partially, 11 not implemented</li>
+                    <li><strong>Security & Quality Implementation</strong>: 6.7%</li>
+                    <li><strong>Practices Implemented</strong>: 1 fully, 0 partially, 14 not implemented</li>
                 
                     <li><strong>Total Findings</strong>: 0</li>
             
-                    <li><strong>Component Declaration Mismatches</strong>: 1</li>
-                
                 </ul>
             </div>
         
@@ -424,8 +422,8 @@ If Yes, Please share details on the same.</li>
                 <tr>
                     <td>rest api</td>
                     <td>No</td>
-                    <td>Yes</td>
-                    <td class="mismatch">Mismatch</td>
+                    <td>No</td>
+                    <td class="match">Match</td>
                 </tr>
                 
                 <tr>
@@ -672,7 +670,7 @@ If Yes, Please share details on the same.</li>
                     <tr>
                         <td>Avoid Logging Confidential Data</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No sensitive data logging observed</td>
+                        <td>No evidence of logging sensitive data found</td>
                     </tr>
                     
                     <tr>
@@ -684,25 +682,25 @@ If Yes, Please share details on the same.</li>
                     <tr>
                         <td>Tracking Id For Log Messages</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No correlation/tracking IDs used in log messages</td>
+                        <td>No correlation/tracking IDs found in log messages</td>
                     </tr>
                     
                     <tr>
                         <td>Log Rest Api Calls</td>
-                        <td class="">Partially Implemented</td>
-                        <td>Found logging of API calls in .actor/actor.sh (line 18)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No middleware or interceptors found for logging API calls</td>
                     </tr>
                     
                     <tr>
                         <td>Log Application Messages</td>
-                        <td class="">Partially Implemented</td>
-                        <td>Found print statements in .actor/README.md (line 18) and sherlock_project/sherlock.py</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No logger.info/warn/error patterns found in the application</td>
                     </tr>
                     
                     <tr>
                         <td>Client Ui Errors Are Logged</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No frontend error logging handlers found</td>
+                        <td>No frontend code found for error logging</td>
                     </tr>
                     
                 </table>
@@ -724,19 +722,19 @@ If Yes, Please share details on the same.</li>
                     <tr>
                         <td>Set Timeouts On Io Operations</td>
                         <td class="component-yes">Implemented</td>
-                        <td>Found timeout settings in requests made by requests_futures.session in sherlock_project/sherlock.py (line 205)</td>
+                        <td>Timeout settings found in HTTP requests in sherlock_project/sherlock.py (line 107)</td>
                     </tr>
                     
                     <tr>
                         <td>Throttling Drop Request</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No rate limiter or logic that drops excessive requests found</td>
+                        <td>No rate limiter or logic found for dropping excessive requests</td>
                     </tr>
                     
                     <tr>
                         <td>Circuit Breakers On Outgoing Requests</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No circuit breaker libraries such as Hystrix or Resilience4j found</td>
+                        <td>No circuit breaker libraries found or used</td>
                     </tr>
                     
                 </table>
@@ -751,20 +749,20 @@ If Yes, Please share details on the same.</li>
                 
                     <tr>
                         <td>Log System Errors</td>
-                        <td class="">Partially Implemented</td>
-                        <td>Found print statements in sherlock_project/sherlock.py (lines 102-108)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of system error logging found</td>
                     </tr>
                     
                     <tr>
                         <td>Use Http Standard Error Codes</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No use of standard HTTP status codes found in the codebase</td>
+                        <td>No standard HTTP status codes found in API responses</td>
                     </tr>
                     
                     <tr>
                         <td>Include Client Error Tracking</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No client-side error tracking using libraries like Sentry or custom implementations found</td>
+                        <td>No client-side error tracking found</td>
                     </tr>
                     
                 </table>
@@ -780,7 +778,7 @@ If Yes, Please share details on the same.</li>
                     <tr>
                         <td>Url Monitoring</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No health check or ping endpoints used for availability monitoring found</td>
+                        <td>No health check or ping endpoints found</td>
                     </tr>
                     
                 </table>
@@ -796,7 +794,7 @@ If Yes, Please share details on the same.</li>
                     <tr>
                         <td>Automated Regression Testing</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No automated test suites found in the project</td>
+                        <td>No evidence of automated test suites found</td>
                     </tr>
                     
                 </table>
@@ -821,7 +819,7 @@ If Yes, Please share details on the same.</li>
                         <td>Python</td>
                         <td>3.12</td>
                         <td>Main application language</td>
-                        <td>Dockerfile, devel/site-list.py (+9)</td>
+                        <td>Dockerfile, .actor/input_schema.json (+8)</td>
                     </tr>
                     
                 </table>
@@ -838,57 +836,71 @@ If Yes, Please share details on the same.</li>
                     <tr>
                         <td>requests</td>
                         <td>unknown</td>
-                        <td>For making HTTP requests</td>
-                        <td>.actor/actor.sh, sherlock_project/sherlock.py</td>
-                    </tr>
-                    
-                    <tr>
-                        <td>requests_futures</td>
-                        <td>unknown</td>
-                        <td>For making asynchronous HTTP requests</td>
+                        <td>HTTP requests handling</td>
                         <td>sherlock_project/sherlock.py</td>
                     </tr>
                     
                     <tr>
-                        <td>json</td>
+                        <td>requests-futures</td>
                         <td>unknown</td>
-                        <td>For JSON data handling</td>
-                        <td>devel/site-list.py, .actor/input_schema.json (+2)</td>
-                    </tr>
-                    
-                    <tr>
-                        <td>colorama</td>
-                        <td>unknown</td>
-                        <td>For colored terminal text</td>
-                        <td>sherlock_project/sherlock.py</td>
-                    </tr>
-                    
-                    <tr>
-                        <td>argparse</td>
-                        <td>unknown</td>
-                        <td>For parsing command-line arguments</td>
+                        <td>Asynchronous HTTP requests handling</td>
                         <td>sherlock_project/sherlock.py</td>
                     </tr>
                     
                     <tr>
                         <td>pandas</td>
                         <td>unknown</td>
-                        <td>For data manipulation and analysis</td>
+                        <td>Data manipulation and analysis</td>
                         <td>sherlock_project/sherlock.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>colorama</td>
+                        <td>unknown</td>
+                        <td>Cross-platform colored terminal text</td>
+                        <td>sherlock_project/sherlock.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>json</td>
+                        <td>unknown</td>
+                        <td>JSON handling</td>
+                        <td>.actor/input_schema.json, .actor/README.md (+2)</td>
                     </tr>
                     
                     <tr>
                         <td>os</td>
                         <td>unknown</td>
-                        <td>For interacting with the operating system</td>
+                        <td>Operating system dependent functionality</td>
                         <td>devel/site-list.py, sherlock_project/sherlock.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>argparse</td>
+                        <td>unknown</td>
+                        <td>Command-line argument parsing</td>
+                        <td>sherlock_project/sherlock.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>signal</td>
+                        <td>unknown</td>
+                        <td>Signal handling</td>
+                        <td>sherlock_project/sherlock.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>io</td>
+                        <td>unknown</td>
+                        <td>File and I/O operations</td>
+                        <td>devel/site-list.py</td>
                     </tr>
                     
                     <tr>
                         <td>re</td>
                         <td>unknown</td>
-                        <td>For regular expressions</td>
-                        <td>sherlock_project/sherlock.py</td>
+                        <td>Regular expressions</td>
+                        <td>devel/site-list.py</td>
                     </tr>
                     
                 </table>
@@ -905,13 +917,13 @@ If Yes, Please share details on the same.</li>
                     <tr>
                         <td>Docker</td>
                         <td>unknown</td>
-                        <td>For containerization</td>
+                        <td>Containerization</td>
                         <td>Dockerfile</td>
                     </tr>
                     
                 </table>
                 
-                <h3>Other</h3>
+                <h3>Services</h3>
                 <table>
                     <tr>
                         <th>Technology</th>
@@ -921,17 +933,10 @@ If Yes, Please share details on the same.</li>
                     </tr>
                 
                     <tr>
-                        <td>jq</td>
+                        <td>Apify</td>
                         <td>unknown</td>
-                        <td>For JSON data processing in scripts</td>
-                        <td>.actor/actor.sh</td>
-                    </tr>
-                    
-                    <tr>
-                        <td>apify</td>
-                        <td>unknown</td>
-                        <td>For running actors on Apify platform</td>
-                        <td>.actor/actor.sh</td>
+                        <td>Actor deployment and management</td>
+                        <td>.actor/input_schema.json, .actor/README.md (+1)</td>
                     </tr>
                     
                 </table>
@@ -1040,13 +1045,7 @@ If Yes, Please share details on the same.</li>
                 </div>
                 
                 <div class="action-item medium">
-                    <h3>2. Resolve Component Discrepancies</h3>
-                    <p><strong>Priority:</strong> Medium</p>
-                    <p><strong>Action:</strong> Reconcile mismatches between declared components and what's detected in the code.</p>
-                </div>
-                
-                <div class="action-item medium">
-                    <h3>3. Implement 11 Missing Security Practices</h3>
+                    <h3>2. Implement 14 Missing Security Practices</h3>
                     <p><strong>Priority:</strong> Medium</p>
                     <p><strong>Action:</strong> Address security gaps to improve overall application security posture.</p>
                 </div>

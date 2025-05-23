@@ -2,10 +2,9 @@
 
 ## Executive Summary
 
-- **Security & Quality Implementation**: 16.7%
-- **Practices Implemented**: 1 fully, 3 partially, 11 not implemented
+- **Security & Quality Implementation**: 6.7%
+- **Practices Implemented**: 1 fully, 0 partially, 14 not implemented
 - **Total Findings**: 0
-- **Component Declaration Mismatches**: 1
 
 ## Intake Form Validation
 
@@ -84,7 +83,7 @@ The following table compares the components declared in the intake form with the
 | ndm | No | No | Match |
 | legacy jks file | No | No | Match |
 | soap calls | No | No | Match |
-| rest api | No | Yes | Mismatch |
+| rest api | No | No | Match |
 | apigee | No | No | Match |
 | kafka | No | No | Match |
 | ibm mq | No | No | Match |
@@ -126,41 +125,41 @@ The following sections summarize the security and quality practices implemented 
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Avoid Logging Confidential Data | Not Implemented | No sensitive data logging observed |
+| Avoid Logging Confidential Data | Not Implemented | No evidence of logging sensitive data found |
 | Create Audit Trail Logs | Not Implemented | No evidence of comprehensive audit trails found |
-| Tracking Id For Log Messages | Not Implemented | No correlation/tracking IDs used in log messages |
-| Log Rest Api Calls | Partially Implemented | Found logging of API calls in .actor/actor.sh (... |
-| Log Application Messages | Partially Implemented | Found print statements in .actor/README.md (lin... |
-| Client Ui Errors Are Logged | Not Implemented | No frontend error logging handlers found |
+| Tracking Id For Log Messages | Not Implemented | No correlation/tracking IDs found in log messages |
+| Log Rest Api Calls | Not Implemented | No middleware or interceptors found for logging... |
+| Log Application Messages | Not Implemented | No logger.info/warn/error patterns found in the... |
+| Client Ui Errors Are Logged | Not Implemented | No frontend code found for error logging |
 
 ### Availability
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
 | Retry Logic | Not Implemented | No retry patterns found in HTTP clients or libr... |
-| Set Timeouts On Io Operations | Implemented | Found timeout settings in requests made by requ... |
-| Throttling Drop Request | Not Implemented | No rate limiter or logic that drops excessive r... |
-| Circuit Breakers On Outgoing Requests | Not Implemented | No circuit breaker libraries such as Hystrix or... |
+| Set Timeouts On Io Operations | Implemented | Timeout settings found in HTTP requests in sher... |
+| Throttling Drop Request | Not Implemented | No rate limiter or logic found for dropping exc... |
+| Circuit Breakers On Outgoing Requests | Not Implemented | No circuit breaker libraries found or used |
 
 ### Error Handling
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Log System Errors | Partially Implemented | Found print statements in sherlock_project/sher... |
-| Use Http Standard Error Codes | Not Implemented | No use of standard HTTP status codes found in t... |
-| Include Client Error Tracking | Not Implemented | No client-side error tracking using libraries l... |
+| Log System Errors | Not Implemented | No evidence of system error logging found |
+| Use Http Standard Error Codes | Not Implemented | No standard HTTP status codes found in API resp... |
+| Include Client Error Tracking | Not Implemented | No client-side error tracking found |
 
 ### Monitoring
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Url Monitoring | Not Implemented | No health check or ping endpoints used for avai... |
+| Url Monitoring | Not Implemented | No health check or ping endpoints found |
 
 ### Testing
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Automated Regression Testing | Not Implemented | No automated test suites found in the project |
+| Automated Regression Testing | Not Implemented | No evidence of automated test suites found |
 
 ## Technology Stack
 
@@ -170,33 +169,34 @@ The following technologies were identified in the codebase:
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Python | 3.12 | Main application language | Dockerfile, devel/site-list.py (+9) |
+| Python | 3.12 | Main application language | Dockerfile, .actor/input_schema.json (+8) |
 
 ### Libraries
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| requests | unknown | For making HTTP requests | .actor/actor.sh, sherlock_project/sherlock.py |
-| requests_futures | unknown | For making asynchronou... | sherlock_project/sherlock.py |
-| json | unknown | For JSON data handling | devel/site-list.py, .actor/input_schema.json (+2) |
-| colorama | unknown | For colored terminal text | sherlock_project/sherlock.py |
-| argparse | unknown | For parsing command-li... | sherlock_project/sherlock.py |
-| pandas | unknown | For data manipulation ... | sherlock_project/sherlock.py |
-| os | unknown | For interacting with t... | devel/site-list.py, sherlock_project/sherlock.py |
-| re | unknown | For regular expressions | sherlock_project/sherlock.py |
+| requests | unknown | HTTP requests handling | sherlock_project/sherlock.py |
+| requests-futures | unknown | Asynchronous HTTP requ... | sherlock_project/sherlock.py |
+| pandas | unknown | Data manipulation and ... | sherlock_project/sherlock.py |
+| colorama | unknown | Cross-platform colored... | sherlock_project/sherlock.py |
+| json | unknown | JSON handling | .actor/input_schema.json, .actor/README.md (+2) |
+| os | unknown | Operating system depen... | devel/site-list.py, sherlock_project/sherlock.py |
+| argparse | unknown | Command-line argument ... | sherlock_project/sherlock.py |
+| signal | unknown | Signal handling | sherlock_project/sherlock.py |
+| io | unknown | File and I/O operations | devel/site-list.py |
+| re | unknown | Regular expressions | devel/site-list.py |
 
 ### Tools
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Docker | unknown | For containerization | Dockerfile |
+| Docker | unknown | Containerization | Dockerfile |
 
-### Other
+### Services
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| jq | unknown | For JSON data processi... | .actor/actor.sh |
-| apify | unknown | For running actors on ... | .actor/actor.sh |
+| Apify | unknown | Actor deployment and m... | .actor/input_schema.json, .actor/README.md (+1) |
 
 ## Action Items
 
@@ -204,11 +204,7 @@ The following technologies were identified in the codebase:
 
 Complete all mandatory questions in the intake form to ensure accurate project configuration.
 
-### 2. Resolve Component Discrepancies (Priority: Medium)
-
-Reconcile mismatches between declared components and what's detected in the code.
-
-### 3. Implement 11 Missing Security Practices (Priority: Medium)
+### 2. Implement 14 Missing Security Practices (Priority: Medium)
 
 Address security gaps to improve overall application security posture.
 

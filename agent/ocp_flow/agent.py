@@ -1,3 +1,103 @@
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
+import subprocess
+from google.adk.tools import FunctionTool
+
+   
+import subprocess
+
+
+def run_excel_report_command(_: str) -> str:
+    try:
+        result = subprocess.run(
+            ["python3", "main.py", "--excel-dir", "/Users/roshinpv/Desktop/excel", "--output", "./my_reports"],
+            capture_output=True,
+            text=True
+        )
+        return result.stdout if result.returncode == 0 else f"Error:\n{result.stderr}"
+    except Exception as e:
+        return f"Exception occurred: {str(e)}"
+
+excel_command_tool = FunctionTool(
+    func=run_excel_report_command
+)
+
+
+
+
+
+execue_task = subprocess.run(["ls", "-l"], capture_output=True, text=True)
+
+
+root_agent = Agent(
+    model=LiteLlm(model="gpt-3.5-turbo", base_url="http://localhost:1234/v1", api_key="sdsd", provider="openai"),
+    name='ocp_flow',
+    instruction = """ You are a helpful ocp migration agent that answers any query for the  the migration assessment. It should be able to execute the tool based on user request . It can also execute the tool `excel_command_tool` if user asks for it.
+User can ask for the execution of the tool. If user asks for process the report and intiate the analysis it should trigger the tool 
+       Batch Processing:
+
+"How do I analyze multiple Excel files at once?"
+
+"What's the command to process a directory of migration forms?"
+
+"Where are the batch analysis reports saved?"
+
+"How do I include/exclude certain files from processing?"
+
+OpenShift Assessment:
+
+"What does the OpenShift compatibility score mean?"
+
+"How are migration recommendations generated?"
+
+"What validation rules does the assessment use?"
+
+"How do I interpret the component analysis tables?"
+
+Technical Details:
+
+"What Excel formats are supported?"
+
+"How are mandatory fields validated?"
+
+"What security practices are checked?"
+
+"How are technology stacks analyzed?"
+
+Response Rules:
+
+Only answers questions about the OCP migration analysis tool
+
+Provides command syntax and parameter explanations
+
+Explains report structure and interpretation
+
+Does not discuss general Excel usage or unrelated cloud topics
+
+Output Formatting:
+
+Commands in code blocks
+
+Parameters in bullet lists
+
+File structures as tree diagrams
+
+Scores with visual indicators (✓/✗)
+
+Example Interaction:
+User: "How do I check if Redis was detected in my analysis?"
+Agent: "The report's component_analysis section shows Redis detection status. In batch mode, check each component's subdirectory for its report.html file."
+
+    """ , 
+    description = """ Agent Description:
+Specialized assistant for OpenShift cloud migration analysis that processes Excel intake forms in batch mode and generates comprehensive assessment reports. Handles both technical component analysis and OpenShift compatibility scoring.
+
+Key Features:
+
+Batch Excel Processing - Analyze multiple migration intake forms simultaneously
+
+OpenShift Compatibility Assessment - Generate detailed migration feasibility reports
+
 # OCP Analyzer: Code Resiliency and Observability Assessment Tool
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -151,6 +251,15 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Built using [PocketFlow](https://github.com/The-Pocket/PocketFlow) - A 100-line LLM framework
 - Special thanks to all contributors and users
+
+
+
+""",
+tools=[excel_command_tool]
+)
+
+
+
 
 
 
