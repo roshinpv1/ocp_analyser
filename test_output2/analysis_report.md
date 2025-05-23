@@ -1,25 +1,27 @@
-# Code Analysis Report for ocp_analyser
+# Application & Platform Hard Gates for :  ocp_analyser
 
-## Executive Summary
-
-- **Security & Quality Implementation**: 40.0%
-- **Practices Implemented**: 6 fully, 0 partially, 9 not implemented
+- **Total Components Detected**: 23
+- **Security & Quality Implementation**: 26.7%
+- **Practices Implemented**: 4 fully, 0 partially, 11 not implemented
 - **Total Findings**: 0
+- **Related Jira Stories**: 3
+- **Jira Status Breakdown**: 1 In Progress, 1 To Do, 1 Done
 
 ## Table of Contents
 
-1. [Executive Summary](#executive-summary)
+1. [Summary](#summary)
 2. [Component Analysis](#component-analysis)
 3. [Security and Quality Practices](#security-and-quality-practices)
 4. [Technology Stack](#technology-stack)
 5. [Jira Stories](#jira-stories)
 6. [Action Items](#action-items)
+
 ## Component Analysis
 
 The following components were detected in the codebase:
 
-| Component | Detected | Evidence |
-|-----------|----------|----------|
+| Component | Detected in Code | Evidence |
+|-----------|-----------------|----------|
 | venafi | no | No Venafi dependencies or configurations found |
 | redis | no | No Redis dependencies or configurations found |
 | channel_secure | no | No Channel Secure / PingFed dependencies or con... |
@@ -30,19 +32,19 @@ The following components were detected in the codebase:
 | mtls_mutual_auth_hard_rock_pattern | no | No MTLS / Mutual Auth / Hard Rock pattern depen... |
 | ndm | no | No NDM dependencies or configurations found |
 | legacy_jks_files | no | No legacy JKS files found |
-| soap_calls | no | No SOAP calls found |
-| rest_api | yes | REST API calls are made using the 'requests' li... |
+| soap_calls | no | No SOAP Calls dependencies or configurations found |
+| rest_api | yes | REST API calls are made in utils/call_llm.py an... |
 | apigee | no | No APIGEE dependencies or configurations found |
 | kafka | no | No KAFKA dependencies or configurations found |
 | ibm_mq | no | No IBM MQ dependencies or configurations found |
 | ldap | no | No LDAP dependencies or configurations found |
 | splunk | no | No Splunk dependencies or configurations found |
-| appd_appdynamics | no | No AppD / AppDynamics dependencies or configura... |
+| appd_appdyn | no | No AppD / AppDynamics dependencies or configura... |
 | elastic_apm | no | No ELASTIC APM dependencies or configurations f... |
-| harness_ucd_for_cicd | no | No Harness or UCD for CI/CD dependencies or con... |
-| hashicorp_vault | no | No HashiCorp Vault dependencies or configuratio... |
+| harness_ucd | no | No Harness or UCD for CI/CD dependencies or con... |
+| hashicorp_vault | no | No Hashicorp vault dependencies or configuratio... |
 | bridge_utility_server | no | No Bridge Utility server dependencies or config... |
-| rabbitmq | no | No RabbitMQ dependencies or configurations found |
+| rabbitmq | yes | RabbitMQ is mentioned in the codebase |
 
 ## Security and Quality Practices
 
@@ -52,41 +54,41 @@ The following sections summarize the security and quality practices implemented 
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Avoid Logging Confidential Data | Not Implemented | No evidence of avoiding logging confidential da... |
-| Create Audit Trail Logs | Not Implemented | No comprehensive audit logs found. |
-| Tracking Id For Log Messages | Not Implemented | No correlation/tracking IDs found in log messages. |
-| Log Rest Api Calls | Not Implemented | No middleware or interceptors found to log API ... |
-| Log Application Messages | Implemented | Found logging patterns in main.py (line 25) and... |
-| Client Ui Errors Are Logged | Not Implemented | No evidence of front-end error logging found. |
+| Avoid Logging Confidential Data | Not Implemented | Not checked for confidential data logging patterns |
+| Create Audit Trail Logs | Not Implemented | No evidence of comprehensive audit trails found |
+| Tracking Id For Log Messages | Not Implemented | No tracking IDs found in log messages |
+| Log Rest Api Calls | Not Implemented | No middleware or interceptors found for logging... |
+| Log Application Messages | Not Implemented | Not checked for logger.info/warn/error patterns |
+| Client Ui Errors Are Logged | Not Implemented | No client-side error tracking found |
 
 ### Availability
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Retry Logic | Implemented | Retry logic implemented in nodes.py (line 30). |
-| Set Timeouts On Io Operations | Implemented | Timeouts set in nodes.py (line 50). |
-| Throttling Drop Request | Not Implemented | No rate limiting or request dropping logic found. |
-| Circuit Breakers On Outgoing Requests | Not Implemented | No circuit breaker logic found. |
+| Retry Logic | Implemented | Retry logic is found in sherlock_project/sherlo... |
+| Set Timeouts On Io Operations | Implemented | Timeout settings are found in .actor/actor.sh a... |
+| Throttling Drop Request | Not Implemented | No rate limiter or logic that drops excessive r... |
+| Circuit Breakers On Outgoing Requests | Not Implemented | No circuit breaker libraries found |
 
 ### Error Handling
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Log System Errors | Implemented | System errors logged in main.py (line 35). |
-| Use Http Standard Error Codes | Not Implemented | No evidence of using standard HTTP status codes. |
-| Include Client Error Tracking | Implemented | Client-side error tracking in main.py (line 40). |
+| Log System Errors | Implemented | Error logging is found in sherlock_project/sher... |
+| Use Http Standard Error Codes | Not Implemented | No use of HTTP standard error codes found |
+| Include Client Error Tracking | Implemented | Client-side error tracking is found using curl ... |
 
 ### Monitoring
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Url Monitoring | Not Implemented | No health check or ping endpoints found. |
+| Url Monitoring | Not Implemented | No health check or ping endpoints found |
 
 ### Testing
 
 | Practice | Status | Evidence |
 |----------|--------|----------|
-| Automated Regression Testing | Implemented | Automated tests are implemented in test.py (lin... |
+| Automated Regression Testing | Not Implemented | No evidence provided |
 
 ## Technology Stack
 
@@ -96,47 +98,41 @@ The following technologies were identified in the codebase:
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Python | unknown | Main application language | flow.py, main.py (+3) |
+| Python | 3.10 | Main application language | Dockerfile, flow.py (+3) |
 
 ### Frameworks
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| PocketFlow | >0.0.1 | LLM framework for AI a... | flow.py |
+| PocketFlow | unknown | LLM framework for code... | flow.py |
 
 ### Libraries
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| PyYAML | >=6.0 | Parsing YAML configura... | requirements.txt |
-| requests | >=2.28.0 | Making HTTP requests t... | utils/call_llm.py |
-| GitPython | >=3.1.40 | Interacting with Git r... |  |
-| google-cloud-aiplatform | >=1.25.0 | Accessing Google AI Pl... | requirements.txt |
-| google-genai | >=1.9.0 | Interacting with Googl... | utils/call_llm.py |
-| python-dotenv | >=1.0.0 | Loading environment va... | requirements.txt |
-| pathspec | >=0.11.0 | Pattern matching for f... | requirements.txt |
-| weasyprint | >=60.1 | Creating PDF documents... | requirements.txt |
-| openpyxl | >=3.1.0 | Reading and writing Ex... | requirements.txt |
-| openai | ==1.68.2 | Interacting with the O... | requirements.txt |
-| anthropic | >=0.18.1 | Interacting with Anthr... | requirements.txt |
-| jira | >=3.5.2 | Interacting with Jira ... | requirements.txt |
+| pocketflow | >=0.0.1 | Base library for Pocke... | requirements.txt |
+| pyyaml | >=6.0 | YAML parsing and emitt... | requirements.txt |
+| requests | >=2.28.0 | HTTP library for makin... | requirements.txt |
+| gitpython | >=3.1.40 | Git library for handli... | requirements.txt |
+| google-cloud-aiplatform | >=1.25.0 | Google Cloud AI Platfo... | requirements.txt |
+| google-genai | >=1.9.0 | Google GenAI client li... | requirements.txt |
+| python-dotenv | >=1.0.0 | Library for managing e... | requirements.txt |
+| pathspec | >=0.11.0 | Library for matching f... | requirements.txt |
+| weasyprint | >=60.1 | HTML to PDF converter | requirements.txt |
+| openpyxl | >=3.1.0 | Read/write Excel 2010 ... | requirements.txt |
+| openai | ==1.68.2 | OpenAI client library | requirements.txt |
+| anthropic | >=0.18.1 | Anthropic AI client li... | requirements.txt |
+| jira | >=3.5.2 | Jira client library | requirements.txt |
 
 ### Tools
 
 | Technology | Version | Purpose | Files |
 |------------|---------|---------|-------|
-| Docker | unknown | Containerizing the Pyt... | Dockerfile |
-
-### Services
-
-| Technology | Version | Purpose | Files |
-|------------|---------|---------|-------|
-| GitHub | unknown | Source of code reposit... |  |
-| Jira | unknown | Issue tracking system ... |  |
+| Docker | unknown | Containerization tool ... | Dockerfile |
 
 ## Action Items
 
-### 1. Implement 9 Missing Security Practices (Priority: Medium)
+### 1. Implement 11 Missing Security Practices (Priority: Medium)
 
 Address security gaps to improve overall application security posture.
 

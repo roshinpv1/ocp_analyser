@@ -1,0 +1,363 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Application & Platform Hard Gates Report - ocp_analyser</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    line-height: 1.4;
+                    margin: 0;
+                    padding: 15px;
+                    color: #333;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                h1 { font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }
+                h2 { font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }
+                h2:first-of-type { border-top: none; }
+                h3 { font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }
+                .section {
+                    margin: 10px 0;
+                    padding: 10px;
+                    background: #f8f9fa;
+                    border-radius: 4px;
+                }
+                .component-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }
+                .component-table th, .component-table td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                .component-table th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                .component-table tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                .finding-list {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .finding {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                .action-item {
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    margin: 10px 0;
+                    border-radius: 4px;
+                    border-left: 5px solid #007bff;
+                }
+                .action-item.critical {
+                    border-left-color: #dc3545;
+                }
+                .action-item.high {
+                    border-left-color: #fd7e14;
+                }
+                .action-item.medium {
+                    border-left-color: #ffc107;
+                }
+                .action-item.low {
+                    border-left-color: #28a745;
+                }
+                .severity-high { color: #dc3545; }
+                .severity-medium { color: #fd7e14; }
+                .severity-low { color: #28a745; }
+                .severity-badge {
+                    display: inline-block;
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    font-size: 0.9em;
+                    font-weight: 500;
+                    margin-right: 8px;
+                }
+                .severity-high .severity-badge { background: #dc3545; color: white; }
+                .severity-medium .severity-badge { background: #fd7e14; color: white; }
+                .severity-low .severity-badge { background: #28a745; color: white; }
+                .validation-status {
+                    display: inline-block;
+                    padding: 5px 10px;
+                    border-radius: 4px;
+                    font-weight: bold;
+                }
+                .validation-complete { background: #d4edda; color: #155724; }
+                .validation-incomplete { background: #f8d7da; color: #721c24; }
+                .component-yes {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .component-no {
+                    color: #dc3545;
+                }
+                .match {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .mismatch {
+                    color: #fd7e14;
+                    font-weight: bold;
+                }
+                .toc {
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    border-radius: 4px;
+                    margin: 15px 0;
+                }
+                .toc ul {
+                    margin: 5px 0;
+                    padding-left: 20px;
+                }
+                .executive-summary {
+                    background: #e9f7fd;
+                    border-radius: 4px;
+                    padding: 10px 15px;
+                    margin: 15px 0;
+                    border-left: 5px solid #17a2b8;
+                }
+                pre, code {
+                    background: #f8f9fa;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    font-family: monospace;
+                    font-size: 0.9em;
+                    overflow-x: auto;
+                }
+                .summary {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .summary-item {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                .attachments {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 15px;
+                    margin: 15px 0;
+                }
+                .attachment {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                    text-align: center;
+                }
+                .attachment img {
+                    margin: 10px auto;
+                    display: block;
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 3px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                }
+                .repo-info {
+                    margin: 10px 0;
+                    padding: 10px;
+                    background: #f8f9fa;
+                    border-radius: 4px;
+                    border-left: 5px solid #007bff;
+                }
+                .repo-valid {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .repo-invalid {
+                    color: #dc3545;
+                    font-weight: bold;
+                }
+                .status-in-progress { 
+                    color: #0088CC; 
+                    font-weight: bold;
+                }
+                .status-to-do { 
+                    color: #999999;
+                    font-weight: bold; 
+                }
+                .status-done { 
+                    color: #14892c;
+                    font-weight: bold; 
+                }
+                .status-unknown { 
+                    color: #654982;
+                    font-weight: bold;
+                }
+                .comments-list {
+                    list-style: none;
+                    padding: 0;
+                }
+                .comment {
+                    border-left: 3px solid #0088CC;
+                    padding-left: 10px;
+                    margin-bottom: 10px;
+                }
+                .comment-header {
+                    color: #666;
+                    margin-bottom: 5px;
+                }
+                ul, ol { margin: 5px 0; padding-left: 20px; }
+                li { margin: 3px 0; }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                @media print {
+                    body { padding: 10px; }
+                    .section { break-inside: avoid; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Application & Platform Hard Gates Report - ocp_analyser</h1>
+            
+            <!--  Summary -->
+            <div class="executive-summary">
+                <h2 id="executive-summary">Summary</h2>
+        
+                <h3>ocp_analyser</h3>
+        
+                <ul>
+                <li><strong>Total Findings</strong>: 0</li>
+        <li><strong>Related Jira Stories</strong>: 3</li>
+        <li><strong>Jira Status Breakdown</strong>: 1 In Progress, 1 To Do, 1 Done</li>
+
+                </ul>
+            </div>
+        
+        <div class="section" id="jira-stories">
+            <h2>Jira Stories</h2>
+            <p>The following Jira stories are relevant to this project:</p>
+        
+                <div class="action-item">
+                    <h3>XYZ-101: Implement Jira integration for code analyzer</h3>
+                    <p><strong>Status:</strong> <span class="status-in-progress">In Progress</span></p>
+                    <p><strong>Created:</strong> 2023-05-15T10:30:00.000+0000</p>
+                    <p><strong>Last Updated:</strong> 2023-05-16T14:45:00.000+0000</p>
+                
+                    <p><strong>Description:</strong></p>
+                    <pre>As a user, I want to see my relevant Jira stories in the code analysis report so that I can track issues related to my codebase.
+
+**Acceptance Criteria:**
+- Fetch stories from Jira API
+- Display summary, status, and description
+- Show comments and attachments
+- Integrate with existing report</pre>
+                    
+                    <p><strong>Comments:</strong></p>
+                    <ul class="comments-list">
+                    
+                        <li class="comment">
+                            <div class="comment-header">
+                                <strong>John Developer</strong> (2023-05-15T15:22:00.000+0000)
+                            </div>
+                            <div class="comment-body">I've started working on this. Initial API connection is working.</div>
+                        </li>
+                        
+                        <li class="comment">
+                            <div class="comment-header">
+                                <strong>Maria Manager</strong> (2023-05-15T16:05:00.000+0000)
+                            </div>
+                            <div class="comment-body">Great! Make sure to handle authentication errors gracefully.</div>
+                        </li>
+                        
+                    </ul>
+                    
+                    <p><strong>Attachments:</strong></p>
+                    <div class="attachments">
+                    
+                            <div class="attachment">
+                                <p>XYZ_design_mockup.png (2422 bytes)</p>
+                                <img src="jira_attachments/XYZ_design_mockup.png" alt="XYZ_design_mockup.png" style="max-width: 100%; max-height: 300px;">
+                            </div>
+                            
+                    </div>
+                    
+                </div>
+                
+                <div class="action-item">
+                    <h3>XYZ-102: Fix broken CSS in report generation</h3>
+                    <p><strong>Status:</strong> <span class="status-to-do">To Do</span></p>
+                    <p><strong>Created:</strong> 2023-05-17T09:15:00.000+0000</p>
+                    <p><strong>Last Updated:</strong> 2023-05-17T09:15:00.000+0000</p>
+                
+                    <p><strong>Description:</strong></p>
+                    <pre>The CSS styles in the generated report are not being applied correctly. The Jira stories section is not displaying images properly.
+
+**Steps to reproduce:**
+1. Generate a report with Jira stories
+2. Open the HTML report
+3. Notice the images are not displayed</pre>
+                    
+                </div>
+                
+                <div class="action-item">
+                    <h3>XYZ-100: Set up project structure and dependencies</h3>
+                    <p><strong>Status:</strong> <span class="status-done">Done</span></p>
+                    <p><strong>Created:</strong> 2023-05-10T08:00:00.000+0000</p>
+                    <p><strong>Last Updated:</strong> 2023-05-12T16:30:00.000+0000</p>
+                
+                    <p><strong>Description:</strong></p>
+                    <pre>Create the initial project structure with requirements.txt, main.py, and necessary modules.</pre>
+                    
+                    <p><strong>Comments:</strong></p>
+                    <ul class="comments-list">
+                    
+                        <li class="comment">
+                            <div class="comment-header">
+                                <strong>John Developer</strong> (2023-05-12T15:45:00.000+0000)
+                            </div>
+                            <div class="comment-body">Completed and ready for review.</div>
+                        </li>
+                        
+                        <li class="comment">
+                            <div class="comment-header">
+                                <strong>Sarah Reviewer</strong> (2023-05-12T16:30:00.000+0000)
+                            </div>
+                            <div class="comment-body">Looks good! Approved.</div>
+                        </li>
+                        
+                    </ul>
+                    
+                </div>
+                
+        </div>
+        
+        <div class="section" id="action-items">
+            <h2>Action Items</h2>
+            <p>Below are the prioritized action items recommended based on this analysis:</p>
+        
+            <p>No specific action items identified. The codebase appears to follow good practices.</p>
+            
+        </div>
+        </body>
+        </html>
+        

@@ -3,7 +3,7 @@
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Code Analysis Report - cloudview</title>
+            <title>Code Analysis Report - ocp_analyser</title>
             <style>
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -193,15 +193,15 @@
             </style>
         </head>
         <body>
-            <h1>Code Analysis Report for cloudview</h1>
+            <h1>Code Analysis Report for ocp_analyser</h1>
             
             <!-- Executive Summary -->
             <div class="executive-summary">
                 <h2 id="executive-summary">Executive Summary</h2>
         
                 <ul>
-                    <li><strong>Security & Quality Implementation</strong>: 26.7%</li>
-                    <li><strong>Practices Implemented</strong>: 4 fully, 0 partially, 11 not implemented</li>
+                    <li><strong>Security & Quality Implementation</strong>: 40.0%</li>
+                    <li><strong>Practices Implemented</strong>: 6 fully, 0 partially, 9 not implemented</li>
                 
                     <li><strong>Total Findings</strong>: 0</li>
             
@@ -237,7 +237,7 @@
                 <tr>
                     <td>venafi</td>
                     <td class="component-no">no</td>
-                    <td>No Venafi certificate management code found</td>
+                    <td>No Venafi dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
@@ -249,127 +249,127 @@
                 <tr>
                     <td>channel_secure</td>
                     <td class="component-no">no</td>
-                    <td>No Channel Secure/ PingFed usage detected</td>
+                    <td>No Channel Secure / PingFed dependencies or con...</td>
                 </tr>
                 
                 <tr>
                     <td>nas_smb</td>
                     <td class="component-no">no</td>
-                    <td>No NAS/SMB configuration or usage found</td>
+                    <td>No NAS / SMB dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>smtp</td>
                     <td class="component-no">no</td>
-                    <td>No SMTP configurations or usage found</td>
+                    <td>No SMTP dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>autosys</td>
                     <td class="component-no">no</td>
-                    <td>No AutSys configurations or usage found</td>
+                    <td>No AutoSys dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>cron_quartz_spring_batch</td>
-                    <td class="component-yes">yes</td>
-                    <td>Found cron logic in utils/crawl_github_files.py (line 54), Found Quartz scheduler configuration in flow.py (line 23) (+114 more)</td>
+                    <td class="component-no">no</td>
+                    <td>No CRON/quartz/spring batch dependencies or con...</td>
                 </tr>
                 
                 <tr>
                     <td>mtls_mutual_auth_hard_rock_pattern</td>
                     <td class="component-no">no</td>
-                    <td>No MTLS/Mutual Authentication pattern found</td>
+                    <td>No MTLS / Mutual Auth / Hard Rock pattern depen...</td>
                 </tr>
                 
                 <tr>
                     <td>ndm</td>
                     <td class="component-no">no</td>
-                    <td>No NDM usage detected</td>
+                    <td>No NDM dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>legacy_jks_files</td>
                     <td class="component-no">no</td>
-                    <td>No legacy JKS file references found</td>
+                    <td>No legacy JKS files found</td>
                 </tr>
                 
                 <tr>
                     <td>soap_calls</td>
                     <td class="component-no">no</td>
-                    <td>No SOAP call logic found</td>
+                    <td>No SOAP calls found</td>
                 </tr>
                 
                 <tr>
                     <td>rest_api</td>
                     <td class="component-yes">yes</td>
-                    <td>Found REST API calls in core/genflow.py (line 34), Used Flask routes for REST endpoints (+85 more)</td>
+                    <td>REST API calls are made using the 'requests' li...</td>
                 </tr>
                 
                 <tr>
                     <td>apigee</td>
                     <td class="component-no">no</td>
-                    <td>No Apigee usage detected</td>
+                    <td>No APIGEE dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>kafka</td>
                     <td class="component-no">no</td>
-                    <td>No Kafka usage found</td>
+                    <td>No KAFKA dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>ibm_mq</td>
                     <td class="component-no">no</td>
-                    <td>No IBM MQ usage detected</td>
+                    <td>No IBM MQ dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>ldap</td>
                     <td class="component-no">no</td>
-                    <td>No LDAP configuration or usage found</td>
+                    <td>No LDAP dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>splunk</td>
                     <td class="component-no">no</td>
-                    <td>No Splunk usage detected</td>
+                    <td>No Splunk dependencies or configurations found</td>
                 </tr>
                 
                 <tr>
                     <td>appd_appdynamics</td>
                     <td class="component-no">no</td>
-                    <td>No AppDynamics usage detected</td>
+                    <td>No AppD / AppDynamics dependencies or configura...</td>
                 </tr>
                 
                 <tr>
                     <td>elastic_apm</td>
                     <td class="component-no">no</td>
-                    <td>No Elastic APM usage detected</td>
+                    <td>No ELASTIC APM dependencies or configurations f...</td>
                 </tr>
                 
                 <tr>
-                    <td>harness_ucd_ci_cd</td>
+                    <td>harness_ucd_for_cicd</td>
                     <td class="component-no">no</td>
-                    <td>No Harness or UCD usage detected for CI/CD</td>
+                    <td>No Harness or UCD for CI/CD dependencies or con...</td>
                 </tr>
                 
                 <tr>
                     <td>hashicorp_vault</td>
                     <td class="component-no">no</td>
-                    <td>No HashiCorp Vault usage found</td>
+                    <td>No HashiCorp Vault dependencies or configuratio...</td>
                 </tr>
                 
                 <tr>
                     <td>bridge_utility_server</td>
                     <td class="component-no">no</td>
-                    <td>No Bridge Utility Server usage detected</td>
+                    <td>No Bridge Utility server dependencies or config...</td>
                 </tr>
                 
                 <tr>
                     <td>rabbitmq</td>
-                    <td class="component-yes">yes</td>
-                    <td>Found RabbitMQ configuration in flow.py (line 30), RabbitMQ used for message passing (+82 more)</td>
+                    <td class="component-no">no</td>
+                    <td>No RabbitMQ dependencies or configurations found</td>
                 </tr>
                 
             </table>
@@ -391,38 +391,38 @@
                 
                     <tr>
                         <td>Avoid Logging Confidential Data</td>
-                        <td class="component-yes">Implemented</td>
-                        <td>Found masking of sensitive data in utils/logging_utils.py (line 25) (+65 more)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of avoiding logging confidential data found.</td>
                     </tr>
                     
                     <tr>
                         <td>Create Audit Trail Logs</td>
                         <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td>No comprehensive audit logs found.</td>
                     </tr>
                     
                     <tr>
                         <td>Tracking Id For Log Messages</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No evidence provided</td>
+                        <td>No correlation/tracking IDs found in log messages.</td>
                     </tr>
                     
                     <tr>
                         <td>Log Rest Api Calls</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No evidence provided</td>
+                        <td>No middleware or interceptors found to log API calls.</td>
                     </tr>
                     
                     <tr>
                         <td>Log Application Messages</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td>No evidence provided</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Found logging patterns in main.py (line 25) and utils/call_llm.py (line 10).</td>
                     </tr>
                     
                     <tr>
                         <td>Client Ui Errors Are Logged</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No evidence provided</td>
+                        <td>No evidence of front-end error logging found.</td>
                     </tr>
                     
                 </table>
@@ -438,25 +438,25 @@
                     <tr>
                         <td>Retry Logic</td>
                         <td class="component-yes">Implemented</td>
-                        <td>Found retry logic in utils/crawl_github_files.py (lines 42-45) (+60 more)</td>
+                        <td>Retry logic implemented in nodes.py (line 30).</td>
                     </tr>
                     
                     <tr>
                         <td>Set Timeouts On Io Operations</td>
                         <td class="component-yes">Implemented</td>
-                        <td>Set timeouts on database connections in database.py (line 30) (+59 more)</td>
+                        <td>Timeouts set in nodes.py (line 50).</td>
                     </tr>
                     
                     <tr>
                         <td>Throttling Drop Request</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No evidence provided</td>
+                        <td>No rate limiting or request dropping logic found.</td>
                     </tr>
                     
                     <tr>
                         <td>Circuit Breakers On Outgoing Requests</td>
                         <td class="component-no">Not Implemented</td>
-                        <td>No evidence provided</td>
+                        <td>No circuit breaker logic found.</td>
                     </tr>
                     
                 </table>
@@ -471,20 +471,20 @@
                 
                     <tr>
                         <td>Log System Errors</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td class="component-yes">Implemented</td>
+                        <td>System errors logged in main.py (line 35).</td>
                     </tr>
                     
                     <tr>
                         <td>Use Http Standard Error Codes</td>
-                        <td class="component-yes">Implemented</td>
-                        <td>Used Flask response codes (e.g., 404) for API responses (+53 more)</td>
+                        <td class="component-no">Not Implemented</td>
+                        <td>No evidence of using standard HTTP status codes.</td>
                     </tr>
                     
                     <tr>
                         <td>Include Client Error Tracking</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td>No evidence provided</td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Client-side error tracking in main.py (line 40).</td>
                     </tr>
                     
                 </table>
@@ -500,7 +500,7 @@
                     <tr>
                         <td>Url Monitoring</td>
                         <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td>No health check or ping endpoints found.</td>
                     </tr>
                     
                 </table>
@@ -515,8 +515,8 @@
                 
                     <tr>
                         <td>Automated Regression Testing</td>
-                        <td class="component-no">Not Implemented</td>
-                        <td></td>
+                        <td class="component-yes">Implemented</td>
+                        <td>Automated tests are implemented in test.py (line 10).</td>
                     </tr>
                     
                 </table>
@@ -539,9 +539,9 @@
                 
                     <tr>
                         <td>Python</td>
-                        <td>3.8</td>
+                        <td>unknown</td>
                         <td>Main application language</td>
-                        <td>main.py</td>
+                        <td>flow.py, main.py (+3)</td>
                     </tr>
                     
                 </table>
@@ -556,9 +556,147 @@
                     </tr>
                 
                     <tr>
-                        <td>Flask</td>
-                        <td>2.0</td>
-                        <td>Web framework</td>
+                        <td>PocketFlow</td>
+                        <td>>0.0.1</td>
+                        <td>LLM framework for AI agent creation</td>
+                        <td>flow.py</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Libraries</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>PyYAML</td>
+                        <td>>=6.0</td>
+                        <td>Parsing YAML configuration files</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>requests</td>
+                        <td>>=2.28.0</td>
+                        <td>Making HTTP requests to API endpoints, particularly for GitHub and Jira integration</td>
+                        <td>utils/call_llm.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>GitPython</td>
+                        <td>>=3.1.40</td>
+                        <td>Interacting with Git repositories</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>google-cloud-aiplatform</td>
+                        <td>>=1.25.0</td>
+                        <td>Accessing Google AI Platform services</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>google-genai</td>
+                        <td>>=1.9.0</td>
+                        <td>Interacting with Google's GenAI services</td>
+                        <td>utils/call_llm.py</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>python-dotenv</td>
+                        <td>>=1.0.0</td>
+                        <td>Loading environment variables from a .env file</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>pathspec</td>
+                        <td>>=0.11.0</td>
+                        <td>Pattern matching for file paths</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>weasyprint</td>
+                        <td>>=60.1</td>
+                        <td>Creating PDF documents from HTML</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>openpyxl</td>
+                        <td>>=3.1.0</td>
+                        <td>Reading and writing Excel files</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>openai</td>
+                        <td>==1.68.2</td>
+                        <td>Interacting with the OpenAI API</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>anthropic</td>
+                        <td>>=0.18.1</td>
+                        <td>Interacting with Anthropic's AI models</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>jira</td>
+                        <td>>=3.5.2</td>
+                        <td>Interacting with Jira issue tracking system</td>
+                        <td>requirements.txt</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Tools</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Docker</td>
+                        <td>unknown</td>
+                        <td>Containerizing the Python application for deployment and testing</td>
+                        <td>Dockerfile</td>
+                    </tr>
+                    
+                </table>
+                
+                <h3>Services</h3>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                        <th>Files</th>
+                    </tr>
+                
+                    <tr>
+                        <td>GitHub</td>
+                        <td>unknown</td>
+                        <td>Source of code repositories to analyze</td>
+                        <td></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Jira</td>
+                        <td>unknown</td>
+                        <td>Issue tracking system for project management and development tracking</td>
                         <td></td>
                     </tr>
                     
@@ -662,7 +800,7 @@
             <p>Below are the prioritized action items recommended based on this analysis:</p>
         
                 <div class="action-item medium">
-                    <h3>1. Implement 11 Missing Security Practices</h3>
+                    <h3>1. Implement 9 Missing Security Practices</h3>
                     <p><strong>Priority:</strong> Medium</p>
                     <p><strong>Action:</strong> Address security gaps to improve overall application security posture.</p>
                 </div>
