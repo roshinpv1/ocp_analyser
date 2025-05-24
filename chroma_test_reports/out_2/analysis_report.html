@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application & Platform Hard Gates for  Assays sake kwekjw kejwkje kwjekj wejwkj ew</title>
+    <style>
+    
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 40px;
+    color: #333;
+    max-width: 1100px;
+    margin: 0 auto;
+    background-color: #fafafa;
+}
+h1 {
+    font-size: 1.8em;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    color: #2c3e50;
+}
+h2 {
+    font-size: 1.4em;
+    font-weight: 500;
+    margin: 25px 0 15px 0;
+    color: #2c3e50;
+    padding-top: 15px;
+    border-top: 1px solid #eaeaea;
+}
+h2:first-of-type { border-top: none; }
+h3 {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin: 20px 0 10px 0;
+    color: #34495e;
+}
+h4 {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 15px 0 8px 0;
+    color: #34495e;
+}
+p {
+    margin: 0 0 15px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    color: #2c3e50;
+}
+tr:last-child td {
+    border-bottom: none;
+}
+tr:hover {
+    background-color: #f8f9fa;
+}
+.critical { color: #e74c3c; }
+.high { color: #e67e22; }
+.medium { color: #3498db; }
+.low { color: #2ecc71; }
+
+.executive-summary {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+}
+.component-analysis, .technology-stack, .findings, .action-items, .jira-stories {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+}
+.finding {
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 0 4px 4px 0;
+}
+.finding.critical { border-left-color: #e74c3c; }
+.finding.high { border-left-color: #e67e22; }
+.finding.medium { border-left-color: #3498db; }
+.finding.low { border-left-color: #2ecc71; }
+
+.action-item {
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 0 4px 4px 0;
+}
+.action-item.critical { border-left-color: #e74c3c; }
+.action-item.high { border-left-color: #e67e22; }
+.action-item.medium { border-left-color: #3498db; }
+.action-item.low { border-left-color: #2ecc71; }
+
+.jira-story {
+    border: 1px solid #eaeaea;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+.jira-story-header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+.jira-story-key {
+    font-weight: 600;
+    color: #2c3e50;
+}
+.jira-story-status {
+    background-color: #f1f1f1;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+.jira-description {
+    background-color: #fff;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+    border: 1px solid #eaeaea;
+}
+.jira-comment {
+    background-color: #fff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #eaeaea;
+}
+.jira-attachment {
+    margin: 15px 0;
+}
+.jira-image {
+    max-width: 100%;
+    max-height: 300px;
+    margin-top: 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+ul {
+    padding-left: 20px;
+}
+li {
+    margin-bottom: 8px;
+}
+code {
+    background-color: #f1f1f1;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: Menlo, Monaco, 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+    </style>
+</head>
+<body>
+    <h1>Application & Platform Hard Gates for  Assays sake kwekjw kejwkje kwjekj wejwkj ew</h1>
+
+    <div class="executive-summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>**Security & Quality Implementation**: 0.0%
+**Practices Implemented**: 0 fully, 0 partially, 15 not implemented
+</li>
+            <li>**Total Findings**: 0
+</li>
+            <li>**Component Declaration Mismatches**: 1
+</li>
+        </ul>
+    </div>
+
+    <div class="component-analysis">
+        <h2>Component Analysis</h2>
+
+        <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
+        <table>
+            <tr>
+                <th>Component</th>
+                <th>Declared</th>
+                <th>Detected</th>
+                <th>Status</th>
+            </tr>
+
+            <tr>
+                <td>venafi</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>redis</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>channel secure / pingfed</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>nas / smb</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>smtp</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>autosys</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>mtls / mutual auth or hard rock pattem in the application</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>ndm</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>legacy jks file</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>soap calls</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>rest api</td>
+                <td>No</td>
+                <td>Yes</td>
+                <td class="high">Mismatch</td>
+            </tr>
+            <tr>
+                <td>apigee</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>kafka</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>ibm mq</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>mq, is the component using any cipher suite</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>ldap</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>splunk</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>appd</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>elastic apm</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>hamess or ucd for ci cd</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>hardrock / mtls auth</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>appdynamics</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>rabbitmq</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>database</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>mongodb</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>sqlserver</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>mysql</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>postgresql</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>oracle</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>cassandra</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>couchbase</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>neo4j</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>hadoop</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>spark</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>okta</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>saml</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>auth</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>jwt</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>openid</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>adfs</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>san</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>malwarescanner</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+            <tr>
+                <td>any other service</td>
+                <td>No</td>
+                <td>No</td>
+                <td class="low">Match</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="technology-stack">
+        <h2>Technology Stack</h2>
+
+        <h3>Languages</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+
+            <tr>
+                <td>Python</td>
+                <td>None</td>
+                <td>Main programming language</td>
+            </tr>
+        </table>
+
+        <h3>Frameworks</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+
+            <tr>
+                <td>Apify SDK</td>
+                <td>None</td>
+                <td>Used to build and manage the actor on the Apify platform</td>
+            </tr>
+        </table>
+
+        <h3>Libraries</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+
+            <tr>
+                <td>requests</td>
+                <td>None</td>
+                <td>Used for making HTTP requests</td>
+            </tr>
+            <tr>
+                <td>pandas</td>
+                <td>None</td>
+                <td>Used for data manipulation and analysis</td>
+            </tr>
+            <tr>
+                <td>argparse</td>
+                <td>None</td>
+                <td>Used for parsing command line arguments</td>
+            </tr>
+            <tr>
+                <td>colorama</td>
+                <td>None</td>
+                <td>Used for colored terminal text</td>
+            </tr>
+            <tr>
+                <td>json</td>
+                <td>None</td>
+                <td>Built-in library for JSON processing</td>
+            </tr>
+            <tr>
+                <td>os</td>
+                <td>None</td>
+                <td>Built-in library for interacting with the operating system</td>
+            </tr>
+        </table>
+
+        <h3>Databases</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+
+            <tr>
+                <td>None</td>
+                <td>None</td>
+                <td>No specific database mentioned in the codebase</td>
+            </tr>
+        </table>
+
+        <h3>Infrastructure</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+
+            <tr>
+                <td>Docker</td>
+                <td>None</td>
+                <td>Containerization platform</td>
+            </tr>
+            <tr>
+                <td>Apify Platform</td>
+                <td>None</td>
+                <td>Cloud-based platform for running actors</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="security-quality-analysis">
+        <h2>Security &amp; Quality Analysis</h2>
+
+        <h3>Auditability</h3>
+        <table>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+
+            <tr>
+                <td>Avoid Logging Confidential Data</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No explicit handling of confidential data logging found.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Create Audit Trail Logs</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No audit trail logs implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Tracking Id For Log Messages</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No tracking ID for log messages implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Log Rest Api Calls</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No explicit logging of REST API calls found.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Log Application Messages</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No application messages logging implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Client Ui Errors Are Logged</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No client UI error logging implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+        </table>
+
+        <h3>Availability</h3>
+        <table>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+
+            <tr>
+                <td>Retry Logic</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No retry logic implemented for HTTP requests.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Set Timeouts On Io Operations</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No timeout settings for HTTP requests.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Throttling Drop Request</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No request throttling or dropping implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Circuit Breakers On Outgoing Requests</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No circuit breaker pattern implemented for outgoing requests.</td>
+                <td>Implement this practice</td>
+            </tr>
+        </table>
+
+        <h3>Error Handling</h3>
+        <table>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+
+            <tr>
+                <td>Log System Errors</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No logging of system errors implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Use Http Standard Error Codes</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No use of HTTP standard error codes detected.</td>
+                <td>Implement this practice</td>
+            </tr>
+            <tr>
+                <td>Include Client Error Tracking</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No client error tracking implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+        </table>
+
+        <h3>Monitoring</h3>
+        <table>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+
+            <tr>
+                <td>Url Monitoring</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No URL monitoring implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+        </table>
+
+        <h3>Testing</h3>
+        <table>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+
+            <tr>
+                <td>Automated Regression Testing</td>
+                <td class="high">❌ Not Implemented</td>
+                <td>No automated regression testing implemented.</td>
+                <td>Implement this practice</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="findings">
+        <h2>Findings</h2>
+
+        <p>No findings were identified in the codebase.</p>
+
+    </div>
+
+    <div class="action-items">
+        <h2>Action Items</h2>
+
+        <div class="action-item high">
+            <h3>1. Resolve Component Declaration Mismatches (Priority: High)</h3>
+            <p>There are discrepancies between the components declared in the intake form and those detected in the codebase. Review the Component Analysis section to identify and address these mismatches.</p>
+        </div>
+
+        <div class="action-item medium">
+            <h3>2. Improve Logging and Auditability (Priority: Medium)</h3>
+            <p>Implement the following logging and auditability practices: avoid_logging_confidential_data, create_audit_trail_logs, tracking_id_for_log_messages, log_rest_api_calls, log_application_messages, client_ui_errors_are_logged.</p>
+        </div>
+
+        <div class="action-item high">
+            <h3>3. Enhance Application Resilience (Priority: High)</h3>
+            <p>Implement the following availability and resilience practices: retry_logic, set_timeouts_on_io_operations, throttling_drop_request, circuit_breakers_on_outgoing_requests.</p>
+        </div>
+
+        <div class="action-item medium">
+            <h3>4. Improve Error Handling (Priority: Medium)</h3>
+            <p>Implement the following error handling practices: log_system_errors, use_http_standard_error_codes, include_client_error_tracking.</p>
+        </div>
+
+    </div>
+
+    <div class="jira-stories">
+        <h2>Jira Stories</h2>
+
+        <div class="jira-story">
+            <div class="jira-story-header">
+                <span class="jira-story-key">XYZ-101</span>
+                <span class="jira-story-status medium">In Progress</span>
+            </div>
+            <h3>Implement Jira integration for code analyzer</h3>
+            <p><strong>Created:</strong> 2023-05-15T10:30:00.000+0000<br>
+            <strong>Updated:</strong> 2023-05-16T14:45:00.000+0000</p>
+
+            <div class="jira-description">
+                As a user, I want to see my relevant Jira stories in the code analysis report so that I can track issues related to my codebase.<br><br>**Acceptance Criteria:**<br>- Fetch stories from Jira API<br>- Display summary, status, and description<br>- Show comments and attachments<br>- Integrate with existing report
+            </div>
+
+            <h4>Comments</h4>
+
+            <div class="jira-comment">
+                <strong>John Developer</strong> (2023-05-15T15:22:00.000+0000)<br>
+                I've started working on this. Initial API connection is working.
+            </div>
+
+            <div class="jira-comment">
+                <strong>Maria Manager</strong> (2023-05-15T16:05:00.000+0000)<br>
+                Great! Make sure to handle authentication errors gracefully.
+            </div>
+
+            <h4>Attachments</h4>
+
+            <div class="jira-attachment">
+                <p>sample_attachment_1.png (2452 bytes)</p>
+                <img src="jira_attachments/sample_attachment_1.png" alt="sample_attachment_1.png" class="jira-image">
+            </div>
+
+        </div>
+
+        <div class="jira-story">
+            <div class="jira-story-header">
+                <span class="jira-story-key">XYZ-102</span>
+                <span class="jira-story-status high">To Do</span>
+            </div>
+            <h3>Fix broken CSS in report generation</h3>
+            <p><strong>Created:</strong> 2023-05-17T09:15:00.000+0000<br>
+            <strong>Updated:</strong> 2023-05-17T09:15:00.000+0000</p>
+
+            <div class="jira-description">
+                The CSS styles in the generated report are not being applied correctly. The Jira stories section is not displaying images properly.<br><br>**Steps to reproduce:**<br>1. Generate a report with Jira stories<br>2. Open the HTML report<br>3. Notice the images are not displayed
+            </div>
+
+        </div>
+
+        <div class="jira-story">
+            <div class="jira-story-header">
+                <span class="jira-story-key">XYZ-100</span>
+                <span class="jira-story-status low">Done</span>
+            </div>
+            <h3>Set up project structure and dependencies</h3>
+            <p><strong>Created:</strong> 2023-05-10T08:00:00.000+0000<br>
+            <strong>Updated:</strong> 2023-05-12T16:30:00.000+0000</p>
+
+            <div class="jira-description">
+                Create the initial project structure with requirements.txt, main.py, and necessary modules.
+            </div>
+
+            <h4>Comments</h4>
+
+            <div class="jira-comment">
+                <strong>John Developer</strong> (2023-05-12T15:45:00.000+0000)<br>
+                Completed and ready for review.
+            </div>
+
+            <div class="jira-comment">
+                <strong>Sarah Reviewer</strong> (2023-05-12T16:30:00.000+0000)<br>
+                Looks good! Approved.
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

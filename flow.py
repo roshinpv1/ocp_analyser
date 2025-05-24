@@ -1,5 +1,5 @@
 from core.genflow import Flow
-# Import all node classes from nodes.py
+# Import all node classes from the modularized nodes package
 from nodes import (
     FetchRepo,
     AnalyzeCode,
@@ -42,7 +42,7 @@ def create_excel_analysis_flow():
     process_excel - "success" >> ocp_assessment  # Run OCP assessment on successful Excel processing
     
     # Connect OCP assessment to continue the normal flow
-    ocp_assessment >> fetch_repo
+    ocp_assessment - "success" >> fetch_repo  # Use the "success" action returned by OcpAssessmentNode
     
     # Connect nodes in sequence for successful flow
     fetch_repo >> analyze_code >> fetch_jira >> generate_report

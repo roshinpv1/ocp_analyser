@@ -1,6 +1,6 @@
-# Code Analysis Report for Assays sake kwekjw kejwkje kwjekj wejwkj ew
+# Application & Platform Hard Gates for  Assays sake kwekjw kejwkje kwjekj wejwkj ew
 
-## Executive Summary
+## Summary
 
 - **Security & Quality Implementation**: 53.3%
 - **Practices Implemented**: 8 fully, 0 partially, 7 not implemented
@@ -107,7 +107,7 @@ If Yes, Please share details on the same.
 
 ## Table of Contents
 
-1. [Executive Summary](#executive-summary)
+1. [Summary](#executive-summary)
 2. [Intake Form Validation](#intake-form-validation)
 3. [Component Analysis](#component-analysis)
 4. [Security and Quality Practices](#security-and-quality-practices)

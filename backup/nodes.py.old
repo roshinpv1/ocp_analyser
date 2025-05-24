@@ -1919,10 +1919,10 @@ class GenerateReport(Node):
                 status_text = ", ".join(f"{count} {status}" for status, count in status_counts.items())
                 html_stats_items.append(f"<li><strong>Jira Status Breakdown</strong>: {status_text}</li>")
         
-        # Add all statistics to executive summary
+        # Add all statistics to Summary
         report += excel_validation_stats + component_stats + security_stats + findings_stats + jira_stats + "\n"
         
-        # Now add all HTML stats to the executive summary section
+        # Now add all HTML stats to the Summary section
         html_content += f"""
                 <h3>{project_name if project_name else "Unknown Project"}</h3>
         """
@@ -1946,7 +1946,7 @@ class GenerateReport(Node):
         for item in html_stats_items:
             html_content += f"        {item}\n"
         
-        # Close the executive summary
+        # Close the Summary
         html_content += """
                 </ul>
             </div>

@@ -107,7 +107,7 @@ re-platform, or re-architect) with justification
 recommendations
 - Service mesh adoption benefits for the specific application
 The output must be formatted as a structured assessment report with clear sections, using tables where appropriate for comparative data. Do not extrapolate any data - be specific to display if the OpenShift assessment is
-successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an executive summary with go/no-go recommendation,
+successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an Summary with go/no-go recommendation,
 followed by detailed technical sections.
 Each finding must include evidence from the intake data and reference to relevant OpenShift constraints or requirements.
 The output should be formatted well to view in html documents."""
@@ -1932,12 +1932,12 @@ class GenerateReport(Node):
         
         # Initialize report and html_content variables at the beginning of the method
         # Generate Markdown report content
-        report = f"# Code Analysis Report for {project_name}\n\n"
+        report = f"# Application & Platform Hard Gates for  {project_name}\n\n"
         
-        # Add Executive Summary with statistics
-        report += "## Executive Summary\n\n"
+        # Add Summary with statistics
+        report += "## Summary\n\n"
         
-        # Calculate statistics for executive summary
+        # Calculate statistics for Summary
         security_stats = ""
         if security_quality_analysis:
             categories_total = 0
@@ -1998,7 +1998,7 @@ class GenerateReport(Node):
             if mismatches_count > 0:
                 component_stats = f"- **Component Declaration Mismatches**: {mismatches_count}\n"
         
-        # Add all statistics to executive summary
+        # Add all statistics to Summary
         report += security_stats + findings_stats + component_stats + "\n"
         
         # Add Intake Form Validation Section if available
@@ -2032,7 +2032,7 @@ class GenerateReport(Node):
         
         # Add Table of Contents
         report += "## Table of Contents\n\n"
-        report += "1. [Executive Summary](#executive-summary)\n"
+        report += "1. [Summary](#executive-summary)\n"
         report += "2. [Component Analysis](#component-analysis)\n"
         report += "3. [Security and Quality Practices](#security-and-quality-practices)\n"
         report += "4. [Technology Stack](#technology-stack)\n"
@@ -2486,14 +2486,14 @@ class GenerateReport(Node):
             </style>
         </head>
         <body>
-            <h1>Code Analysis Report for """ + project_name + """</h1>
+            <h1>Application & Platform Hard Gates for  """ + project_name + """</h1>
             
-            <!-- Executive Summary -->
+            <!-- Summary -->
             <div class="executive-summary">
-                <h2 id="executive-summary">Executive Summary</h2>
+                <h2 id="executive-summary">Summary</h2>
         """
 
-        # Add security implementation stats to executive summary
+        # Add security implementation stats to Summary
         if security_quality_analysis:
             categories_total = 0
             categories_implemented = 0
@@ -2577,7 +2577,7 @@ class GenerateReport(Node):
             <div class="toc">
                 <h2 id="table-of-contents">Table of Contents</h2>
                 <ol>
-                    <li><a href="#executive-summary">Executive Summary</a></li>
+                    <li><a href="#executive-summary">Summary</a></li>
         """
         
         toc_index = 2

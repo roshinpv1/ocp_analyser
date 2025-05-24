@@ -1,6 +1,6 @@
-# Code Analysis Report for ocp_analyser
+# Application & Platform Hard Gates for  ocp_analyser
 
-## Executive Summary
+## Summary
 
 - **Security & Quality Implementation**: 40.0%
 - **Practices Implemented**: 6 fully, 0 partially, 9 not implemented
@@ -8,7 +8,7 @@
 
 ## Table of Contents
 
-1. [Executive Summary](#executive-summary)
+1. [Summary](#executive-summary)
 2. [Component Analysis](#component-analysis)
 3. [Security and Quality Practices](#security-and-quality-practices)
 4. [Technology Stack](#technology-stack)

@@ -7,7 +7,7 @@
 
   
   <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px;">
-    ## Executive Summary
+    ## Summary
 
 
     **Component Name:** Assays sake kwekjw kejwkje kwjekj wejwkj ew

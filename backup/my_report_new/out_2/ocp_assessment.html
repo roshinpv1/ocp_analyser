@@ -1,0 +1,208 @@
+
+                <style>
+                
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    line-height: 1.4;
+                    margin: 0;
+                    padding: 15px;
+                    color: #333;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                h1 { font-size: 1.5em; margin: 0 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #eee; }
+                h2 { font-size: 1.2em; margin: 15px 0 10px 0; color: #444; padding-top: 10px; border-top: 1px solid #eee; }
+                h2:first-of-type { border-top: none; }
+                h3 { font-size: 1.1em; margin: 10px 0 5px 0; color: #555; }
+                .section {
+                    margin: 10px 0;
+                    padding: 10px;
+                    background: #f8f9fa;
+                    border-radius: 4px;
+                }
+                .component-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                }
+                .component-table th, .component-table td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                .component-table th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                .component-table tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                .finding-list {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                    gap: 10px;
+                    margin: 10px 0;
+                }
+                .finding {
+                    background: white;
+                    padding: 10px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                }
+                .action-item {
+                    background: #f8f9fa;
+                    padding: 10px 15px;
+                    margin: 10px 0;
+                    border-radius: 4px;
+                    border-left: 5px solid #007bff;
+                }
+                .action-item.critical {
+                    border-left-color: #dc3545;
+                }
+                .action-item.high {
+                    border-left-color: #fd7e14;
+                }
+                .action-item.medium {
+                    border-left-color: #ffc107;
+                }
+                .action-item.low {
+                    border-left-color: #28a745;
+                }
+                .score {
+                    font-weight: bold;
+                    font-size: 1.1em;
+                }
+                .score-high {
+                    color: #28a745;
+                }
+                .score-medium {
+                    color: #ffc107;
+                }
+                .score-low {
+                    color: #dc3545;
+                }
+                /* Responsive adjustments */
+                @media (max-width: 768px) {
+                    .finding-list {
+                        grid-template-columns: 1fr;
+                    }
+                }
+            
+                </style>
+                <div class="ocp-assessment">
+                    <h1>OpenShift Migration Assessment</h1>
+                    <div style="font-family: Arial, sans-serif; margin: 20px;">
+    <h1>OpenShift Migration Assessment Report</h1>
+    
+    <h2>Summary</h2>
+    <p><strong>Component Name:</strong> Assays sake kwekjw kejwkje kwjekj wejwkj ew</p>
+    <p><strong>Migration Feasibility:</strong> Not Successful</p>
+    <p><strong>Migration Feasibility Score:</strong> 20/100</p>
+    <p><strong>Go/No-Go Recommendation:</strong> No-Go</p>
+    
+    <h2>Technical Assessment</h2>
+
+    <h3>1. Data Validation Results</h3>
+    <p><strong>Total Rows:</strong> 83</p>
+    <p><strong>Mandatory Fields:</strong> 38</p>
+    <p><strong>Git Repo URL:</strong> https://github.com/sherlock-project/sherlock</p>
+    <p><strong>Git Repo Valid:</strong> Yes</p>
+    
+    <h3>2. Unanswered Mandatory Fields</h3>
+    <table border="1" style="width: 80%; margin-bottom: 20px;">
+        <tr>
+            <th>Field</th>
+        </tr>
+        <tr>
+            <td>Assays sake kwekjw kejwkje kwjekj wejwkj ew</td>
+        </tr>
+        <tr>
+            <td>Provide the GIT CD repo link and coresponding Prod equivalent branch name</td>
+        </tr>
+        <tr>
+            <td>Is the Prod Version of code running in DEV PCF?</td>
+        </tr>
+        <tr>
+            <td>Provide active Dev env name</td>
+        </tr>
+        <!-- More rows as needed -->
+    </table>
+
+    <h3>3. Component Questions</h3>
+    <p><strong>Questions Not Answered:</strong></p>
+    <table border="1" style="width: 80%;">
+        <tr>
+            <th>Question</th>
+        </tr>
+        <tr>
+            <td>Is the component using Venafi?</td>
+        </tr>
+        <tr>
+            <td>Is the component using Redis?</td>
+        </tr>
+        <tr>
+            <td>Is the component using Channel Secure / PingFed?</td>
+        </tr>
+        <!-- More rows as needed -->
+    </table>
+
+    <h3>4. Migration Feasibility Score Breakdown</h3>
+    <table border="1" style="width: 80%;">
+        <tr>
+            <th>Dimension</th>
+            <th>Score (0-100)</th>
+        </tr>
+        <tr>
+            <td>Configuration Completeness</td>
+            <td>50</td>
+        </tr>
+        <tr>
+            <td>Data Completeness</td>
+            <td>30</td>
+        </tr>
+        <tr>
+            <td>Compatibility with OpenShift</td>
+            <td>10</td>
+        </tr>
+        <!-- More rows as needed -->
+    </table>
+
+    <h3>5. Identified Migration Blockers</h3>
+    <ul>
+        <li>Unanswered mandatory fields (8 fields)</li>
+        <li>Questions not answered about critical components (15 questions)</li>
+    </ul>
+
+    <h3>6. Required Architectural Changes</h3>
+    <p><strong>No specific architectural changes identified at this stage.</strong></p>
+
+    <h3>7. Migration Strategy</h3>
+    <p><strong>No viable migration strategy identified due to incomplete data.</strong></p>
+
+    <h3>8. Risk Assessment</h3>
+    <table border="1" style="width: 80%;">
+        <tr>
+            <th>Risk</th>
+            <th>Likelihood (1-5)</th>
+            <th>Impact (1-5)</th>
+        </tr>
+        <tr>
+            <td>Incomplete Data</td>
+            <td>5</td>
+            <td>5</td>
+        </tr>
+        <!-- More rows as needed -->
+    </table>
+
+    <h3>9. Actionable Recommendations</h3>
+    <ul>
+        <li><strong>Complete all mandatory fields in the intake form.</strong></li>
+        <li><strong>Answer all component questions to ensure a comprehensive migration assessment.</strong></li>
+    </ul>
+
+    <h3>10. Optimization Opportunities</h3>
+    <p><strong>No optimization opportunities identified at this stage.</strong></p>
+
+</div>
+                </div>
+            
