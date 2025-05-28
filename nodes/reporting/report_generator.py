@@ -8,6 +8,18 @@ class GenerateReport(Node):
         
         analysis = shared.get("code_analysis", {})
         
+        # Check for empty analysis
+        if not analysis:
+            print("WARNING: No code analysis data found. Report will be limited.")
+            # Initialize with empty values to avoid errors
+            analysis = {
+                "findings": [],
+                "technology_stack": {},
+                "component_analysis": {},
+                "security_quality_analysis": {},
+                "excel_components": {}
+            }
+        
         findings = analysis.get("findings", [])
         print(f"DEBUG: Number of findings: {len(findings)}")
         
@@ -36,18 +48,42 @@ class GenerateReport(Node):
         # Get Excel validation data if available
         excel_validation = shared.get("excel_validation", {})
         
-        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis, jira_stories
+        # Check if we have files data
+        files_data = shared.get("files_data", {})
+        file_count = len(files_data)
+        print(f"DEBUG: Number of files analyzed: {file_count}")
+        
+        # Include file information in the report
+        file_summary = {
+            "count": file_count,
+            "extensions": {}
+        }
+        
+        # Count file extensions
+        for filepath in files_data.keys():
+            _, ext = os.path.splitext(filepath)
+            if ext:
+                file_summary["extensions"][ext] = file_summary["extensions"].get(ext, 0) + 1
+        
+        return findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis, jira_stories, file_summary
 
     def exec(self, prep_res):
-        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis, jira_stories = prep_res
+        findings, technology_stack, project_name, output_dir, excel_validation, component_analysis, excel_components, security_quality_analysis, jira_stories, file_summary = prep_res
         print("\nDEBUG: Starting GenerateReport exec")
         
         # Initialize report and html_content variables at the beginning of the method
         # Generate Markdown report content
-        report = f"# Application & Platform Hard Gates for  {project_name}\n\n"
+        report = f"# Application & Platform Hard Gates for {project_name}\n\n"
         
         # Add Summary with statistics
         report += "## Summary\n\n"
+        
+        # Include file statistics
+        report += f"- **Files Analyzed**: {file_summary['count']}\n"
+        if file_summary['extensions']:
+            report += "- **File Types**: "
+            ext_counts = [f"{ext} ({count})" for ext, count in file_summary['extensions'].items()]
+            report += ", ".join(ext_counts) + "\n"
         
         # Calculate statistics for Summary
         security_stats = ""
@@ -486,10 +522,113 @@ tr:last-child td {
 tr:hover {
     background-color: #f8f9fa;
 }
-.critical { color: #e74c3c; }
-.high { color: #e67e22; }
-.medium { color: #3498db; }
-.low { color: #2ecc71; }
+.critical, .high { color: #e74c3c; }
+.medium { color: #f39c12; }
+.low { color: #27ae60; }
+
+.empty-section {
+    background-color: #f8f9fa;
+    border-left: 4px solid #95a5a6;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.empty-section p {
+    margin: 0 0 10px 0;
+    color: #555;
+}
+
+.empty-section ul {
+    margin: 0 0 10px 20px;
+    padding: 0;
+}
+
+.empty-section li {
+    margin-bottom: 5px;
+}
+
+.finding {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    border-left: 4px solid #95a5a6;
+}
+
+.finding.severity-critical, .finding.severity-high {
+    border-left-color: #e74c3c;
+}
+
+.finding.severity-medium {
+    border-left-color: #f39c12;
+}
+
+.finding.severity-low {
+    border-left-color: #27ae60;
+}
+
+.finding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.finding-number {
+    font-weight: bold;
+    color: #7f8c8d;
+}
+
+.finding-severity {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.finding-severity.critical, .finding-severity.high {
+    background-color: #fdeaea;
+    color: #c0392b;
+}
+
+.finding-severity.medium {
+    background-color: #fef5e7;
+    color: #d35400;
+}
+
+.finding-severity.low {
+    background-color: #e9f7ef;
+    color: #27ae60;
+}
+
+.code-snippet {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+    overflow-x: auto;
+}
+
+.code-snippet pre {
+    margin: 0;
+}
+
+.code-snippet code {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.recommendation {
+    margin-top: 10px;
+}
+
+.tech-category, .security-category, .findings-category {
+    margin-bottom: 30px;
+}
 
 .executive-summary {
     background-color: #fff;
@@ -498,99 +637,7 @@ tr:hover {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     margin-bottom: 25px;
 }
-.component-analysis, .technology-stack, .findings, .action-items, .jira-stories {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    margin-bottom: 25px;
-}
-.finding {
-    padding: 15px;
-    margin: 15px 0;
-    border-left: 4px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
-}
-.finding.critical { border-left-color: #e74c3c; }
-.finding.high { border-left-color: #e67e22; }
-.finding.medium { border-left-color: #3498db; }
-.finding.low { border-left-color: #2ecc71; }
-
-.action-item {
-    padding: 15px;
-    margin: 15px 0;
-    border-left: 4px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
-}
-.action-item.critical { border-left-color: #e74c3c; }
-.action-item.high { border-left-color: #e67e22; }
-.action-item.medium { border-left-color: #3498db; }
-.action-item.low { border-left-color: #2ecc71; }
-
-.jira-story {
-    border: 1px solid #eaeaea;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-}
-.jira-story-header {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #eaeaea;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-.jira-story-key {
-    font-weight: 600;
-    color: #2c3e50;
-}
-.jira-story-status {
-    background-color: #f1f1f1;
-    padding: 3px 8px;
-    border-radius: 3px;
-    font-size: 0.9em;
-}
-.jira-description {
-    background-color: #fff;
-    padding: 15px;
-    margin: 15px 0;
-    border-radius: 4px;
-    border: 1px solid #eaeaea;
-}
-.jira-comment {
-    background-color: #fff;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 4px;
-    border: 1px solid #eaeaea;
-}
-.jira-attachment {
-    margin: 15px 0;
-}
-.jira-image {
-    max-width: 100%;
-    max-height: 300px;
-    margin-top: 10px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-ul {
-    padding-left: 20px;
-}
-li {
-    margin-bottom: 8px;
-}
-code {
-    background-color: #f1f1f1;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-family: Menlo, Monaco, 'Courier New', monospace;
-    font-size: 0.9em;
-}
-"""
+        """
         
         # Start with the basic HTML structure
         html_content = f"""<!DOCTYPE html>
@@ -693,43 +740,70 @@ code {
         if technology_stack:
             for category, techs in technology_stack.items():
                 html_content += f"""
-        <h3>{category.title()}</h3>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Version</th>
-                <th>Purpose</th>
-            </tr>
+        <div class="tech-category">
+            <h3>{category.title()}</h3>
 """
                 
-                if isinstance(techs, list):
+                if not isinstance(techs, list) or not techs:
+                    html_content += """
+            <p>No items found in this category.</p>
+"""
+                else:
+                    html_content += """
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+"""
+                    
                     for tech in techs:
-                        if isinstance(tech, dict):
-                            name = tech.get("name", "Unknown")
-                            version = tech.get("version", "Unknown")
-                            purpose = tech.get("purpose", "N/A")
+                        if not isinstance(tech, dict):
+                            continue
                             
-                            html_content += f"""
-            <tr>
-                <td>{name}</td>
-                <td>{version}</td>
-                <td>{purpose}</td>
-            </tr>"""
+                        name = tech.get("name", "Unknown")
+                        version = tech.get("version", "Unknown")
+                        purpose = tech.get("purpose", "N/A")
+                        
+                        html_content += f"""
+                    <tr>
+                        <td>{name}</td>
+                        <td>{version}</td>
+                        <td>{purpose}</td>
+                    </tr>
+"""
+                    
+                    html_content += """
+                </tbody>
+            </table>
+"""
                 
                 html_content += """
-        </table>
+        </div>
 """
         else:
             html_content += """
-        <p>No technology stack information available.</p>
+        <div class="empty-section">
+            <p>No technology stack information was detected. This may happen if:</p>
+            <ul>
+                <li>The codebase is very small or consists of simple files</li>
+                <li>The files analyzed didn't contain clear technology indicators</li>
+                <li>The analysis was unable to complete successfully</li>
+            </ul>
+            <p>Consider uploading a more complete codebase or checking the analysis logs for errors.</p>
+        </div>
 """
-
+        
+        # Security & Quality Analysis Section
         html_content += """
-    </div>
-
-    <div class="security-quality-analysis">
-        <h2>Security &amp; Quality Analysis</h2>
+    <div class="security-quality">
+        <h2>Security & Quality Analysis</h2>
 """
+        
         if security_quality_analysis:
             # Categories to display
             categories = [
@@ -746,13 +820,17 @@ code {
                     continue
                     
                 html_content += f"""
-        <h3>{display_name}</h3>
-        <table>
-            <tr>
-                <th>Practice</th>
-                <th>Status</th>
-                <th>Evidence</th>
-            </tr>
+        <div class="security-category">
+            <h3>{display_name}</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
 """
                 
                 for practice, details in category_data.items():
@@ -765,32 +843,38 @@ code {
                     implemented = details.get("implemented", "no").lower()
                     evidence = details.get("evidence", "No evidence")
                     
-                    status = "❌ Not Implemented"
+                    status_class = ""
+                    status_text = "Not Implemented"
                     if implemented == "yes":
-                        status = "✅ Implemented"
+                        status_class = "low"
+                        status_text = "Implemented"
                     elif implemented == "partial":
-                        status = "⚠️ Partially Implemented"
+                        status_class = "medium"
+                        status_text = "Partially Implemented"
+                    else:
+                        status_class = "high"
                     
-                    # Using the same 3-column format as Technology Stack section
                     html_content += f"""
-            <tr>
-                <td>{practice_display}</td>
-                <td>{status}</td>
-                <td>{evidence}</td>
-            </tr>"""
-                
-                html_content += """
-        </table>
+                    <tr>
+                        <td>{practice_display}</td>
+                        <td><span class="{status_class}">{status_text}</span></td>
+                        <td>{evidence}</td>
+                    </tr>
 """
                 
-                # Add a separate table for recommendations in the same section
                 html_content += """
-        <h4>Recommendations</h4>
-        <table>
-            <tr>
-                <th>Practice</th>
-                <th>Recommendation</th>
-            </tr>
+                </tbody>
+            </table>
+            
+            <h4>Recommendations</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
 """
                 
                 for practice, details in category_data.items():
@@ -801,17 +885,28 @@ code {
                     recommendation = details.get("recommendation", "No recommendation")
                     
                     html_content += f"""
-            <tr>
-                <td>{practice_display}</td>
-                <td>{recommendation}</td>
-            </tr>"""
+                    <tr>
+                        <td>{practice_display}</td>
+                        <td>{recommendation}</td>
+                    </tr>
+"""
                 
                 html_content += """
-        </table>
+                </tbody>
+            </table>
+        </div>
 """
         else:
             html_content += """
-        <p>No security and quality analysis available.</p>
+        <div class="empty-section">
+            <p>No security and quality analysis information is available. This may happen if:</p>
+            <ul>
+                <li>The codebase doesn't have clear security or quality patterns to analyze</li>
+                <li>The files analyzed weren't sufficient for a comprehensive security review</li>
+                <li>The analysis was unable to complete successfully</li>
+            </ul>
+            <p>Consider uploading a more complete codebase or checking the analysis logs for errors.</p>
+        </div>
 """
 
         html_content += """
@@ -822,6 +917,7 @@ code {
 """
 
         if findings:
+            # Group findings by category
             findings_by_category = {}
             for finding in findings:
                 category = finding.get("category", "other")
@@ -829,9 +925,11 @@ code {
                     findings_by_category[category] = []
                 findings_by_category[category].append(finding)
                 
+            # Add findings by category
             for category, category_findings in findings_by_category.items():
                 html_content += f"""
-        <h3>{category.title()}</h3>
+        <div class="findings-category">
+            <h3>{category.title()}</h3>
 """
                 
                 for i, finding in enumerate(category_findings):
@@ -843,19 +941,48 @@ code {
                     line = location.get("line", "?")
                     code = location.get("code", "")
                     
+                    severity_class = severity.lower()
+                    
                     html_content += f"""
-        <div class="finding {severity}">
-            <h4>{i+1}. {description} (Severity: {severity.title()})</h4>
-            <p><strong>Location</strong>: {file_path}:{line}</p>
-            {f'<p><strong>Code</strong>: <code>{code}</code></p>' if code else ''}
-            <p><strong>Recommendation</strong>: {recommendation}</p>
+            <div class="finding severity-{severity_class}">
+                <div class="finding-header">
+                    <span class="finding-number">{i+1}</span>
+                    <span class="finding-severity {severity_class}">{severity.title()}</span>
+                </div>
+                <h4>{description}</h4>
+                <p><strong>Location:</strong> {file_path}:{line}</p>
+"""
+                    
+                    if code:
+                        html_content += f"""
+                <div class="code-snippet">
+                    <pre><code>{code}</code></pre>
+                </div>
+"""
+                    
+                    html_content += f"""
+                <div class="recommendation">
+                    <strong>Recommendation:</strong> {recommendation}
+                </div>
+            </div>
+"""
+                
+                html_content += """
         </div>
 """
         else:
             html_content += """
-        <p>No findings were identified in the codebase.</p>
+        <div class="empty-section">
+            <p>No findings were identified in the codebase. This could mean either:</p>
+            <ul>
+                <li>The codebase follows good practices and has no notable issues</li>
+                <li>The analysis was limited in scope or couldn't detect common issues</li>
+                <li>The analysis was unable to complete successfully</li>
+            </ul>
+            <p>You may want to perform a manual review of critical security aspects to confirm the absence of issues.</p>
+        </div>
 """
-
+        
         html_content += """
     </div>
 

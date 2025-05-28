@@ -265,63 +265,87 @@ Also, if you find any additional components or technology stack items not explic
 """
 
         try:
-            # Call LLM with the analysis prompt
-            response = call_llm(prompt, use_cache=use_cache)
+            # Create a cache key based on project_name and file_count
+            cache_key = f"{project_name}_{file_count}"
+            cache_file = os.path.join("cache", "code_analysis", f"{cache_key}.json")
             
-            # Extract and parse JSON from response
-            try:
-                # Clean the response - remove any non-JSON content
-                response = response.strip()
-                
-                # Find the first { and last }
-                start_idx = response.find('{')
-                end_idx = response.rfind('}') + 1
-                
-                if start_idx == -1 or end_idx == 0:
-                    print("Warning: No JSON object found in response. Returning empty findings.")
-                    print("Response was:", response)
-                    return {"technology_stack": {}, "findings": [], "component_analysis": {}, "security_quality_analysis": {}}
-                    
-                json_str = response[start_idx:end_idx]
-                
-                # Remove any comments from the JSON string
-                json_str = re.sub(r'//.*?\n', '\n', json_str)
-                
-                # Try to parse the JSON
+            # Ensure cache directory exists
+            os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+            
+            # Check if we should use cached results
+            if use_cache and os.path.exists(cache_file):
                 try:
-                    analysis = json.loads(json_str)
-                except json.JSONDecodeError as e:
-                    print(f"Warning: Failed to parse JSON response: {str(e)}")
-                    print("JSON string was:", json_str)
-                    return {"technology_stack": {}, "findings": [], "component_analysis": {}, "security_quality_analysis": {}}
-                
-                # Validate analysis structure
-                if not isinstance(analysis, dict):
-                    print("Warning: Response is not a dictionary. Returning empty findings.")
-                    print("Response was:", analysis)
-                    return {"technology_stack": {}, "findings": [], "component_analysis": {}, "security_quality_analysis": {}}
+                    with open(cache_file, 'r', encoding='utf-8') as f:
+                        cached_result = json.load(f)
+                    print(f"Using cached analysis results from {cache_file}")
+                    return cached_result
+                except Exception as e:
+                    print(f"Error loading cached results: {str(e)}. Will perform fresh analysis.")
+            
+            # Make multiple attempts to get a valid response from the LLM
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    print(f"LLM analysis attempt {attempt + 1}/{max_retries}...")
                     
-                # Ensure technology_stack exists and is a dict
-                if "technology_stack" not in analysis or not isinstance(analysis["technology_stack"], dict):
-                    analysis["technology_stack"] = {}
+                    # Call the LLM for analysis
+                    response = call_llm(prompt)
                     
-                # Ensure findings exists and is a list
-                if "findings" not in analysis or not isinstance(analysis["findings"], list):
-                    analysis["findings"] = []
+                    # Extract JSON from response - more robust extraction
+                    json_match = re.search(r'```json\s*(.*?)\s*```', response, re.DOTALL)
                     
-                # Ensure component_analysis exists and is a dict
-                if "component_analysis" not in analysis or not isinstance(analysis["component_analysis"], dict):
-                    analysis["component_analysis"] = {}
+                    if not json_match:
+                        print(f"WARNING: No JSON found in LLM response on attempt {attempt + 1}. Retrying...")
+                        print("Response snippet:", response[:200])
+                        continue
                     
-                # Ensure security_quality_analysis exists and is a dict
-                if "security_quality_analysis" not in analysis or not isinstance(analysis["security_quality_analysis"], dict):
-                    analysis["security_quality_analysis"] = {}
-                
-                # Add Excel component questions to analysis result
-                if component_questions:
-                    analysis["excel_components"] = component_questions
-                
-                # Validate and clean up technology stack
+                    json_str = json_match.group(1)
+                    
+                    # Validate JSON format
+                    try:
+                        analysis = json.loads(json_str)
+                    except json.JSONDecodeError as je:
+                        print(f"WARNING: Invalid JSON in LLM response on attempt {attempt + 1}: {str(je)}")
+                        print("JSON snippet:", json_str[:200])
+                        continue
+                    
+                    # Basic structure validation
+                    required_keys = ["technology_stack", "findings", "component_analysis", "security_quality_analysis"]
+                    missing_keys = [key for key in required_keys if key not in analysis]
+                    
+                    if missing_keys:
+                        print(f"WARNING: Missing required keys in analysis: {missing_keys}. Retrying...")
+                        continue
+                    
+                    # Success - we have a valid analysis
+                    break
+                    
+                except Exception as e:
+                    print(f"Error during LLM analysis attempt {attempt + 1}: {str(e)}")
+                    if attempt == max_retries - 1:
+                        # Last attempt failed
+                        print("ERROR: All attempts to get valid analysis failed.")
+                        return {
+                            "technology_stack": {},
+                            "findings": [],
+                            "component_analysis": {},
+                            "security_quality_analysis": {},
+                            "error": f"Failed to get valid analysis after {max_retries} attempts: {str(e)}"
+                        }
+            else:
+                # All attempts failed
+                print("ERROR: Could not get valid analysis from LLM.")
+                return {
+                    "technology_stack": {},
+                    "findings": [],
+                    "component_analysis": {},
+                    "security_quality_analysis": {},
+                    "error": "Failed to extract valid JSON from LLM response"
+                }
+            
+            # Now we have a valid analysis, process it
+            try:
+                # Validate and standardize technology stack
                 validated_tech_stack = {}
                 for category, techs in analysis["technology_stack"].items():
                     if not isinstance(techs, list):
@@ -547,11 +571,57 @@ Also, if you find any additional components or technology stack items not explic
                     exec_res["component_analysis"] = {}
                 if "security_quality_analysis" not in exec_res:
                     exec_res["security_quality_analysis"] = {}
+        else:
+            # Only cache successful results without errors
+            try:
+                # Get project name for cache key
+                project_name = shared.get("project_name", "Unknown Project")
+                file_count = len(shared.get("files_data", {}))
+                
+                # Create a cache key based on project_name and file_count
+                cache_key = f"{project_name}_{file_count}"
+                cache_dir = os.path.join("cache", "code_analysis")
+                cache_file = os.path.join(cache_dir, f"{cache_key}.json")
+                
+                # Ensure cache directory exists
+                os.makedirs(cache_dir, exist_ok=True)
+                
+                # Cache the successful result
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    json.dump(exec_res, f, indent=2)
+                print(f"Cached analysis results to {cache_file}")
+            except Exception as e:
+                print(f"Warning: Failed to cache analysis results: {str(e)}")
         
         print("DEBUG: Technology stack found:", list(exec_res.get("technology_stack", {}).keys()))
         print("DEBUG: Number of findings:", len(exec_res.get("findings", [])))
         print("DEBUG: Components detected:", len(exec_res.get("component_analysis", {})))
         print("DEBUG: Security and quality checks:", list(exec_res.get("security_quality_analysis", {}).keys()))
+        
+        # Validate we have actual data before storing in shared state
+        if not exec_res.get("technology_stack") and not exec_res.get("findings") and not exec_res.get("component_analysis"):
+            print("WARNING: Analysis appears to be empty. Report may be incomplete.")
+            
+            # Check if we have a previously cached result we can use
+            try:
+                project_name = shared.get("project_name", "Unknown Project")
+                file_count = len(shared.get("files_data", {}))
+                cache_key = f"{project_name}_{file_count}"
+                cache_file = os.path.join("cache", "code_analysis", f"{cache_key}.json")
+                
+                if os.path.exists(cache_file):
+                    print(f"Attempting to use previously cached analysis from {cache_file}")
+                    with open(cache_file, 'r', encoding='utf-8') as f:
+                        cached_result = json.load(f)
+                    
+                    # Only use cache if it has some actual data
+                    if (cached_result.get("technology_stack") or 
+                        cached_result.get("findings") or 
+                        cached_result.get("component_analysis")):
+                        print("Using cached analysis instead of empty result")
+                        exec_res = cached_result
+            except Exception as e:
+                print(f"Failed to load cached analysis: {str(e)}")
         
         shared["code_analysis"] = exec_res
         print("DEBUG: Stored code_analysis in shared state")
