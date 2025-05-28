@@ -20,9 +20,9 @@ def crawl_github_files(
     exclude_patterns: list = None,
     max_file_size: int = 100000,
     use_relative_paths: bool = True,
-    shallow_clone: bool = True,
+    shallow_clone: bool = False,  # Changed default to False to ensure all subdirectories are cloned
     clone_timeout: int = 300,
-    max_depth: int = 1
+    max_depth: int = 10  # Increased depth to ensure subdirectories are included
 ) -> dict:
     """
     Clone a GitHub repository to a temporary directory and crawl its files.
@@ -34,9 +34,9 @@ def crawl_github_files(
         exclude_patterns: List of glob patterns to exclude
         max_file_size: Maximum file size in bytes
         use_relative_paths: Whether to use relative paths in output
-        shallow_clone: Whether to perform a shallow clone (default: True)
+        shallow_clone: Whether to perform a shallow clone (default: False)
         clone_timeout: Maximum time in seconds to wait for clone (default: 300)
-        max_depth: Depth for shallow clone (default: 1)
+        max_depth: Depth for shallow clone (default: 10)
         
     Returns:
         Dict containing file contents and metadata
@@ -45,6 +45,21 @@ def crawl_github_files(
     temp_dir = tempfile.mkdtemp(prefix="github_crawl_")
     try:
         print(f"Cloning repository to temporary directory: {temp_dir}")
+        print(f"Repository URL: {repo_url}")
+        print(f"Include patterns: {include_patterns}")
+        print(f"Exclude patterns: {exclude_patterns}")
+        
+        # Extract specific path within repo if specified
+        target_path = None
+        if "/tree/" in repo_url:
+            # If the URL points to a specific path within the repo, extract it
+            path_match = re.search(r'/tree/[^/]+/(.+)$', repo_url)
+            if path_match:
+                target_path = path_match.group(1)
+                # Clean up the repo URL to point to the root
+                repo_url = repo_url.split("/tree/")[0]
+                print(f"Detected specific path in repo: {target_path}")
+                print(f"Cleaned repo URL: {repo_url}")
         
         # Clone the repository with timeout
         start_time = time.time()
@@ -67,15 +82,30 @@ def crawl_github_files(
             
         print("Repository cloned successfully")
         
+        # If a specific path within the repo was specified, adjust the directory to scan
+        scan_dir = temp_dir
+        if target_path:
+            target_dir = os.path.join(temp_dir, target_path)
+            if os.path.exists(target_dir):
+                scan_dir = target_dir
+                print(f"Scanning specific path: {target_path}")
+            else:
+                print(f"Warning: Specified path '{target_path}' not found in repository. Scanning entire repo.")
+        
         # Use the local file crawler to process the cloned repository
         result = crawl_local_files(
-            directory=temp_dir,
+            directory=scan_dir,
             include_patterns=include_patterns,
             exclude_patterns=exclude_patterns,
             max_file_size=max_file_size,
             use_relative_paths=use_relative_paths
         )
         
+        # Add repository information to the result
+        result["repo_name"] = os.path.basename(repo_url.rstrip('/'))
+        if target_path:
+            result["target_path"] = target_path
+            
         return result
         
     finally:
@@ -92,7 +122,7 @@ if __name__ == "__main__":
               "Private repositories will not be accessible without a token.\n"
               "To access private repos, set the environment variable or pass the token explicitly.")
     
-    repo_url = "https://github.com/pydantic/pydantic/tree/6c38dc93f40a47f4d1350adca9ec0d72502e223f/pydantic"
+    repo_url = "https://github.com/pydantic/pydantic"
     
     # Example: Get Python and Markdown files, but exclude test files
     result = crawl_github_files(
@@ -104,13 +134,8 @@ if __name__ == "__main__":
     )
     
     files = result["files"]
-    stats = result["stats"]
     
-    print(f"\nDownloaded {stats['downloaded_count']} files.")
-    print(f"Skipped {stats['skipped_count']} files due to size limits or patterns.")
-    print(f"Base path for relative paths: {stats['base_path']}")
-    print(f"Include patterns: {stats['include_patterns']}")
-    print(f"Exclude patterns: {stats['exclude_patterns']}")
+    print(f"\nDownloaded {len(files)} files.")
     
     # Display all file paths in the dictionary
     print("\nFiles in dictionary:")

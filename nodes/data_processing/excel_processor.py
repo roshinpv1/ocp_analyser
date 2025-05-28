@@ -311,6 +311,23 @@ class ProcessExcel(Node):
             print(f"Local directory: {shared.get('local_dir', 'Not specified')}")
             return "success"
         else:
-            print("Excel processing completed, but no repository URL or local directory available.")
-            print("Cannot proceed with code analysis. Please check the Excel file and try again.")
-            return "error" 
+            # If we've reached max retries, we should provide a clear error and move on rather than looping
+            max_retry_reached = hasattr(self, 'cur_retry') and self.cur_retry >= (self.max_retries - 1)
+            
+            if max_retry_reached:
+                print("ERROR: Maximum retry attempts reached. Excel processing failed.")
+                print("Please check your Excel file format and ensure it contains valid repository information.")
+                print("Continuing with limited analysis...")
+                
+                # Even with Excel processing failure, we'll try to continue with whatever information we have
+                if shared.get("local_dir"):
+                    print(f"Using local directory for analysis: {shared.get('local_dir')}")
+                    return "success"
+                else:
+                    print("No repository URL or local directory available. Cannot proceed.")
+                    return "terminal_error"  # A new action that doesn't loop back
+            else:
+                print("Excel processing completed, but no repository URL or local directory available.")
+                print("Cannot proceed with code analysis. Please check the Excel file and try again.")
+                # In flow.py, we removed the error -> process_excel loop, so this won't cause infinite loops
+                return "error" 

@@ -1,4 +1,4 @@
-from core.genflow import Flow
+from core.genflow import Flow, Node
 # Import all node classes from the modularized nodes package
 from nodes import (
     FetchRepo,
@@ -30,15 +30,29 @@ def create_excel_analysis_flow():
     """Creates and returns the codebase analysis flow that starts with Excel processing."""
 
     # Instantiate nodes
-    process_excel = ProcessExcel()
-    ocp_assessment = OcpAssessmentNode(max_retries=3, wait=10)  # Add retry logic for LLM calls
-    fetch_repo = FetchRepo()
+    process_excel = ProcessExcel(max_retries=3, wait=5)  # Add retry limit to Excel processing
+    ocp_assessment = OcpAssessmentNode(max_retries=3, wait=10)
+    fetch_repo = FetchRepo(max_retries=2, wait=5)  # Add retry limit to repo fetching
     analyze_code = AnalyzeCode(max_retries=5, wait=20)
-    fetch_jira = FetchJiraStories()
-    generate_report = GenerateReport()
+    fetch_jira = FetchJiraStories(max_retries=2, wait=5)  # Add retry limit to Jira fetching
+    generate_report = GenerateReport(max_retries=2, wait=5)  # Add retry limit to report generation
 
     # Define additional actions for error handling
-    process_excel - "error" >> process_excel  # End the flow if Excel processing fails
+    # Remove the self-loop that could cause infinite retries
+    # process_excel - "error" >> process_excel  # End the flow if Excel processing fails
+    # Instead, we'll handle errors in the node itself using max_retries
+    
+    # Add a terminal node for unrecoverable errors
+    class TerminalErrorNode(Node):
+        def post(self, shared, prep_res, exec_res):
+            print("\nERROR: Process terminated due to unrecoverable error.")
+            return None  # No next action, end the flow
+            
+    terminal_error = TerminalErrorNode()
+    
+    # Connect the terminal error node
+    process_excel - "terminal_error" >> terminal_error
+    
     process_excel - "success" >> ocp_assessment  # Run OCP assessment on successful Excel processing
     
     # Connect OCP assessment to continue the normal flow

@@ -71,6 +71,17 @@ class AnalyzeCode(Node):
         context, file_listing, file_count, project_name, use_cache, file_content_map, component_questions = prep_res
         print(f"Analyzing code for comprehensive review...")
 
+        # Check if there are any files to analyze
+        if file_count == 0:
+            print("WARNING: No files found to analyze. Skipping code analysis.")
+            return {
+                "technology_stack": {},
+                "findings": [],
+                "component_analysis": {},
+                "security_quality_analysis": {},
+                "error": "No files to analyze"
+            }
+
         # Create a list of components to check for in the codebase
         component_check_list = """
 1. Venafi
@@ -515,11 +526,33 @@ Also, if you find any additional components or technology stack items not explic
 
     def post(self, shared, prep_res, exec_res):
         print("\nDEBUG: AnalyzeCode post")
-        print("DEBUG: Analysis results:", exec_res)
+        
+        # Check if we encountered an error during analysis
+        if "error" in exec_res:
+            error_msg = exec_res.get("error", "Unknown error")
+            print(f"WARNING: Analysis completed with errors: {error_msg}")
+            
+            # If we've reached max retries, provide a clear message rather than retrying again
+            max_retry_reached = hasattr(self, 'cur_retry') and self.cur_retry >= (self.max_retries - 1)
+            if max_retry_reached:
+                print("ERROR: Maximum retry attempts reached for code analysis.")
+                print("Proceeding with limited or empty results. Report may be incomplete.")
+                
+                # Ensure we have at least empty structures for the report generator
+                if "technology_stack" not in exec_res:
+                    exec_res["technology_stack"] = {}
+                if "findings" not in exec_res:
+                    exec_res["findings"] = []
+                if "component_analysis" not in exec_res:
+                    exec_res["component_analysis"] = {}
+                if "security_quality_analysis" not in exec_res:
+                    exec_res["security_quality_analysis"] = {}
+        
         print("DEBUG: Technology stack found:", list(exec_res.get("technology_stack", {}).keys()))
         print("DEBUG: Number of findings:", len(exec_res.get("findings", [])))
         print("DEBUG: Components detected:", len(exec_res.get("component_analysis", {})))
         print("DEBUG: Security and quality checks:", list(exec_res.get("security_quality_analysis", {}).keys()))
+        
         shared["code_analysis"] = exec_res
         print("DEBUG: Stored code_analysis in shared state")
         return "default" 

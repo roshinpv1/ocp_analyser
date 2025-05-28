@@ -39,12 +39,17 @@ def crawl_local_files(
         except Exception as e:
             print(f"Warning: Could not read or parse .gitignore file {gitignore_path}: {e}")
 
+    print(f"Scanning directory: {directory}")
+    print(f"Include patterns: {include_patterns}")
+    print(f"Exclude patterns: {exclude_patterns}")
+    
     all_files = []
     for root, dirs, files in os.walk(directory):
         # Filter directories using .gitignore and exclude_patterns early
         excluded_dirs = set()
         for d in dirs:
-            dirpath_rel = os.path.relpath(os.path.join(root, d), directory)
+            dirpath = os.path.join(root, d)
+            dirpath_rel = os.path.relpath(dirpath, directory)
 
             if gitignore_spec and gitignore_spec.match_file(dirpath_rel):
                 excluded_dirs.add(d)
@@ -52,12 +57,14 @@ def crawl_local_files(
 
             if exclude_patterns:
                 for pattern in exclude_patterns:
+                    # Check both the full relative path and just the directory name
                     if fnmatch.fnmatch(dirpath_rel, pattern) or fnmatch.fnmatch(d, pattern):
                         excluded_dirs.add(d)
                         break
 
-        for d in dirs.copy():
-            if d in excluded_dirs:
+        # Remove excluded directories to prevent walking into them
+        for d in excluded_dirs:
+            if d in dirs:
                 dirs.remove(d)
 
         for filename in files:
@@ -65,7 +72,9 @@ def crawl_local_files(
             all_files.append(filepath)
 
     total_files = len(all_files)
+    print(f"Found {total_files} files to process")
     processed_files = 0
+    included_files = 0
 
     for filepath in all_files:
         relpath = os.path.relpath(filepath, directory) if use_relative_paths else filepath
@@ -77,14 +86,17 @@ def crawl_local_files(
 
         if not excluded and exclude_patterns:
             for pattern in exclude_patterns:
-                if fnmatch.fnmatch(relpath, pattern):
+                # Check if the pattern matches any part of the path
+                if fnmatch.fnmatch(relpath, pattern) or any(fnmatch.fnmatch(part, pattern) for part in relpath.split(os.sep)):
                     excluded = True
                     break
 
+        # --- Inclusion check ---
         included = False
         if include_patterns:
             for pattern in include_patterns:
-                if fnmatch.fnmatch(relpath, pattern):
+                # Match by filename or full path
+                if fnmatch.fnmatch(relpath, pattern) or fnmatch.fnmatch(os.path.basename(relpath), pattern):
                     included = True
                     break
         else:
@@ -116,6 +128,7 @@ def crawl_local_files(
             with open(filepath, "r", encoding="utf-8-sig") as f:
                 content = f.read()
             files_dict[relpath] = content
+            included_files += 1
         except Exception as e:
             print(f"Warning: Could not read file {filepath}: {e}")
             status = "skipped (read error)"
@@ -126,6 +139,7 @@ def crawl_local_files(
             rounded_percentage = int(percentage)
             print(f"\033[92mProgress: {processed_files}/{total_files} ({rounded_percentage}%) {relpath} [{status}]\033[0m")
 
+    print(f"Included {included_files} out of {total_files} files in the analysis")
     return {"files": files_dict}
 
 

@@ -79,8 +79,7 @@ Your primary functions are:
 - Detailed scoring breakdown across 10+ technical dimensions
 - Identified migration blockers or concerns with severity classification
 - Required architectural changes with component-level details
-- Suggested migration strategy (lift-and-shift,
-re-platform, or re-architect) with justification
+- Suggested migration strategy (lift-and-shift, re-platform, or re-architect) with justification
 - Risk assessment with likelihood and impact analysis
 - Do not include Assessment Date in the final repost
 6. Provide actionable recommendations to address migration challenges:
@@ -92,23 +91,27 @@ re-platform, or re-architect) with justification
 - Testing strategy recommendations for migration validation
 7. Identify potential optimization opportunities for containerized workloads:
 - Resource right-sizing recommendations based on utilization patterns
-- Horizontal vs vertical scaling
-recommendations
+- Horizontal vs vertical scaling recommendations
 - Service mesh adoption benefits for the specific application
-The output must be formatted as a structured assessment report with clear sections, using tables where appropriate for comparative data. Do not extrapolate any data - be specific to display if the OpenShift assessment is
-successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an Summary with go/no-go recommendation,
-followed by detailed technical sections.
+
+The output must be formatted as a structured assessment report with clear sections, using tables where appropriate for comparative data. Do not extrapolate any data - be specific to display if the OpenShift assessment is successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an Summary with go/no-go recommendation, followed by detailed technical sections.
+
 Each finding must include evidence from the intake data and reference to relevant OpenShift constraints or requirements.
-The output should be formatted well to view in html documents."""
+
+IMPORTANT: Do not return any Jinja2 template syntax like '{{% for %}}', '{{ variable }}', etc. Return final HTML content with actual values, not templates."""
         
         # Instruct the LLM to return content suitable for HTML embedding, not a full HTML document
         user_content = f"""Perform the OCP intake assessment for the following data and generate the assessment report content (HTML compatible):
 
 {json.dumps(excel_data, indent=2)}
 
-DO NOT return a full HTML document with <html>, <head>, or <body> tags.
-Instead, return only the content that would go inside the <body> tag, with proper HTML formatting and styling.
-Use <div>, <h1>, <h2>, <p>, <table>, etc. elements to structure your report.
+IMPORTANT REQUIREMENTS:
+1. DO NOT return a full HTML document with <html>, <head>, or <body> tags.
+2. DO NOT use any Jinja2 template syntax like '{{% for %}}', '{{ variable }}', etc. 
+3. Return only the content that would go inside the <body> tag, with proper HTML formatting.
+4. Use <div>, <h1>, <h2>, <p>, <table>, etc. elements to structure your report.
+5. Return FINAL HTML with actual values, not templates.
+6. Use proper CSS classes for styling compatibility with our report system.
 """
         
         # Combine into a complete prompt
@@ -119,12 +122,13 @@ User: {user_content}
 
 Generate a well-structured OpenShift migration assessment report with HTML formatting (excluding html/head/body tags).
 Include detailed scoring with a clear go/no-go recommendation and use tables for comparison data.
+DO NOT USE ANY JINJA2 TEMPLATE SYNTAX - only return final HTML with actual values.
 """
         
         try:
             # Call LLM with the prompt
             print("Calling LLM for OpenShift migration assessment...")
-            response = call_llm(prompt, use_cache=(False))  # Always generate fresh assessment
+            response = call_llm(prompt, use_cache=False)  # Always generate fresh assessment
             
             # Use the same styling as the main analysis report for consistency
             css_styles = """
@@ -234,7 +238,7 @@ tr:hover {
 .action-item.low { border-left-color: #2ecc71; }
 """
             
-            # Create a complete HTML document
+            # Create a complete HTML document with proper styling
             html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -246,8 +250,8 @@ tr:hover {
     </style>
 </head>
 <body>
-    <h1>OpenShift Migration Assessment</h1>
-    <div class="ocp-assessment">
+    <h1>OpenShift Migration Assessment for {excel_data.get('component_name', 'Unknown Component')}</h1>
+    <div class="executive-summary">
         {response}
     </div>
 </body>
