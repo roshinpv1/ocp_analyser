@@ -78,13 +78,30 @@ class ProcessExcel(Node):
                             break
                     break
             
-            # Find Git repo URL
+            # Find Git repo URL - look for rows with "git repo" text
             for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
-                # Check if this row has the Git repo URL in the second column (questions column)
-                if len(row) >= 3 and row[1].value and "git repo" in str(row[1].value).lower():
-                    git_repo_row = row
-                    if row[2].value:  # Answer is in the third column
-                        repo_url = str(row[2].value).strip()
+                # Check for Git repo keywords in any cell
+                for i, cell in enumerate(row):
+                    if cell and cell.value and isinstance(cell.value, str) and "git repo" in cell.value.lower():
+                        git_repo_row = row
+                        
+                        # Try to find URL in this row - check other cells first
+                        for j, value_cell in enumerate(row):
+                            if j != i and value_cell and value_cell.value and isinstance(value_cell.value, str) and ("http" in value_cell.value.lower() or "git@" in value_cell.value.lower()):
+                                repo_url = str(value_cell.value).strip()
+                                break
+                        
+                        # If no URL found in other cells, check if the keyword cell itself contains a URL
+                        if not repo_url and ("http" in cell.value.lower() or "git@" in cell.value.lower()):
+                            # Extract URL from text if it contains both the keyword and URL
+                            url_match = re.search(r'(https?://\S+|git@\S+)', cell.value)
+                            if url_match:
+                                repo_url = url_match.group(0).strip()
+                        
+                        if repo_url:
+                            break
+                
+                if git_repo_row and repo_url:
                     break
             
             return component_name, repo_url, git_repo_row
@@ -108,58 +125,87 @@ class ProcessExcel(Node):
                 # Check if this is the component name row (first row with content)
                 if len(row) >= 1 and row[0].value and str(row[0].value).strip() == component_name:
                     component_name_row = row
-                    
-                if len(row) >= 3 and row[1].value:  # Question in second column
-                    question = str(row[1].value).strip()
-                    answer = row[2].value
-                    
-                    total_rows += 1
-                    
-                    # Check if this is a component question
-                    is_component_question = False
-                    # Look for patterns like "Is the component using X?" or "Does this use Y?"
-                    if any(pattern in question.lower() for pattern in ["is the component using", "does this use", "are you using"]):
-                        # Extract component name from question
-                        # For example, "Is the component using Venafi?" -> "Venafi"
-                        component_name_match = None
+                
+                # Skip empty rows
+                if not any(cell.value for cell in row):
+                    continue
+                
+                # Extract question and answer from the row
+                question = None
+                answer = None
+                
+                # Check all cells in the row to identify question and answer
+                for i, cell in enumerate(row):
+                    if not cell.value:
+                        continue
                         
-                        # Try to extract component name after "using" or "use"
-                        for pattern in ["using ", "use "]:
-                            if pattern in question.lower():
-                                component_parts = question.lower().split(pattern, 1)[1].split("?")[0].strip()
-                                if component_parts:
-                                    component_name_match = component_parts
-                        
-                        if component_name_match:
-                            # Store the component name and the answer (yes/no)
-                            answer_text = str(answer).strip().lower() if answer else ""
-                            is_yes = any(yes_word in answer_text for yes_word in ["yes", "y", "true", "1"])
-                            component_questions[component_name_match] = {
-                                "question": question,
-                                "answer": answer_text,
-                                "is_yes": is_yes
-                            }
-                            is_component_question = True
+                    cell_text = str(cell.value).strip()
                     
-                    # Check if this is a mandatory question
-                    # Exclude component questions from mandatory checks
-                    is_mandatory = True
+                    # If we don't have a question yet, and this looks like a question, set it as the question
+                    if not question and any(q_word in cell_text.lower() for q_word in ["is ", "are ", "does ", "do ", "how ", "what ", "when ", "where ", "why ", "which "]):
+                        question = cell_text
+                    # Otherwise, if we don't have an answer yet, this might be an answer
+                    elif not answer:
+                        answer = cell_text
+                    # If we already have both, and this cell has a URL, it might be a better answer
+                    elif answer and ("http" in cell_text.lower() or "git@" in cell_text.lower()):
+                        answer = cell_text
+                
+                # If we only found one cell with content, treat it as an answer with a default question
+                if not question and answer:
+                    question = "Extracted Value"
+                
+                # Skip rows where we couldn't identify a question-answer pair
+                if not question:
+                    continue
                     
-                    # Skip component questions when checking for mandatory fields
-                    if is_component_question:
-                        is_mandatory = False
+                total_rows += 1
+                
+                # Check if this is a component question
+                is_component_question = False
+                # Look for patterns like "Is the component using X?" or "Does this use Y?"
+                if any(pattern in question.lower() for pattern in ["is the component using", "does this use", "are you using"]):
+                    # Extract component name from question
+                    # For example, "Is the component using Venafi?" -> "Venafi"
+                    component_name_match = None
                     
-                    # Skip component name row and Git repo row
-                    if (component_name_row and hasattr(row[0], 'coordinate') and hasattr(component_name_row[0], 'coordinate') and 
-                        row[0].coordinate == component_name_row[0].coordinate) or \
-                       (git_repo_row and hasattr(row[0], 'coordinate') and hasattr(git_repo_row[0], 'coordinate') and 
-                        row[0].coordinate == git_repo_row[0].coordinate):
-                        is_mandatory = False
+                    # Try to extract component name after "using" or "use"
+                    for pattern in ["using ", "use "]:
+                        if pattern in question.lower():
+                            component_parts = question.lower().split(pattern, 1)[1].split("?")[0].strip()
+                            if component_parts:
+                                component_name_match = component_parts
                     
-                    if is_mandatory:
-                        mandatory_count += 1
-                        if not answer or str(answer).strip() == "":
-                            unanswered_mandatory.append(question)
+                    if component_name_match:
+                        # Store the component name and the answer (yes/no)
+                        answer_text = str(answer).strip().lower() if answer else ""
+                        is_yes = any(yes_word in answer_text for yes_word in ["yes", "y", "true", "1"])
+                        component_questions[component_name_match] = {
+                            "question": question,
+                            "answer": answer_text,
+                            "is_yes": is_yes
+                        }
+                        is_component_question = True
+                
+                # Check if this is a mandatory question
+                # Exclude component questions from mandatory checks
+                is_mandatory = True
+                
+                # Skip component questions when checking for mandatory fields
+                if is_component_question:
+                    is_mandatory = False
+                
+                # Skip component name row and Git repo row
+                if (component_name_row and hasattr(row[0], 'coordinate') and hasattr(component_name_row[0], 'coordinate') and 
+                    row[0].coordinate == component_name_row[0].coordinate) or \
+                   (git_repo_row and hasattr(row[0], 'coordinate') and hasattr(git_repo_row[0], 'coordinate') and 
+                    row[0].coordinate == git_repo_row[0].coordinate):
+                    is_mandatory = False
+                
+                if is_mandatory:
+                    mandatory_count += 1
+                    if not answer or str(answer).strip() == "":
+                        unanswered_mandatory.append(question)
             
             # Log unanswered mandatory questions
             if unanswered_mandatory:
