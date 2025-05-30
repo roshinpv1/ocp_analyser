@@ -89,8 +89,13 @@ Your primary functions are:
 8. COMPONENT ANALYSIS - Include a comprehensive component analysis section that:
 - Compares components declared in the intake form with components actually detected in the codebase
 - Creates a detailed table with columns: Component | Declared | Detected | Status
-- Shows "Match" for components where declaration and detection align
-- Shows "Mismatch" for components where declaration and detection differ
+- Shows "Match" when both Declared and Detected are the same (Yes=Yes OR No=No)
+- Shows "Mismatch" when Declared and Detected are different (Yes≠No OR No≠Yes)
+- CRITICAL COMPONENT MATCHING LOGIC:
+  * When Declared="Yes" AND Detected="Yes" → Status="Match"
+  * When Declared="No" AND Detected="No" → Status="Match"  
+  * When Declared="Yes" AND Detected="No" → Status="Mismatch"
+  * When Declared="No" AND Detected="Yes" → Status="Mismatch"
 - Lists all predefined components from the intake form including:
   venafi, redis, channel secure/pingfed, nas/smb, smtp, autosys, mtls/mutual auth, ndm, legacy jks file, 
   soap calls, rest api, apigee, kafka, ibm mq, mq cipher suite, ldap, splunk, appd, elastic apm, 
@@ -104,7 +109,9 @@ The output must be formatted as a structured assessment report with clear sectio
 
 Each finding must include evidence from the intake data and reference to relevant OpenShift constraints or requirements.
 
-IMPORTANT: Do not return any Jinja2 template syntax like '{{% for %}}', '{{ variable }}', etc. Return final HTML content with actual values, not templates."""
+IMPORTANT: Do not return any Jinja2 template syntax like '{{% for %}}', '{{ variable }}', etc. Return final HTML content with actual values, not templates.
+
+IMPORTANT: If both values are the same (both Yes or both No), it's always a MATCH!"""
         
         # Get component analysis data from shared state if available
         component_analysis_data = ""
@@ -146,6 +153,14 @@ IMPORTANT REQUIREMENTS:
    <tr><td>redis</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
    ... (continue for all components listed in the system prompt)
    </table>
+
+CRITICAL COMPONENT MATCHING LOGIC:
+- When Declared="Yes" AND Detected="Yes" → Status="Match"
+- When Declared="No" AND Detected="No" → Status="Match"
+- When Declared="Yes" AND Detected="No" → Status="Mismatch"
+- When Declared="No" AND Detected="Yes" → Status="Mismatch"
+
+IMPORTANT: If both values are the same (both Yes or both No), it's always a MATCH!
 
 CRITICAL: Your response should start directly with HTML tags like <div> or <h1>, NOT with ```html or any markdown formatting."""
         

@@ -159,8 +159,8 @@ code {
             </tr>
             <tr>
                 <td><span class="status-implemented">✓ Passed</span></td>
-                <td><strong>5</strong></td>
-                <td>16.7%</td>
+                <td><strong>4</strong></td>
+                <td>13.3%</td>
             </tr>
             <tr>
                 <td><span class="status-partial">⚬ Partial</span></td>
@@ -169,12 +169,12 @@ code {
             </tr>
             <tr>
                 <td><span class="status-not-implemented">✗ Failed</span></td>
-                <td><strong>16</strong></td>
-                <td>53.3%</td>
+                <td><strong>17</strong></td>
+                <td>56.7%</td>
             </tr>
             <tr style="border-top: 2px solid #e5e7eb;">
                 <td><strong>Overall Compliance</strong></td>
-                <td colspan="2"><strong>31.7%</strong></td>
+                <td colspan="2"><strong>28.3%</strong></td>
             </tr>
         </tbody>
     </table>
@@ -232,8 +232,14 @@ code {
 
             <tr>
                 <td><strong>Python</strong></td>
-                <td>3.11+</td>
+                <td>3.11-slim</td>
                 <td>backend application</td>
+            </tr>
+
+            <tr>
+                <td><strong>JavaScript</strong></td>
+                <td>18-alpine</td>
+                <td>frontend application</td>
             </tr>
 
         </tbody>
@@ -253,7 +259,7 @@ code {
 
             <tr>
                 <td><strong>Django</strong></td>
-                <td>3.x+</td>
+                <td>3.x</td>
                 <td>web framework</td>
             </tr>
 
@@ -297,44 +303,44 @@ code {
 
             <tr>
                 <td><strong>Avoid Logging Confidential Data</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>No sensitive data in logs</td>
-                <td>Continue practice</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Create Audit Trail Logs</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Some logging found</td>
-                <td>Add comprehensive audit logging</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Tracking Id For Log Messages</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No correlation IDs</td>
-                <td>Add tracking IDs</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Log Rest Api Calls</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>API logging present</td>
-                <td>Ensure all endpoints logged</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Log Application Messages</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Some app logging</td>
-                <td>Standardize logging</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Client Ui Errors Are Logged</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No client error logging</td>
-                <td>Add client error tracking</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -355,29 +361,29 @@ code {
             <tr>
                 <td><strong>Retry Logic</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Some retry patterns</td>
-                <td>Implement consistent retry logic</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Set Timeouts On Io Operations</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Timeouts configured</td>
-                <td>Review timeout values</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Throttling Drop Request</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No throttling found</td>
-                <td>Add rate limiting</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Circuit Breakers On Outgoing Requests</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No circuit breakers</td>
-                <td>Implement circuit breaker pattern</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -398,22 +404,22 @@ code {
             <tr>
                 <td><strong>Log System Errors</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Error logging present</td>
-                <td>Ensure all errors logged</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Use Http Standard Error Codes</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Standard HTTP codes</td>
-                <td>Continue practice</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Include Client Error Tracking</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No client tracking</td>
-                <td>Add client error monitoring</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -434,22 +440,22 @@ code {
             <tr>
                 <td><strong>Url Monitoring</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No health endpoints</td>
-                <td>Add health check endpoints</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Metrics Collection</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No metrics found</td>
-                <td>Add application metrics</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Performance Monitoring</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No APM integration</td>
-                <td>Add performance monitoring</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -470,22 +476,22 @@ code {
             <tr>
                 <td><strong>Automated Regression Testing</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Some tests found</td>
-                <td>Increase test coverage</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Unit Testing</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Unit tests present</td>
-                <td>Improve coverage</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Integration Testing</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No integration tests</td>
-                <td>Add integration tests</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -506,36 +512,36 @@ code {
             <tr>
                 <td><strong>Input Validation</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No validation found</td>
-                <td>Add input validation</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Authentication</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Some auth found</td>
-                <td>Strengthen authentication</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Authorization</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No authorization</td>
-                <td>Add role-based access</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Encryption At Rest</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No encryption config</td>
-                <td>Add data encryption</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Encryption In Transit</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>HTTPS configured</td>
-                <td>Ensure all communications encrypted</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -556,22 +562,22 @@ code {
             <tr>
                 <td><strong>Caching Strategy</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No caching found</td>
-                <td>Add caching layer</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Connection Pooling</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Some pooling</td>
-                <td>Optimize connection pools</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Async Processing</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No async patterns</td>
-                <td>Add asynchronous processing</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -592,22 +598,22 @@ code {
             <tr>
                 <td><strong>Data Validation</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Some validation</td>
-                <td>Add comprehensive validation</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Database Indexing</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No index optimization</td>
-                <td>Optimize database indexes</td>
+                <td></td>
+                <td></td>
             </tr>
 
             <tr>
                 <td><strong>Backup Strategy</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No backup config</td>
-                <td>Implement backup strategy</td>
+                <td></td>
+                <td></td>
             </tr>
 
         </tbody>
@@ -679,7 +685,7 @@ code {
 
     <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
         <h3 style="margin: 0 0 10px 0;">1. Improve Logging and Auditability <span class="priority-medium">(Medium)</span></h3>
-        <p>Implement the following logging and auditability practices: tracking_id_for_log_messages, client_ui_errors_are_logged.</p>
+        <p>Implement the following logging and auditability practices: avoid_logging_confidential_data, tracking_id_for_log_messages, client_ui_errors_are_logged.</p>
     </div>
 
     <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
