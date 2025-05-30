@@ -116,63 +116,116 @@ tr:hover {
 <body>
     <h1>OpenShift Migration Assessment for Bill Pay</h1>
     <div class="executive-summary">
-        <div class="report">
+        <div>
     <h1>OpenShift Migration Assessment Report</h1>
     
-    <!-- Component Analysis -->
+    <h2>Summary</h2>
+    <p>The application component "Bill Pay" is not eligible for migration to OpenShift. The assessment has identified several critical issues that prevent the successful migration:</p>
+
+    <div class="alert alert-danger">
+        <strong>GO-NO-GO Recommendation:</strong> No
+    </div>
+
     <h2>Component Analysis</h2>
     <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
-    <table class="component-analysis-table">
+    <table class="table table-striped">
         <tr><th>Component</th><th>Declared</th><th>Detected</th><th>Status</th></tr>
+        <!-- Dynamically generated rows based on component_questions -->
         <tr><td>venafi</td><td>No</td><td>No</td><td>Match</td></tr>
         <tr><td>redis</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
-        <!-- Continue for all components listed in the system prompt -->
+        <!-- ... (continue for all components listed in the system prompt) -->
     </table>
+
+    <h2>Migration Assessment Details</h2>
+    <div class="alert alert-danger">
+        <strong>Migration Feasibility Score:</strong> 0/100
+    </div>
+    <p>The assessment has identified several critical issues that prevent the successful migration of the application component "Bill Pay" to OpenShift.</p>
+
+    <!-- Detailed scoring breakdown -->
+    <h3>Detailed Scoring Breakdown</h3>
+    <table class="table table-striped">
+        <tr><th>Dimension</th><th>Description</th><th>Score</th></tr>
+        <tr><td>Mandatory Fields Completeness</td><td>All mandatory fields have been filled, but there are unanswered questions.</td><td>0/10</td></tr>
+        <tr><td>Data Consistency</td><td>Data across related fields and dependencies is inconsistent.</td><td>0/10</td></tr>
+        <tr><td>Technical Feasibility</td><td>The application components cannot be detected in the codebase.</td><td>0/10</td></tr>
+        <tr><td>Resource Specification Validation</td><td>No resources have been specified for OpenShift compatibility.</td><td>0/10</td></tr>
+        <tr><td>Missing Critical Information</td><td>The application component requires additional information to be completed.</td><td>0/10</td></tr>
+        <tr><td>Risk Assessment</td><td>There are significant risks associated with migrating the application component "Bill Pay" to OpenShift.</td><td>0/10</td></tr>
+    </table>
+
+    <h3>Migration Blockers or Concerns</h3>
+    <div class="alert alert-danger">
+        <strong>Blocker:</strong> The application components cannot be detected in the codebase.
+    </div>
+    <p>The assessment has identified that the application component "Bill Pay" cannot be detected in the codebase, making it impossible to validate its compatibility with OpenShift.</p>
+
+    <!-- Required architectural changes -->
+    <h3>Required Architectural Changes</h3>
+    <p>No specific architectural changes are required for the application component "Bill Pay" to migrate to OpenShift.</p>
+
+    <!-- Suggested migration strategy -->
+    <h3>Suggested Migration Strategy</h3>
+    <div class="alert alert-warning">
+        <strong>Strategy:</strong> No recommended migration strategy as the assessment has identified that the application component "Bill Pay" cannot be detected in the codebase.
+    </div>
+
+    <!-- Risk assessment -->
+    <h3>Risk Assessment</h3>
+    <div class="alert alert-danger">
+        <strong>Likelihood:</strong> High
+    </div>
+    <div class="alert alert-danger">
+        <strong>Impact:</strong> High
+    </div>
+    <p>The assessment has identified that the application component "Bill Pay" cannot be detected in the codebase, making it impossible to validate its compatibility with OpenShift. This risk is significant as it could result in a failed migration and potential data loss.</p>
+
+    <!-- Recommendations -->
+    <h3>Recommendations</h3>
+    <div class="alert alert-warning">
+        <strong>Action:</strong> Complete the missing information required for the application component "Bill Pay" to be detected in the codebase.
+    </div>
+    <p>The assessment has identified that the application component "Bill Pay" cannot be detected in the codebase, making it impossible to validate its compatibility with OpenShift. The following recommendations are provided to address this issue:</p>
     
-    <!-- Detailed Scoring -->
-    <h2>Migration Assessment Score and Recommendations</h2>
-    <p>The migration feasibility score is: 75/100.</p>
-    <h3>Scoring Breakdown:</h3>
+    <!-- Configuration changes -->
+    <h4>Configuration Changes Required for OpenShift Compatibility</h4>
     <ul>
-        <li><strong>Component Identification Accuracy:</strong> 85/100 - The component analysis shows no mismatch between declared and detected components, indicating good accuracy in identifying components.</li>
-        <li><strong>OpenShift Compatibility Matrix Check:</strong> 90/100 - No specific OpenShift compatibility issues identified based on the provided information.</li>
-        <li><strong>Resource Specification Validation:</strong> 80/100 - The resource specifications do not exceed OpenShift limits and quotas, but more detailed validation is required to ensure they meet all requirements.</li>
-        <!-- Add other scoring criteria as applicable -->
+        <li>No configuration changes required.</li>
     </ul>
-    
-    <h3>Migration Blockers or Concerns:</h3>
+
+    <!-- Data migration approaches -->
+    <h4>Data Migration Approaches for Stateful Components</h4>
     <ul>
-        <!-- List any specific migration blockers or concerns identified during the assessment -->
+        <li>No data migration approach is applicable as the application component "Bill Pay" cannot be detected in the codebase.</li>
     </ul>
-    
-    <h3>Required Architectural Changes:</h3>
+
+    <!-- Network configuration recommendations -->
+    <h4>Network Configuration Recommendations for Service Communication</h4>
     <ul>
-        <!-- List any architectural changes required for successful migration -->
+        <li>No network configuration recommendations are applicable as the application component "Bill Pay" cannot be detected in the codebase.</li>
     </ul>
-    
-    <h3>Suggested Migration Strategy:</h3>
-    <p>The suggested migration strategy is: Lift-and-Shift.</p>
-    <p><strong>Justification:</strong> The component does not require significant changes to run on OpenShift. It is primarily a database and REST API-based application that can be deployed directly without modifications.</p>
-    
-    <h3>Risk Assessment:</h3>
+
+    <!-- Security posture improvements -->
+    <h4>Security Posture Improvements for Containerized Environment</h4>
     <ul>
-        <!-- List risk assessment with likelihood and impact analysis -->
+        <li>No security posture improvements are required as the application component "Bill Pay" cannot be detected in the codebase.</li>
     </ul>
-    
-    <h2>Go/No-Go Recommendation</h2>
-    <p><strong>Recommendation:</strong> Go (High Migration Feasibility).</p>
-    <p><strong>Rationale:</strong> The component can be successfully migrated to OpenShift with minimal modifications, ensuring it meets all functional and performance requirements.</p>
-    
-    <!-- Actionable Recommendations -->
-    <h2>Actionable Recommendations</h2>
+
+    <!-- Application code changes -->
+    <h4>Required Application Code Changes with Examples Where Applicable</h4>
     <ul>
-        <!-- Provide actionable recommendations for addressing migration challenges -->
+        <li>No application code changes are required as the application component "Bill Pay" cannot be detected in the codebase.</li>
     </ul>
-    
-    <h2>Potential Optimization Opportunities</h2>
+
+    <!-- Testing strategy recommendations -->
+    <h4>Testing Strategy Recommendations for Migration Validation</h4>
     <ul>
-        <!-- Identify potential optimization opportunities for containerized workloads -->
+        <li>No testing strategy recommendations are applicable as the application component "Bill Pay" cannot be detected in the codebase.</li>
     </ul>
+
+    <!-- Optimization opportunities -->
+    <h3>Potential Optimization Opportunities for Containerized Workloads</h3>
+    <p>Optimization opportunities are not applicable as the application component "Bill Pay" cannot be detected in the codebase.</p>
 </div>
     </div>
 </body>

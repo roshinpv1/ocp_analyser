@@ -5,6 +5,7 @@ import tempfile
 import git
 import time
 import fnmatch
+import subprocess
 from typing import Union, Set, List, Dict, Tuple, Any
 from urllib.parse import urlparse
 import re
@@ -12,6 +13,28 @@ import shutil
 from pathlib import Path
 from git import Repo
 from utils.crawl_local_files import crawl_local_files
+
+def clear_git_credentials(repo_url: str):
+    """Clear any cached git credentials for the repository URL to prevent auth issues."""
+    try:
+        # Extract the hostname from the repository URL
+        parsed_url = urlparse(repo_url)
+        hostname = parsed_url.hostname
+        
+        if hostname:
+            # Try to clear cached credentials for this hostname
+            try:
+                subprocess.run(['git', 'credential', 'reject'], 
+                             input=f'protocol=https\nhost={hostname}\n\n', 
+                             text=True, capture_output=True, timeout=10)
+                print(f"Cleared git credentials for {hostname}")
+            except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError):
+                # git credential command may not be available or may fail
+                # This is not critical, so we continue
+                pass
+    except Exception:
+        # If anything fails, continue without clearing credentials
+        pass
 
 def crawl_github_files(
     repo_url: str,
@@ -49,6 +72,9 @@ def crawl_github_files(
         print(f"Include patterns: {include_patterns}")
         print(f"Exclude patterns: {exclude_patterns}")
         
+        # Clear any cached git credentials to prevent auth issues
+        clear_git_credentials(repo_url)
+        
         # Extract specific path within repo if specified
         target_path = None
         if "/tree/" in repo_url:
@@ -61,20 +87,92 @@ def crawl_github_files(
                 print(f"Detected specific path in repo: {target_path}")
                 print(f"Cleaned repo URL: {repo_url}")
         
-        # Clone the repository with timeout
+        # Clone the repository with timeout and proper token handling
         start_time = time.time()
+        
+        # Setup git environment to handle credentials properly
+        git_env = os.environ.copy()
         if token:
-            # Use token in URL for authentication
+            # Use git credential helper approach for better token handling
+            git_env['GIT_ASKPASS'] = 'echo'  # Prevent password prompts
+            git_env['GIT_USERNAME'] = token  # Set username as token
+            git_env['GIT_PASSWORD'] = ''     # Empty password for token auth
+            
+            # Alternative: Use token in URL but handle it more securely
             auth_url = repo_url.replace("https://", f"https://{token}@")
-            if shallow_clone:
-                repo = Repo.clone_from(auth_url, temp_dir, depth=max_depth)
-            else:
-                repo = Repo.clone_from(auth_url, temp_dir)
+            
+            try:
+                if shallow_clone:
+                    repo = Repo.clone_from(auth_url, temp_dir, depth=max_depth, env=git_env)
+                else:
+                    repo = Repo.clone_from(auth_url, temp_dir, env=git_env)
+            except git.exc.GitCommandError as git_error:
+                # Handle specific git authentication errors
+                if git_error.status == 128:
+                    print(f"Git authentication failed (error 128). Trying alternative method...")
+                    print(f"Original error: {git_error}")
+                    
+                    # Clean up partial clone if it exists
+                    if os.path.exists(temp_dir) and os.listdir(temp_dir):
+                        shutil.rmtree(temp_dir)
+                        temp_dir = tempfile.mkdtemp(prefix="github_crawl_retry_")
+                        print(f"Created new temp directory for retry: {temp_dir}")
+                    
+                    # Clear any cached credentials and try again
+                    clear_git_credentials(repo_url)
+                    
+                    try:
+                        # Try without embedding token in URL, using environment variables
+                        git_env['GIT_USERNAME'] = token
+                        git_env['GIT_PASSWORD'] = 'x-oauth-basic'
+                        
+                        print(f"Retrying clone with alternative authentication method...")
+                        if shallow_clone:
+                            repo = Repo.clone_from(repo_url, temp_dir, depth=max_depth, env=git_env)
+                        else:
+                            repo = Repo.clone_from(repo_url, temp_dir, env=git_env)
+                        print("Retry successful!")
+                    except git.exc.GitCommandError as retry_error:
+                        print(f"Second method failed: {retry_error}")
+                        
+                        # Try a third method with different token format
+                        try:
+                            # Clean up and create new temp dir
+                            if os.path.exists(temp_dir) and os.listdir(temp_dir):
+                                shutil.rmtree(temp_dir)
+                                temp_dir = tempfile.mkdtemp(prefix="github_crawl_final_")
+                                print(f"Created final temp directory: {temp_dir}")
+                            
+                            # Try with token as username and empty password (GitHub CLI style)
+                            final_auth_url = repo_url.replace("https://", f"https://{token}:@")
+                            
+                            print(f"Trying final authentication method...")
+                            if shallow_clone:
+                                repo = Repo.clone_from(final_auth_url, temp_dir, depth=max_depth)
+                            else:
+                                repo = Repo.clone_from(final_auth_url, temp_dir)
+                            print("Final method successful!")
+                        except git.exc.GitCommandError as final_error:
+                            print(f"All authentication methods failed.")
+                            print(f"Error 1: {git_error}")
+                            print(f"Error 2: {retry_error}")
+                            print(f"Error 3: {final_error}")
+                            raise Exception(f"Failed to clone repository with token after all retry attempts. Please check your GitHub token permissions.")
+                else:
+                    print(f"Git error {git_error.status}: {git_error}")
+                    raise git_error
         else:
-            if shallow_clone:
-                repo = Repo.clone_from(repo_url, temp_dir, depth=max_depth)
-            else:
-                repo = Repo.clone_from(repo_url, temp_dir)
+            # No token provided, try public access
+            try:
+                if shallow_clone:
+                    repo = Repo.clone_from(repo_url, temp_dir, depth=max_depth)
+                else:
+                    repo = Repo.clone_from(repo_url, temp_dir)
+            except git.exc.GitCommandError as git_error:
+                if git_error.status == 128:
+                    raise Exception(f"Repository clone failed (error 128). This might be a private repository requiring authentication. Please provide a GitHub token.")
+                else:
+                    raise git_error
                 
         # Check if clone took too long
         if time.time() - start_time > clone_timeout:
