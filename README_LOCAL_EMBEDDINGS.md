@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ```
 
 This will install:
-- `sentence-transformers` - For local embedding generation
+- `pip` - For local embedding generation
 - `chromadb` - For vector storage and retrieval
 
 ## How It Works

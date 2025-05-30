@@ -110,188 +110,68 @@ class AnalyzeCode(Node):
                 "error": "No files to analyze"
             }
 
-        # Create a list of components to check for in the codebase
-        component_check_list = """
-1. Venafi
-2. Redis
-3. Channel Secure / PingFed
-4. NAS / SMB
-5. SMTP
-6. AutoSys
-7. CRON/quartz/spring batch
-8. MTLS / Mutual Auth / Hard Rock pattern
-9. NDM
-10. Legacy JKS files
-11. SOAP Calls
-12. REST API
-13. APIGEE
-14. KAFKA
-15. IBM MQ
-16. LDAP
-17. Splunk
-18. AppD / AppDynamics
-19. ELASTIC APM
-20. Harness or UCD for CI/CD
-21. Hashicorp vault
-22. Bridge Utility server
-23. RabbitMQ
-24. Databases:
-   - MongoDB
-   - SQLServer
-   - MySQL
-   - PostgreSQL
-   - Oracle
-   - Cassandra
-   - Couchbase
-   - Neo4j
-   - Hadoop
-   - Spark
-25. Authentication methods:
-   - Okta
-   - SAML
-   - Auth
-   - JWT
-   - OpenID
-   - ADFS
-"""
-        
-        # Create a prompt for the LLM to analyze the code
-        prompt = f"""You are a software engineering consultant with expertise in code assessment, security reviews, and architecture analysis. Your current task is to analyze the codebase for a project called "{project_name}" and assess it for:
+        # Simplified and shorter prompt to avoid token limits
+        prompt = f"""Analyze this {project_name} codebase ({file_count} files) and provide analysis in VALID JSON format.
 
-1. Technology stack identification
-2. Component detection vs the component declared in the excel sheet provided by the user.
-3. Quality and resiliency issues
-4. Security findings
-5. OpenShift migration readiness 
+CODE SAMPLES:
+{context[:3000]}...
 
-The project has {file_count} files. Here is a list of some of the files:
-{file_listing[:20]}
-...
-{file_listing[-20:] if len(file_listing) > 20 else ""}
+Return ONLY valid JSON with this structure:
 
-{"IMPORTANT: This project includes files from Excel folders. Pay special attention to these files." if excel_folders else ""}
-
-I will provide you with some code samples and information about the project. Based on this information, you will need to:
-
-1. Identify the technologies and frameworks being used (languages, frameworks, libraries, databases, etc.)
-2. Detect specific components that are used. Please check for the following components:
-{component_check_list}
-
-3. Analyze the code for quality, resiliency, observability issues, and security vulnerabilities
-4. Provide an assessment of the code's readiness for migration to OpenShift
-
-Please provide your analysis in the following JSON format:
-
-```json
 {{
   "technology_stack": {{
     "languages": [
-      {{ "name": "language name", "version": "version if available", "purpose": "what it's used for", "files": ["file paths"] }}
+      {{"name": "Java", "version": "1.8+", "purpose": "main application", "files": ["src/main/java/**"]}}
     ],
     "frameworks": [
-      {{ "name": "framework name", "version": "version if available", "purpose": "what it's used for", "files": ["file paths"] }}
-    ],
-    "libraries": [
-      {{ "name": "library name", "version": "version if available", "purpose": "what it's used for", "files": ["file paths"] }}
+      {{"name": "Spring", "version": "5.x", "purpose": "web framework", "files": ["various"]}}
     ],
     "databases": [
-      {{ "name": "database name", "version": "version if available", "purpose": "what it's used for", "files": ["file paths"] }}
-    ],
-    "infrastructure": [
-      {{ "name": "infrastructure component", "version": "version if available", "purpose": "what it's used for", "files": ["file paths"] }}
+      {{"name": "MySQL", "version": "8.x", "purpose": "data storage", "files": ["config"]}}
     ]
   }},
   "findings": [
     {{
-      "category": "one of: security, quality, resiliency, observability, openshift-readiness",
-      "severity": "one of: critical, high, medium, low",
-      "description": "detailed description of the issue",
-      "location": {{
-        "file": "file path",
-        "line": line number,
-        "code": "code snippet"
-      }},
-      "recommendation": "how to fix the issue"
+      "category": "security",
+      "severity": "high",
+      "description": "Security issue found",
+      "location": "file.java:123",
+      "recommendation": "Fix this"
     }}
   ],
   "component_analysis": {{
-    "Venafi": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Redis": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Channel Secure / PingFed": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "NAS / SMB": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "SMTP": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "AutoSys": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "CRON/quartz/spring batch": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "MTLS / Mutual Auth / Hard Rock pattern": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "NDM": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Legacy JKS files": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "SOAP Calls": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "REST API": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "APIGEE": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "KAFKA": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "IBM MQ": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "LDAP": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Splunk": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "AppD / AppDynamics": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "ELASTIC APM": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Harness or UCD for CI/CD": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Hashicorp vault": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Bridge Utility server": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "RabbitMQ": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "MongoDB": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "SQLServer": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "MySQL": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "PostgreSQL": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Oracle": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Cassandra": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Couchbase": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Neo4j": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Hadoop": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Spark": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Okta": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "SAML": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "Auth": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "JWT": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "OpenID": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }},
-    "ADFS": {{ "detected": "yes/no", "evidence": "evidence of detection or lack thereof" }}
+    "Redis": {{"detected": "yes", "evidence": "Found redis imports"}},
+    "KAFKA": {{"detected": "no", "evidence": "No kafka references"}},
+    "REST API": {{"detected": "yes", "evidence": "REST controllers found"}},
+    "SOAP": {{"detected": "no", "evidence": "No SOAP services"}},
+    "LDAP": {{"detected": "no", "evidence": "No LDAP config"}},
+    "MySQL": {{"detected": "yes", "evidence": "Database config found"}},
+    "JWT": {{"detected": "yes", "evidence": "JWT tokens used"}},
+    "MTLS": {{"detected": "no", "evidence": "No mutual TLS"}}
   }},
   "security_quality_analysis": {{
     "auditability": {{
-      "avoid_logging_confidential_data": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "create_audit_trail_logs": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "tracking_id_for_log_messages": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "log_rest_api_calls": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "log_application_messages": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "client_ui_errors_are_logged": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }}
+      "logging_practices": {{"implemented": "yes", "evidence": "Logging found", "recommendation": "Continue"}},
+      "audit_trails": {{"implemented": "no", "evidence": "No audit system", "recommendation": "Add audit logs"}}
     }},
     "availability": {{
-      "retry_logic": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "set_timeouts_on_io_operations": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "throttling_drop_request": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "circuit_breakers_on_outgoing_requests": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }}
+      "retry_logic": {{"implemented": "partial", "evidence": "Some retries", "recommendation": "Add more"}},
+      "timeouts": {{"implemented": "yes", "evidence": "Timeouts set", "recommendation": "Review values"}}
     }},
     "error_handling": {{
-      "log_system_errors": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "use_http_standard_error_codes": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }},
-      "include_client_error_tracking": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }}
+      "error_logging": {{"implemented": "yes", "evidence": "Error logs", "recommendation": "Standardize"}},
+      "http_codes": {{"implemented": "yes", "evidence": "Standard codes", "recommendation": "Continue"}}
     }},
     "monitoring": {{
-      "url_monitoring": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }}
+      "url_monitoring": {{"implemented": "no", "evidence": "No monitoring", "recommendation": "Add health checks"}}
     }},
     "testing": {{
-      "automated_regression_testing": {{ "implemented": "yes/no/partial", "evidence": "evidence", "recommendation": "recommendation" }}
+      "automated_testing": {{"implemented": "partial", "evidence": "Some tests", "recommendation": "Increase coverage"}}
     }}
   }}
 }}
-```
 
-Here are some code samples from the project to help with your analysis:
-
-{context}
-
-Remember, if you cannot detect a component with high confidence, mark it as "no" in the component_analysis section. If you don't find enough information to assess a security or quality practice, default to "no" for the implemented field. Focus on accuracy in your analysis.
-
-Also, if you find any additional components or technology stack items not explicitly mentioned in the component list, please include them in your analysis.
+Focus on: Java frameworks, databases, security patterns, API types, authentication. Return ONLY the JSON, no other text.
 """
 
         try:

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenShift Migration Assessment for Bill Pay</title>
+    <style>
+    
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 40px;
+    color: #333;
+    max-width: 1100px;
+    margin: 0 auto;
+    background-color: #fafafa;
+}
+h1 {
+    font-size: 1.8em;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    color: #2c3e50;
+}
+h2 {
+    font-size: 1.4em;
+    font-weight: 500;
+    margin: 25px 0 15px 0;
+    color: #2c3e50;
+    padding-top: 15px;
+    border-top: 1px solid #eaeaea;
+}
+h2:first-of-type { border-top: none; }
+h3 {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin: 20px 0 10px 0;
+    color: #34495e;
+}
+h4 {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 15px 0 8px 0;
+    color: #34495e;
+}
+p {
+    margin: 0 0 15px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    color: #2c3e50;
+}
+tr:last-child td {
+    border-bottom: none;
+}
+tr:hover {
+    background-color: #f8f9fa;
+}
+.critical { color: #e74c3c; }
+.high { color: #e67e22; }
+.medium { color: #3498db; }
+.low { color: #2ecc71; }
+.score-high { color: #2ecc71; }
+.score-medium { color: #f39c12; }
+.score-low { color: #e74c3c; }
+
+.executive-summary, .section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+}
+.finding {
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 0 4px 4px 0;
+}
+.finding.critical { border-left-color: #e74c3c; }
+.finding.high { border-left-color: #e67e22; }
+.finding.medium { border-left-color: #3498db; }
+.finding.low { border-left-color: #2ecc71; }
+
+.action-item {
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 0 4px 4px 0;
+}
+.action-item.critical { border-left-color: #e74c3c; }
+.action-item.high { border-left-color: #e67e22; }
+.action-item.medium { border-left-color: #3498db; }
+.action-item.low { border-left-color: #2ecc71; }
+
+    </style>
+</head>
+<body>
+    <h1>OpenShift Migration Assessment for Bill Pay</h1>
+    <div class="executive-summary">
+        <div class="assessment-report">
+    <h1>OpenShift Migration Assessment Report</h1>
+    <div class="section" id="summary">
+        <h2>Summary</h2>
+        <p>The assessment for the component "Bill Pay" has been conducted. The application uses several components including Venafi, Redis, Channel Secure/PingFed, NAS/SMB, SMTP, AutoSys, MTLS/Mutual Auth, NDM, Legacy JKS File, SOAP Calls, REST API, APigee, Kafka, IBM MQ, MQ Cipher Suite, LDAP, Splunk, AppD, Elastic APM, Hamess/UCD for CI/CD, HardRock/MTLS auth, AppDynamics, RabbitMQ, Database, MongoDB, SQLServer, MySQL, PostgreSQL, Oracle, Cassandra, Couchbase, Neo4j, Hadoop, Spark, Okta, SAML, Auth, JWT, OpenID, ADFS, SAN, MalwareScanner, and any other service.</p>
+        <p>The assessment concluded that the component is not ready for migration to OpenShift. The reasons are detailed below:</p>
+        <ul>
+            <li>No matching components found in the codebase for Venafi, Redis, Channel Secure/PingFed, NAS/SMB, SMTP, AutoSys, MTLS/Mutual Auth, NDM, Legacy JKS File, SOAP Calls, REST API, APigee, Kafka, IBM MQ, MQ Cipher Suite, LDAP, Splunk, AppD, Elastic APM, Hamess/UCD for CI/CD, HardRock/MTLS auth, AppDynamics, RabbitMQ, Database, MongoDB, SQLServer, MySQL, PostgreSQL, Oracle, Cassandra, Couchbase, Neo4j, Hadoop, Spark, Okta, SAML, Auth, JWT, OpenID, ADFS, SAN, MalwareScanner.</li>
+            <li>The component uses unsupported or incompatible components that are not compatible with OpenShift, including any other service. </li>
+        </ul>
+        <p>Recommendations for addressing the migration challenges include:</p>
+        <ul>
+            <li>Migrate the component to a supported platform.</li>
+            <li>Update the codebase to use only supported and compatible components.</li>
+            <li>Contact the component vendor for support or alternative solutions.</li>
+            <li>Document all changes made during migration and provide testing strategy recommendations to ensure successful migration.</li>
+        </ul>
+    </div>
+    <div class="section" id="component-analysis">
+        <h2>Component Analysis</h2>
+        <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
+        <table border="1" class="component-table">
+            <tr><th>Component</th><th>Declared</th><th>Detected</th><th>Status</th></tr>
+            <tr><td>venafi</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>redis</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>channel secure/pingfed</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>nas/smb</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>smtp</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>autosys</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>mtls/mutual auth or hard rock pattem in the application</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>ndm</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>legacy jks file</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>soap calls</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>rest api</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>apigee</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>kafka</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>ibm mq</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>mq, is the component using any cipher suite</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>ldap</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>splunk</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>appd</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>elastic apm</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>hamess or ucd for ci cd</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>hardrock / mtls auth</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>appdynamics</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>rabbitmq</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>database</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>mongodb</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>sqlserver</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>mysql</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>postgresql</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>oracle</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>cassandra</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>couchbase</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>neo4j</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>hadoop</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>spark</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>okta</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>saml</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+            <tr><td>auth</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>jwt</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>openid</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>adfs</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>san</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>malwarescanner</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+            <tr><td>any other service</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+        </table>
+    </div>
+</div>
+    </div>
+</body>
+</html>

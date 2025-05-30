@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application & Platform Hard Gates for  Test Project</title>
+    <style>
+    
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 40px;
+    color: #333;
+    max-width: 1100px;
+    margin: 0 auto;
+    background-color: #fafafa;
+}
+h1 {
+    font-size: 1.8em;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    color: #2c3e50;
+}
+h2 {
+    font-size: 1.4em;
+    font-weight: 500;
+    margin: 25px 0 15px 0;
+    color: #2c3e50;
+    padding-top: 15px;
+    border-top: 1px solid #eaeaea;
+}
+h2:first-of-type { border-top: none; }
+h3 {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin: 20px 0 10px 0;
+    color: #34495e;
+}
+h4 {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 15px 0 8px 0;
+    color: #34495e;
+}
+p {
+    margin: 0 0 15px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    color: #2c3e50;
+}
+tr:last-child td {
+    border-bottom: none;
+}
+tr:hover {
+    background-color: #f8f9fa;
+}
+.critical, .high { color: #e74c3c; }
+.medium { color: #f39c12; }
+.low { color: #27ae60; }
+
+.empty-section {
+    background-color: #f8f9fa;
+    border-left: 4px solid #95a5a6;
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.empty-section p {
+    margin: 0 0 10px 0;
+    color: #555;
+}
+
+.empty-section ul {
+    margin: 0 0 10px 20px;
+    padding: 0;
+}
+
+.empty-section li {
+    margin-bottom: 5px;
+}
+
+.finding {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    border-left: 4px solid #95a5a6;
+}
+
+.finding.severity-critical, .finding.severity-high {
+    border-left-color: #e74c3c;
+}
+
+.finding.severity-medium {
+    border-left-color: #f39c12;
+}
+
+.finding.severity-low {
+    border-left-color: #27ae60;
+}
+
+.finding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.finding-number {
+    font-weight: bold;
+    color: #7f8c8d;
+}
+
+.finding-severity {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.finding-severity.critical, .finding-severity.high {
+    background-color: #fdeaea;
+    color: #c0392b;
+}
+
+.finding-severity.medium {
+    background-color: #fef5e7;
+    color: #d35400;
+}
+
+.finding-severity.low {
+    background-color: #e9f7ef;
+    color: #27ae60;
+}
+
+.code-snippet {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+    overflow-x: auto;
+}
+
+.code-snippet pre {
+    margin: 0;
+}
+
+.code-snippet code {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.recommendation {
+    margin-top: 10px;
+}
+
+.tech-category, .security-category, .findings-category {
+    margin-bottom: 30px;
+}
+
+.executive-summary {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+}
+
+.excel-folder {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    border-left: 4px solid #3498db;
+}
+
+.excel-folder h4 {
+    color: #2980b9;
+    margin-top: 0;
+}
+
+.excel-files-list {
+    list-style-type: none;
+    padding-left: 10px;
+    margin: 10px 0;
+}
+
+.excel-files-list li {
+    margin-bottom: 5px;
+    padding: 3px 0;
+    border-bottom: 1px solid #eee;
+}
+        
+    </style>
+</head>
+<body>
+    <h1>Application & Platform Hard Gates for  Test Project</h1>
+
+    <div class="executive-summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>Files Analyzed: 1</li>
+            
+            <li>**Security & Quality Implementation**: 100.0%
+**Practices Implemented**: 1 fully, 0 partially, 0 not implemented
+</li>
+            <li>**Total Findings**: 1
+**Medium Severity Issues**: 1
+</li>
+            
+        </ul>
+    </div>
+
+    <div class="technology-stack">
+        <h2>Technology Stack</h2>
+
+        <div class="tech-category">
+            <h3>Languages</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>Python</td>
+                        <td>3.9</td>
+                        <td>Main language</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+    <div class="security-quality">
+        <h2>Security & Quality Analysis</h2>
+
+        <div class="security-category">
+            <h3>Auditability</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>Logging Implemented</td>
+                        <td><span class="low">Implemented</span></td>
+                        <td>Logging found</td>
+                    </tr>
+
+                </tbody>
+            </table>
+            
+            <h4>Recommendations</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Practice</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>Logging Implemented</td>
+                        <td>No recommendation</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="findings">
+        <h2>Findings</h2>
+
+        <div class="findings-category">
+            <h3>Security</h3>
+
+            <div class="finding severity-medium">
+                <div class="finding-header">
+                    <span class="finding-number">1</span>
+                    <span class="finding-severity medium">Medium</span>
+                </div>
+                <h4>Test finding</h4>
+                <p><strong>Location:</strong> test.py:10:?</p>
+
+                <div class="recommendation">
+                    <strong>Recommendation:</strong> No recommendation
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="action-items">
+        <h2>Action Items</h2>
+
+        <div class="action-item medium">
+            <h3>1. Address Medium Severity Findings (Priority: Medium)</h3>
+            <p>There are 1 medium severity findings that should be planned for remediation. These issues may lead to problems in certain circumstances.</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

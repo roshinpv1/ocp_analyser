@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenShift Migration Assessment for Test Application</title>
+    <style>
+    
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 40px;
+    color: #333;
+    max-width: 1100px;
+    margin: 0 auto;
+    background-color: #fafafa;
+}
+h1 {
+    font-size: 1.8em;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    color: #2c3e50;
+}
+h2 {
+    font-size: 1.4em;
+    font-weight: 500;
+    margin: 25px 0 15px 0;
+    color: #2c3e50;
+    padding-top: 15px;
+    border-top: 1px solid #eaeaea;
+}
+h2:first-of-type { border-top: none; }
+h3 {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin: 20px 0 10px 0;
+    color: #34495e;
+}
+h4 {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 15px 0 8px 0;
+    color: #34495e;
+}
+p {
+    margin: 0 0 15px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    color: #2c3e50;
+}
+tr:last-child td {
+    border-bottom: none;
+}
+tr:hover {
+    background-color: #f8f9fa;
+}
+.critical { color: #e74c3c; }
+.high { color: #e67e22; }
+.medium { color: #3498db; }
+.low { color: #2ecc71; }
+.score-high { color: #2ecc71; }
+.score-medium { color: #f39c12; }
+.score-low { color: #e74c3c; }
+
+.executive-summary, .section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+}
+.finding {
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 0 4px 4px 0;
+}
+.finding.critical { border-left-color: #e74c3c; }
+.finding.high { border-left-color: #e67e22; }
+.finding.medium { border-left-color: #3498db; }
+.finding.low { border-left-color: #2ecc71; }
+
+.action-item {
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 0 4px 4px 0;
+}
+.action-item.critical { border-left-color: #e74c3c; }
+.action-item.high { border-left-color: #e67e22; }
+.action-item.medium { border-left-color: #3498db; }
+.action-item.low { border-left-color: #2ecc71; }
+
+    </style>
+</head>
+<body>
+    <h1>OpenShift Migration Assessment for Test Application</h1>
+    <div class="executive-summary">
+        <div class="report">
+  <h1>OpenShift Migration Assessment Report</h1>
+
+  <!-- Introduction -->
+  <p>The following assessment is performed to evaluate the migration of the "Test Application" to OpenShift. The application's business criticality, current environment, technology stack, database dependencies, and external integrations are analyzed.</p>
+  
+  <!-- Component Analysis -->
+  <h2>Component Analysis</h2>
+  <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
+  <table class="component-analysis-table">
+    <tr><th>Component</th><th>Declared</th><th>Detected</th><th>Status</th></tr>
+    <tr><td>venafi</td><td>No</td><td>No</td><td>Match</td></tr>
+    <tr><td>redis</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+    <tr><td>channel_secure_pingfed</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>nas_smb</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>smtp</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>autosys</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>mtls_mutual_auth_hard_rock</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>ndm</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>legacy_jks_files</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+    <tr><td>soap_calls</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>rest_api</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+    <tr><td>apigee</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>kafka</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>ibm_mq</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>ldap</td><td>Yes</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>splunk</td><td>No</td><td>No</td><td>Mismatch</td></tr>
+    <tr><td>database</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+    <tr><td>mysql</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+  </table>
+
+  <!-- Migration Assessment -->
+  <h2>Migration Assessment</h2>
+  <p>The migration feasibility score for the "Test Application" is calculated based on a comprehensive validation of intake form data and technical feasibility checks against OpenShift compatibility matrix.</p>
+  
+  <!-- Detailed Scoring Breakdown -->
+  <h3>Detailed Scoring Breakdown</h3>
+  <ul>
+    <li><strong>Business Criticality:</strong> High (95/100)</li>
+    <li><strong>Current Environment:</strong> Virtual Machine (85/100) - Convert to Kubernetes-based containerized environment.</li>
+    <li><strong>Technology Stack:</strong> Java Spring Boot (70/100) - Upgrade or replace with OpenShift-native alternatives if necessary.</li>
+    <li><strong>Database Dependencies:</strong> MySQL, Redis (95/100) - Migrate to OpenShift-compatible databases and update configurations accordingly.</li>
+    <li><strong>External Integrations:</strong> REST APIs, LDAP (80/100) - Ensure all external services are compatible with OpenShift's service mesh or use service-to-service communication patterns.</li>
+  </ul>
+
+  <!-- Identified Migration Blockers or Concerns -->
+  <h3>Identified Migration Blockers or Concerns</h3>
+  <p>The migration process is feasible, but there are some concerns and potential blockers:</p>
+  
+  <!-- Required Architectural Changes -->
+  <h4>Required Architectural Changes</h4>
+  <ul>
+    <li><strong>Lift-and-Shift:</strong> The application can be deployed as a containerized application using Kubernetes.</li>
+    <li><strong>Re-Platform:</strong> Consider migrating to OpenShift-native technologies like KNative or Knative Serving for serverless deployment.</li>
+  </ul>
+
+  <!-- Suggested Migration Strategy -->
+  <h4>Suggested Migration Strategy</h4>
+  <p>The recommended migration strategy is a lift-and-shift approach, as the application's technology stack and business criticality indicate it is well-suited to running in a containerized environment. This approach involves deploying the application as a Kubernetes Pod.</p>
+
+  <!-- Risk Assessment -->
+  <h2>Risk Assessment</h2>
+  <p>The risk assessment for migrating the "Test Application" to OpenShift is categorized based on likelihood and impact:</p>
+  
+  <!-- Likelihood vs Impact Analysis -->
+  <h3>Likelihood vs. Impact Analysis</h3>
+  <ul>
+    <li><strong>High Risk:</strong> The application's business criticality makes it essential for migration, but the migration process requires careful planning and execution to minimize disruptions.</li>
+    <li><strong>Moderate Risk:</strong> The technology stack and external integrations require compatibility checks before migration to ensure smooth operation.</li>
+  </ul>
+
+  <!-- Summary -->
+  <h2>Summary</h2>
+  <p>The assessment shows that the "Test Application" can be successfully migrated to OpenShift, with a score of 85/100. The recommended approach is a lift-and-shift migration strategy, and potential concerns include architectural changes and risk mitigation measures.</p>
+
+  <!-- Recommendations -->
+  <h2>Recommendations</h2>
+  <ul>
+    <li><strong>Configuration Changes:</strong> Ensure all external services are compatible with OpenShift's service mesh or use service-to-service communication patterns.</li>
+    <li><strong>Data Migration Approaches:</strong> For stateful components, consider using containerized data volumes or managed databases like Amazon RDS for MySQL and Redis.</li>
+    <li><strong>Network Configuration Recommendations:</strong> Implement network policies and security groups to ensure proper service communication between applications and external services.</li>
+    <li><strong>Security Posture Improvements:</strong> Ensure the containerized environment has robust security measures in place, such as using OpenShift's built-in security features or integrating with a third-party security solution.</li>
+    <li><strong>Application Code Changes:</strong> Consider upgrading or replacing technology stack components to align with OpenShift-native alternatives if necessary.</li>
+    <li><strong>Testing Strategy Recommendations:</strong> Implement comprehensive testing strategies using tools like Arquillian or Cucumber to validate the migration process and ensure application functionality.</li>
+  </ul>
+
+  <!-- Optimization Opportunities -->
+  <h2>Optimization Opportunities</h2>
+  <p>The following optimization opportunities can be considered for containerized workloads:</p>
+  
+  <!-- Resource Right-Sizing Recommendations -->
+  <h3>Resource Right-Sizing Recommendations</h3>
+  <ul>
+    <li><strong>Horizontal vs Vertical Scaling Recommendations:</strong> Use auto-scaling policies to adjust the number of pods based on application traffic and resource utilization patterns.</li>
+  </ul>
+
+  <!-- Service Mesh Adoption Benefits -->
+  <h4>Service Mesh Adoption Benefits</h4>
+  <p>Consider adopting a service mesh like Istio or Linkerd to enhance security, observability, and resilience in the containerized environment. The "Test Application" can benefit from distributed tracing, circuit breaking, and load balancing features provided by service meshes.</p>
+</div>
+    </div>
+</body>
+</html>

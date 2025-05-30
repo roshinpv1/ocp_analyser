@@ -53,10 +53,25 @@ class GenerateReport(Node):
         file_count = len(files_data)
         print(f"DEBUG: Number of files analyzed: {file_count}")
         
+        # Check for Excel folders in the files
+        excel_extensions = {'.xlsx', '.xls', '.xlsm', '.xlsb', '.csv'}
+        excel_folders = set()
+        
+        for file_path in files_data.keys():
+            dir_path = os.path.dirname(file_path)
+            dir_parts = dir_path.split(os.sep)
+            for part in dir_parts:
+                if any(part.lower().endswith(ext) for ext in excel_extensions):
+                    excel_folders.add(part)
+        
+        if excel_folders:
+            print(f"DEBUG: Report will include Excel folders: {', '.join(excel_folders)}")
+        
         # Include file information in the report
         file_summary = {
             "count": file_count,
-            "extensions": {}
+            "extensions": {},
+            "excel_folders": list(excel_folders)
         }
         
         # Count file extensions
@@ -79,14 +94,27 @@ class GenerateReport(Node):
         report += "## Summary\n\n"
         
         # Include file statistics
-        report += f"- **Files Analyzed**: {file_summary['count']}\n"
+        report += f"📁 **Files Analyzed**: {file_summary['count']}\n"
         if file_summary['extensions']:
-            report += "- **File Types**: "
+            report += "📂 **File Types**: "
             ext_counts = [f"{ext} ({count})" for ext, count in file_summary['extensions'].items()]
             report += ", ".join(ext_counts) + "\n"
         
+        # Add Excel folder information if present
+        if file_summary.get('excel_folders'):
+            report += f"📊 **Excel Folders**: {len(file_summary['excel_folders'])}\n"
+            report += "  - " + ", ".join(file_summary['excel_folders']) + "\n"
+        
+        report += "\n"  # Add spacing
+        
         # Calculate statistics for Summary
         security_stats = ""
+        hard_gate_stats = ""
+        hard_gates_total = 0
+        hard_gates_met = 0
+        hard_gates_not_met = 0
+        hard_gates_partial = 0
+        
         if security_quality_analysis:
             categories_total = 0
             categories_implemented = 0
@@ -105,11 +133,29 @@ class GenerateReport(Node):
                         categories_not_implemented += 1
             
             if categories_total > 0:
+                # Store hard gate counts for later use
+                hard_gates_total = categories_total
+                hard_gates_met = categories_implemented
+                hard_gates_not_met = categories_not_implemented
+                hard_gates_partial = categories_partial
+                
                 implementation_percentage = ((categories_implemented + 0.5 * categories_partial) / categories_total) * 100
-                security_stats = f"- **Security & Quality Implementation**: {implementation_percentage:.1f}%\n"
-                security_stats += f"- **Practices Implemented**: {categories_implemented} fully, {categories_partial} partially, {categories_not_implemented} not implemented\n"
+                
+                # Enhanced Security Statistics
+                security_stats = "### 🔒 Security & Quality Overview\n\n"
+                security_stats += f"- **Overall Implementation**: {implementation_percentage:.1f}%\n"
+                security_stats += f"- **Practices Status**: {categories_implemented} ✅ implemented, {categories_partial} ⚠️ partially implemented, {categories_not_implemented} ❌ not implemented\n\n"
+                
+                # Enhanced Hard Gate Statistics  
+                hard_gate_stats = "### 🛡️ Hard Gates Assessment\n\n"
+                hard_gate_stats += f"| Metric | Count | Status |\n"
+                hard_gate_stats += f"|--------|-------|--------|\n"
+                hard_gate_stats += f"| **Total Evaluated** | {categories_total} | 📊 Complete |\n"
+                hard_gate_stats += f"| **Gates Met** | {categories_implemented} | ✅ Passed |\n"
+                hard_gate_stats += f"| **Gates Partially Met** | {categories_partial} | ⚠️ In Progress |\n"
+                hard_gate_stats += f"| **Gates Not Met** | {categories_not_implemented} | ❌ Failed |\n\n"
         
-        # Calculate findings statistics
+        # Enhanced findings statistics
         findings_stats = ""
         if findings:
             severity_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0}
@@ -120,19 +166,22 @@ class GenerateReport(Node):
                 else:
                     severity_counts["low"] += 1
             
-            findings_stats = f"- **Total Findings**: {len(findings)}\n"
+            findings_stats = "### 🔍 Code Analysis Findings\n\n"
+            findings_stats += f"- **Total Issues Found**: {len(findings)}\n"
             if severity_counts["critical"] > 0:
-                findings_stats += f"- **Critical Severity Issues**: {severity_counts['critical']}\n"
+                findings_stats += f"- **🔴 Critical Issues**: {severity_counts['critical']}\n"
             if severity_counts["high"] > 0:
-                findings_stats += f"- **High Severity Issues**: {severity_counts['high']}\n"
+                findings_stats += f"- **🟠 High Severity Issues**: {severity_counts['high']}\n"
             if severity_counts["medium"] > 0:
-                findings_stats += f"- **Medium Severity Issues**: {severity_counts['medium']}\n"
+                findings_stats += f"- **🟡 Medium Severity Issues**: {severity_counts['medium']}\n"
             if severity_counts["low"] > 0:
-                findings_stats += f"- **Low Severity Issues**: {severity_counts['low']}\n"
+                findings_stats += f"- **🟢 Low Severity Issues**: {severity_counts['low']}\n"
+            findings_stats += "\n"
         else:
-            findings_stats = "- **Total Findings**: 0\n"
+            findings_stats = "### 🔍 Code Analysis Findings\n\n"
+            findings_stats += "- **Total Issues Found**: 0 ✅\n\n"
         
-        # Calculate component mismatches
+        # Enhanced component mismatches
         component_stats = ""
         mismatches_count = 0
         if excel_components and component_analysis:
@@ -148,78 +197,47 @@ class GenerateReport(Node):
                         break
                         
             if mismatches_count > 0:
-                component_stats = f"- **Component Declaration Mismatches**: {mismatches_count}\n"
+                component_stats = "### ⚠️ Component Validation\n\n"
+                component_stats += f"- **Declaration Mismatches**: {mismatches_count} components need review\n\n"
         
-        # Add all statistics to Summary
-        report += security_stats + findings_stats + component_stats + "\n"
+        # Add all statistics to Summary with elegant formatting
+        report += security_stats + hard_gate_stats + findings_stats + component_stats
         
         # Add table of contents
         report += "## Table of Contents\n\n"
         report += "1. [Summary](#executive-summary)\n"
-        report += "2. [Component Analysis](#component-analysis)\n"
-        report += "3. [Technology Stack](#technology-stack)\n"
-        report += "4. [Security & Quality Analysis](#security-quality-analysis)\n"
-        report += "5. [Findings](#findings)\n"
+        report += "2. [Technology Stack](#technology-stack)\n"
         
-        if jira_stories:
-            report += "6. [Jira Stories](#jira-stories)\n"
-            report += "7. [Action Items](#action-items)\n"
-        else:
-            report += "6. [Action Items](#action-items)\n"
-        
-        # Component Analysis Section
-        report += "## Component Analysis\n\n"
-        
-        if excel_components and component_analysis:
-            report += "The following table compares the components declared in the intake form with the components detected in the codebase:\n\n"
+        # Add Excel Folder section to TOC if present
+        if file_summary.get('excel_folders'):
+            report += "3. [Excel Folder Analysis](#excel-folder-analysis)\n"
+            report += "4. [Security & Quality Analysis](#security-quality-analysis)\n"
+            report += "5. [Findings](#findings)\n"
             
-            # Table header
-            report += "| Component | Declared | Detected | Status |\n"
-            report += "|-----------|----------|----------|--------|\n"
-            
-            for excel_comp, excel_data in excel_components.items():
-                excel_comp_lower = excel_comp.lower()
-                excel_declared = excel_data.get("is_yes", False)
-                
-                # Find if component is in the analysis
-                matched = False
-                detected = False
-                
-                for comp_name, comp_data in component_analysis.items():
-                    if excel_comp_lower in comp_name.lower() or comp_name.lower() in excel_comp_lower:
-                        matched = True
-                        detected = comp_data["detected"].lower() == "yes"
-                        break
-                
-                status = "Match" if excel_declared == detected else "Mismatch"
-                
-                report += f"| {excel_comp} | {'Yes' if excel_declared else 'No'} | {'Yes' if detected else 'No'} | {status} |\n"
-                
-            report += "\n"
-        else:
-            # Just list detected components
-            report += "### Components Detected in Codebase\n\n"
-            
-            if component_analysis:
-                # Table header
-                report += "| Component | Detected | Evidence |\n"
-                report += "|-----------|----------|----------|\n"
-                
-                for comp_name, comp_data in component_analysis.items():
-                    detected = comp_data["detected"].lower() == "yes"
-                    evidence = comp_data.get("evidence", "No evidence")
-                    evidence_short = (evidence[:75] + '...') if len(evidence) > 75 else evidence
-                    
-                    report += f"| {comp_name} | {'Yes' if detected else 'No'} | {evidence_short} |\n"
-                report += "\n"
+            if jira_stories:
+                report += "6. [Jira Stories](#jira-stories)\n"
+                report += "7. [Action Items](#action-items)\n"
             else:
-                report += "No components were detected in the codebase.\n\n"
+                report += "6. [Action Items](#action-items)\n"
+        else:
+            report += "3. [Security & Quality Analysis](#security-quality-analysis)\n"
+            report += "4. [Findings](#findings)\n"
+            
+            if jira_stories:
+                report += "5. [Jira Stories](#jira-stories)\n"
+                report += "6. [Action Items](#action-items)\n"
+            else:
+                report += "5. [Action Items](#action-items)\n"
         
         # Technology Stack Section
         report += "## Technology Stack\n\n"
         
         if technology_stack:
+            # Process all categories except Excel Folder Analysis
             for category, techs in technology_stack.items():
+                if category == "Excel Folder Analysis":
+                    continue  # Handle separately below
+                    
                 report += f"### {category.title()}\n\n"
                 
                 if not isinstance(techs, list):
@@ -242,6 +260,74 @@ class GenerateReport(Node):
                 report += "\n"
         else:
             report += "No technology stack information available.\n\n"
+        
+        # Excel Folder Analysis Section (if applicable)
+        if file_summary.get('excel_folders') or "Excel Folder Analysis" in technology_stack:
+            report += "## Excel Folder Analysis\n\n"
+            
+            excel_folder_tech = technology_stack.get("Excel Folder Analysis", [])
+            if excel_folder_tech:
+                report += "The following Excel folders were found in the codebase:\n\n"
+                
+                # Table header
+                report += "| Folder | Files | Purpose |\n"
+                report += "|--------|-------|--------|\n"
+                
+                for tech in excel_folder_tech:
+                    if not isinstance(tech, dict):
+                        continue
+                    
+                    name = tech.get("name", "Unknown")
+                    files = tech.get("files", [])
+                    purpose = tech.get("purpose", "N/A")
+                    
+                    # Format the folder name
+                    folder_name = name
+                    if name.startswith("Excel Folder: "):
+                        folder_name = name[len("Excel Folder: "):]
+                    
+                    report += f"| {folder_name} | {len(files)} | {purpose} |\n"
+                
+                report += "\n"
+                
+                # Display some of the files in each folder
+                report += "### Excel Folder Contents\n\n"
+                
+                for tech in excel_folder_tech:
+                    if not isinstance(tech, dict):
+                        continue
+                    
+                    name = tech.get("name", "Unknown")
+                    files = tech.get("files", [])
+                    
+                    # Format the folder name
+                    folder_name = name
+                    if name.startswith("Excel Folder: "):
+                        folder_name = name[len("Excel Folder: "):]
+                    
+                    report += f"#### {folder_name}\n\n"
+                    
+                    if files:
+                        report += "Files in this folder:\n\n"
+                        for file in files[:10]:  # Show up to 10 files
+                            report += f"- {file}\n"
+                        
+                        if len(files) > 10:
+                            report += f"- ... and {len(files) - 10} more files\n"
+                    else:
+                        report += "No files listed for this folder.\n"
+                    
+                    report += "\n"
+            else:
+                report += "Excel folders were detected but no detailed analysis is available. This could be because:\n\n"
+                report += "1. The files in these folders could not be properly analyzed\n"
+                report += "2. The analysis process didn't complete successfully for these folders\n\n"
+                
+                if file_summary.get('excel_folders'):
+                    report += "Detected Excel folders:\n\n"
+                    for folder in file_summary['excel_folders']:
+                        report += f"- {folder}\n"
+                    report += "\n"
         
         # Security & Quality Analysis Section
         report += "## Security & Quality Analysis\n\n"
@@ -327,9 +413,17 @@ class GenerateReport(Node):
                     description = finding.get("description", "No description")
                     recommendation = finding.get("recommendation", "No recommendation")
                     location = finding.get("location", {})
-                    file_path = location.get("file", "Unknown")
-                    line = location.get("line", "?")
-                    code = location.get("code", "")
+                    
+                    # Handle both old format (dict) and new format (string)
+                    if isinstance(location, dict):
+                        file_path = location.get("file", "Unknown")
+                        line = location.get("line", "?")
+                        code = location.get("code", "")
+                    else:
+                        # New format - location is a string
+                        file_path = str(location) if location else "Unknown"
+                        line = "?"
+                        code = ""
                     
                     report += f"#### {i+1}. {description} (Severity: {severity.title()})\n\n"
                     report += f"**Location**: {file_path}:{line}\n\n"
@@ -454,7 +548,7 @@ class GenerateReport(Node):
             
             report += "\n"
         
-        # Generate HTML content with proper escaping for replace() calls
+        # Generate HTML content with Excel folder section
         css = """
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -632,12 +726,173 @@ tr:hover {
 
 .executive-summary {
     background-color: #fff;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    border-top: 4px solid #3498db;
+}
+
+.summary-section {
     margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #3498db;
+}
+
+.summary-section:last-child {
+    margin-bottom: 0;
+}
+
+.summary-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-size: 1.1em;
+}
+
+.summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.summary-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #e8f0f3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-list li:last-child {
+    border-bottom: none;
+}
+
+.hard-gates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.gate-metric {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-top: 3px solid #ddd;
+    transition: transform 0.2s ease;
+}
+
+.gate-metric:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.gate-metric.total {
+    border-top-color: #3498db;
+}
+
+.gate-metric.passed {
+    border-top-color: #27ae60;
+}
+
+.gate-metric.partial {
+    border-top-color: #f39c12;
+}
+
+.gate-metric.failed {
+    border-top-color: #e74c3c;
+}
+
+.metric-value {
+    font-size: 2.2em;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #2c3e50;
+}
+
+.metric-label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-icon {
+    font-size: 1.2em;
+}
+
+.completion-bar {
+    background-color: #ecf0f1;
+    border-radius: 20px;
+    height: 8px;
+    margin: 20px 0 10px 0;
+    overflow: hidden;
+}
+
+.completion-fill {
+    background: linear-gradient(90deg, #27ae60 0%, #2ecc71 50%, #27ae60 100%);
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.3s ease;
+}
+
+.completion-text {
+    text-align: center;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.95em;
+}
+
+.security-overview {
+    border-left-color: #9b59b6;
+}
+
+.findings-overview {
+    border-left-color: #e67e22;
+}
+
+.component-validation {
+    border-left-color: #e74c3c;
+}
+
+.excel-folder {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    border-left: 4px solid #3498db;
+}
+
+.excel-folder h4 {
+    color: #2980b9;
+    margin-top: 0;
+}
+
+.excel-files-list {
+    list-style-type: none;
+    padding-left: 10px;
+    margin: 10px 0;
+}
+
+.excel-files-list li {
+    margin-bottom: 5px;
+    padding: 3px 0;
+    border-bottom: 1px solid #eee;
 }
         """
+        
+        # Process strings with backslashes outside f-strings 
+        newline_str = '\n\n'
+        security_processed = security_stats.replace('- ', '').replace('### 🔒 Security & Quality Overview', '').replace(newline_str, '').strip() if security_stats else ""
+        findings_processed = findings_stats.replace('- ', '').replace('### 🔍 Code Analysis Findings', '').replace(newline_str, '').strip() if findings_stats else ""
+        component_processed = component_stats.replace('- ', '').replace('### ⚠️ Component Validation', '').replace(newline_str, '').strip() if component_stats else ""
         
         # Start with the basic HTML structure
         html_content = f"""<!DOCTYPE html>
@@ -654,83 +909,77 @@ tr:hover {
     <h1>Application & Platform Hard Gates for  {project_name}</h1>
 
     <div class="executive-summary">
-        <h2>Summary</h2>
-        <ul>
-            {f"<li>{security_stats.replace('- ', '')}</li>" if security_stats else ""}
-            {f"<li>{findings_stats.replace('- ', '')}</li>" if findings_stats else ""}
-            {f"<li>{component_stats.replace('- ', '')}</li>" if component_stats else ""}
-        </ul>
-    </div>
-
-    <div class="component-analysis">
-        <h2>Component Analysis</h2>
-"""
-
-        if excel_components and component_analysis:
-            html_content += """
-        <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
-        <table>
-            <tr>
-                <th>Component</th>
-                <th>Declared</th>
-                <th>Detected</th>
-                <th>Status</th>
-            </tr>
-"""
-        elif component_analysis:
-            html_content += """
-        <p>Components detected in the codebase:</p>
-        <table>
-            <tr>
-                <th>Component</th>
-                <th>Detected</th>
-                <th>Evidence</th>
-            </tr>
-"""
-        else:
-            html_content += """
-        <p>No component analysis available.</p>
-"""
-
-        if excel_components and component_analysis:
-            for excel_comp, excel_data in excel_components.items():
-                excel_comp_lower = excel_comp.lower()
-                excel_declared = excel_data.get("is_yes", False)
-                
-                matched = False
-                detected = False
-                
-                for comp_name, comp_data in component_analysis.items():
-                    if excel_comp_lower in comp_name.lower() or comp_name.lower() in excel_comp_lower:
-                        matched = True
-                        detected = comp_data["detected"].lower() == "yes"
-                        break
-                
-                status = "Match" if excel_declared == detected else "Mismatch"
-                status_class = "low" if status == "Match" else "high"
-                
-                html_content += f"""
-            <tr>
-                <td>{excel_comp}</td>
-                <td>{'Yes' if excel_declared else 'No'}</td>
-                <td>{'Yes' if detected else 'No'}</td>
-                <td class="{status_class}">{status}</td>
-            </tr>"""
-        elif component_analysis:
-            for comp_name, comp_data in component_analysis.items():
-                detected = comp_data["detected"].lower() == "yes"
-                evidence = comp_data.get("evidence", "No evidence")
-                evidence_short = (evidence[:75] + '...') if len(evidence) > 75 else evidence
-                
-                html_content += f"""
-            <tr>
-                <td>{comp_name}</td>
-                <td>{'Yes' if detected else 'No'}</td>
-                <td>{evidence_short}</td>
-            </tr>"""
+        <h2>📊 Executive Summary</h2>
         
-        html_content += """
-        </table>
+        <!-- File Analysis Overview -->
+        <div class="summary-section">
+            <h3>📁 File Analysis Overview</h3>
+            <ul class="summary-list">
+                <li><strong>Files Analyzed:</strong> {file_summary['count']}</li>
+                {f"<li><strong>Excel Folders:</strong> {len(file_summary.get('excel_folders', []))}</li>" if file_summary.get('excel_folders') else ""}
+            </ul>
+        </div>
+        
+        {f'''
+        <!-- Security & Quality Overview -->
+        <div class="summary-section security-overview">
+            <h3>🔒 Security & Quality Overview</h3>
+            <ul class="summary-list">
+                <li>{security_processed}</li>
+            </ul>
+        </div>
+        ''' if security_stats else ""}
+        
+        {f'''
+        <!-- Hard Gates Assessment -->
+        <div class="summary-section hard-gates">
+            <h3>🛡️ Hard Gates Assessment</h3>
+            <div class="hard-gates-grid">
+                <div class="gate-metric total">
+                    <div class="metric-value">{hard_gates_total}</div>
+                    <div class="metric-label">Total Evaluated</div>
+                    <div class="metric-icon">📊</div>
+                </div>
+                <div class="gate-metric passed">
+                    <div class="metric-value">{hard_gates_met}</div>
+                    <div class="metric-label">Gates Met</div>
+                    <div class="metric-icon">✅</div>
+                </div>
+                <div class="gate-metric partial">
+                    <div class="metric-value">{hard_gates_partial}</div>
+                    <div class="metric-label">Partially Met</div>
+                    <div class="metric-icon">⚠️</div>
+                </div>
+                <div class="gate-metric failed">
+                    <div class="metric-value">{hard_gates_not_met}</div>
+                    <div class="metric-label">Not Met</div>
+                    <div class="metric-icon">❌</div>
+                </div>
+            </div>
+            {f'<div class="completion-bar"><div class="completion-fill" style="width: {((hard_gates_met + 0.5 * hard_gates_partial) / hard_gates_total * 100):.1f}%"></div></div>' if hard_gates_total > 0 else ''}
+            {f'<div class="completion-text">{((hard_gates_met + 0.5 * hard_gates_partial) / hard_gates_total * 100):.1f}% Hard Gates Compliance</div>' if hard_gates_total > 0 else ''}
+        </div>
+        ''' if hard_gates_total > 0 else ""}
+        
+        {f'''
+        <!-- Code Analysis Findings -->
+        <div class="summary-section findings-overview">
+            <h3>🔍 Code Analysis Findings</h3>
+            <ul class="summary-list">
+                <li>{findings_processed}</li>
+            </ul>
+        </div>
+        ''' if findings_stats else ""}
+        
+        {f'''
+        <!-- Component Validation -->
+        <div class="summary-section component-validation">
+            <h3>⚠️ Component Validation</h3>
+            <ul class="summary-list">
+                <li>{component_processed}</li>
+            </ul>
+        </div>
+        ''' if component_stats else ""}
     </div>
 
     <div class="technology-stack">
@@ -937,9 +1186,17 @@ tr:hover {
                     description = finding.get("description", "No description")
                     recommendation = finding.get("recommendation", "No recommendation")
                     location = finding.get("location", {})
-                    file_path = location.get("file", "Unknown")
-                    line = location.get("line", "?")
-                    code = location.get("code", "")
+                    
+                    # Handle both old format (dict) and new format (string)
+                    if isinstance(location, dict):
+                        file_path = location.get("file", "Unknown")
+                        line = location.get("line", "?")
+                        code = location.get("code", "")
+                    else:
+                        # New format - location is a string
+                        file_path = str(location) if location else "Unknown"
+                        line = "?"
+                        code = ""
                     
                     severity_class = severity.lower()
                     
@@ -1008,83 +1265,120 @@ tr:hover {
     </div>
 """
 
-        # Add Jira Stories to HTML with proper string handling
-        if jira_stories:
+        # Add Excel Folder Analysis section to HTML
+        if file_summary.get('excel_folders') or "Excel Folder Analysis" in technology_stack:
             html_content += """
-    <div class="jira-stories">
-        <h2>Jira Stories</h2>
+    <div class="excel-folder-analysis">
+        <h2>Excel Folder Analysis</h2>
 """
-            for story in jira_stories:
-                status_class = ""
-                if story['status'].lower() == "done":
-                    status_class = "low"
-                elif story['status'].lower() == "in progress":
-                    status_class = "medium"
-                elif story['status'].lower() == "to do":
-                    status_class = "high"
-                
-                html_content += f"""
-        <div class="jira-story">
-            <div class="jira-story-header">
-                <span class="jira-story-key">{story['key']}</span>
-                <span class="jira-story-status {status_class}">{story['status']}</span>
-            </div>
-            <h3>{story['summary']}</h3>
-            <p><strong>Created:</strong> {story['created']}<br>
-            <strong>Updated:</strong> {story['updated']}</p>
+            
+            excel_folder_tech = technology_stack.get("Excel Folder Analysis", [])
+            if excel_folder_tech:
+                html_content += """
+        <p>The following Excel folders were found in the codebase:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Folder</th>
+                    <th>Files</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
 """
                 
-                # Handle description - extract as variable first
-                desc = story.get('description', '')
-                if desc:
-                    desc_html = desc.replace('\n', '<br>')
+                for tech in excel_folder_tech:
+                    if not isinstance(tech, dict):
+                        continue
+                    
+                    name = tech.get("name", "Unknown")
+                    files = tech.get("files", [])
+                    purpose = tech.get("purpose", "N/A")
+                    
+                    # Format the folder name
+                    folder_name = name
+                    if name.startswith("Excel Folder: "):
+                        folder_name = name[len("Excel Folder: "):]
+                    
                     html_content += f"""
-            <div class="jira-description">
-                {desc_html}
-            </div>
-"""
-                else:
-                    html_content += """
-            <div class="jira-description">
-                No description
-            </div>
+                <tr>
+                    <td>{folder_name}</td>
+                    <td>{len(files)}</td>
+                    <td>{purpose}</td>
+                </tr>
 """
                 
-                # Add comments
-                if story['comments']:
-                    html_content += """
-            <h4>Comments</h4>
+                html_content += """
+            </tbody>
+        </table>
+        
+        <h3>Excel Folder Contents</h3>
 """
-                    for comment in story['comments']:
-                        # Handle comment body - extract as variable first
-                        comment_body = comment.get('body', '')
-                        comment_html = comment_body.replace('\n', '<br>')
+                
+                for tech in excel_folder_tech:
+                    if not isinstance(tech, dict):
+                        continue
+                    
+                    name = tech.get("name", "Unknown")
+                    files = tech.get("files", [])
+                    
+                    # Format the folder name
+                    folder_name = name
+                    if name.startswith("Excel Folder: "):
+                        folder_name = name[len("Excel Folder: "):]
+                    
+                    html_content += f"""
+        <div class="excel-folder">
+            <h4>{folder_name}</h4>
+"""
+                    
+                    if files:
+                        html_content += """
+            <p>Files in this folder:</p>
+            <ul class="excel-files-list">
+"""
+                        for file in files[:10]:  # Show up to 10 files
+                            html_content += f"""
+                <li>{file}</li>
+"""
                         
-                        html_content += f"""
-            <div class="jira-comment">
-                <strong>{comment['author']}</strong> ({comment['created']})<br>
-                {comment_html}
-            </div>
+                        if len(files) > 10:
+                            html_content += f"""
+                <li>... and {len(files) - 10} more files</li>
+"""
+                        
+                        html_content += """
+            </ul>
+"""
+                    else:
+                        html_content += """
+            <p>No files listed for this folder.</p>
+"""
+                    
+                    html_content += """
+        </div>
+"""
+            else:
+                html_content += """
+        <div class="empty-section">
+            <p>Excel folders were detected but no detailed analysis is available. This could be because:</p>
+            <ul>
+                <li>The files in these folders could not be properly analyzed</li>
+                <li>The analysis process didn't complete successfully for these folders</li>
+            </ul>
 """
                 
-                # Add attachments
-                if story['attachments']:
+                if file_summary.get('excel_folders'):
                     html_content += """
-            <h4>Attachments</h4>
+            <p>Detected Excel folders:</p>
+            <ul>
 """
-                    for attachment in story['attachments']:
-                        if attachment.get('is_image', False) and 'local_path' in attachment:
-                            html_content += f"""
-            <div class="jira-attachment">
-                <p>{attachment['filename']} ({attachment['size']} bytes)</p>
-                <img src="{attachment['local_path']}" alt="{attachment['filename']}" class="jira-image">
-            </div>
+                    for folder in file_summary['excel_folders']:
+                        html_content += f"""
+                <li>{folder}</li>
 """
-                        else:
-                            html_content += f"""
-            <div class="jira-attachment">
-                <p>{attachment['filename']} ({attachment['size']} bytes)</p>
-            </div>
+                    html_content += """
+            </ul>
 """
                 
                 html_content += """
@@ -1152,42 +1446,41 @@ tr:hover {
             # Get component name
             project_name = shared.get("project_name", "Unknown Project")
             
-            # Initialize the ChromaDB store
-            store = ReportStore()
-            
-            # Store the analysis report
-            analysis_report_path = exec_res['markdown']
-            if os.path.exists(analysis_report_path):
-                store.store_analysis_report(project_name, analysis_report_path)
-            
-            # Store the OCP assessment report if it exists
-            output_dir = os.path.dirname(analysis_report_path)
-            ocp_assessment_path = os.path.join(output_dir, "ocp_assessment.html")
-            ocp_assessment_md_path = os.path.join(output_dir, "ocp_assessment.md")
-            
-            # Check if OCP markdown report exists, if not try to extract content from HTML
-            if os.path.exists(ocp_assessment_md_path):
-                store.store_ocp_assessment(project_name, ocp_assessment_md_path)
-            elif os.path.exists(ocp_assessment_path):
-                # If we only have HTML, extract text content
-                import re
-                try:
-                    with open(ocp_assessment_path, 'r', encoding='utf-8') as file:
-                        html_content = file.read()
-                        
-                    # Simple regex to extract text from HTML tags
-                    text_content = re.sub(r'<[^>]*>', ' ', html_content)
-                    text_content = re.sub(r'\s+', ' ', text_content).strip()
-                    
-                    # Create a markdown file from the extracted text
-                    ocp_assessment_md_path = os.path.join(output_dir, "ocp_assessment.md")
-                    with open(ocp_assessment_md_path, 'w', encoding='utf-8') as file:
-                        file.write(f"# OpenShift Migration Assessment for {project_name}\n\n")
-                        file.write(text_content)
-                    
+            # Use context manager to properly handle ChromaDB cleanup
+            with ReportStore() as store:
+                # Store the analysis report
+                analysis_report_path = exec_res['markdown']
+                if os.path.exists(analysis_report_path):
+                    store.store_analysis_report(project_name, analysis_report_path)
+                
+                # Store the OCP assessment report if it exists
+                output_dir = os.path.dirname(analysis_report_path)
+                ocp_assessment_path = os.path.join(output_dir, "ocp_assessment.html")
+                ocp_assessment_md_path = os.path.join(output_dir, "ocp_assessment.md")
+                
+                # Check if OCP markdown report exists, if not try to extract content from HTML
+                if os.path.exists(ocp_assessment_md_path):
                     store.store_ocp_assessment(project_name, ocp_assessment_md_path)
-                except Exception as e:
-                    print(f"Error extracting text from OCP HTML: {str(e)}")
+                elif os.path.exists(ocp_assessment_path):
+                    # If we only have HTML, extract text content
+                    import re
+                    try:
+                        with open(ocp_assessment_path, 'r', encoding='utf-8') as file:
+                            html_content = file.read()
+                            
+                        # Simple regex to extract text from HTML tags
+                        text_content = re.sub(r'<[^>]*>', ' ', html_content)
+                        text_content = re.sub(r'\s+', ' ', text_content).strip()
+                        
+                        # Create a markdown file from the extracted text
+                        ocp_assessment_md_path = os.path.join(output_dir, "ocp_assessment.md")
+                        with open(ocp_assessment_md_path, 'w', encoding='utf-8') as file:
+                            file.write(f"# OpenShift Migration Assessment for {project_name}\n\n")
+                            file.write(text_content)
+                        
+                        store.store_ocp_assessment(project_name, ocp_assessment_md_path)
+                    except Exception as e:
+                        print(f"Error extracting text from OCP HTML: {str(e)}")
             
             print("\nStored reports in ChromaDB successfully")
             
