@@ -159,22 +159,22 @@ code {
             </tr>
             <tr>
                 <td><span class="status-implemented">✓ Passed</span></td>
-                <td><strong>19</strong></td>
-                <td>63.3%</td>
-            </tr>
-            <tr>
-                <td><span class="status-partial">⚬ Partial</span></td>
                 <td><strong>5</strong></td>
                 <td>16.7%</td>
             </tr>
             <tr>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td><strong>9</strong></td>
+                <td>30.0%</td>
+            </tr>
+            <tr>
                 <td><span class="status-not-implemented">✗ Failed</span></td>
-                <td><strong>6</strong></td>
-                <td>20.0%</td>
+                <td><strong>16</strong></td>
+                <td>53.3%</td>
             </tr>
             <tr style="border-top: 2px solid #e5e7eb;">
                 <td><strong>Overall Compliance</strong></td>
-                <td colspan="2"><strong>71.7%</strong></td>
+                <td colspan="2"><strong>31.7%</strong></td>
             </tr>
         </tbody>
     </table>
@@ -231,9 +231,9 @@ code {
         <tbody>
 
             <tr>
-                <td><strong>JavaScript</strong></td>
-                <td>ES6+</td>
-                <td>main application</td>
+                <td><strong>Python</strong></td>
+                <td>3.11+</td>
+                <td>backend application</td>
             </tr>
 
         </tbody>
@@ -252,15 +252,9 @@ code {
         <tbody>
 
             <tr>
-                <td><strong>Next.js</strong></td>
-                <td>13.x</td>
-                <td>frontend framework</td>
-            </tr>
-
-            <tr>
-                <td><strong>Vercel</strong></td>
-                <td>2.x</td>
-                <td>deployment platform</td>
+                <td><strong>Django</strong></td>
+                <td>3.x+</td>
+                <td>web framework</td>
             </tr>
 
         </tbody>
@@ -279,8 +273,8 @@ code {
         <tbody>
 
             <tr>
-                <td><strong>PostgreSQL</strong></td>
-                <td>14.x</td>
+                <td><strong>MySQL</strong></td>
+                <td>8.x</td>
                 <td>data storage</td>
             </tr>
 
@@ -304,43 +298,43 @@ code {
             <tr>
                 <td><strong>Avoid Logging Confidential Data</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Confidential data is logged with masking or encryption</td>
+                <td>No sensitive data in logs</td>
                 <td>Continue practice</td>
             </tr>
 
             <tr>
                 <td><strong>Create Audit Trail Logs</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Audit logs are written but not analyzed for completeness</td>
-                <td>Add detailed audit logging and analysis</td>
+                <td>Some logging found</td>
+                <td>Add comprehensive audit logging</td>
             </tr>
 
             <tr>
                 <td><strong>Tracking Id For Log Messages</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Correlation IDs are added to log messages</td>
-                <td>Ensure correlation IDs are consistently used</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No correlation IDs</td>
+                <td>Add tracking IDs</td>
             </tr>
 
             <tr>
                 <td><strong>Log Rest Api Calls</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>API requests are logged with detailed information</td>
-                <td>Log all incoming and outgoing API calls</td>
+                <td>API logging present</td>
+                <td>Ensure all endpoints logged</td>
             </tr>
 
             <tr>
                 <td><strong>Log Application Messages</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Application messages are logged but not structured consistently</td>
-                <td>Standardize logging structure for consistency</td>
+                <td>Some app logging</td>
+                <td>Standardize logging</td>
             </tr>
 
             <tr>
                 <td><strong>Client Ui Errors Are Logged</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Client-side errors are logged with severity levels</td>
-                <td>Implement detailed client error tracking</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No client error logging</td>
+                <td>Add client error tracking</td>
             </tr>
 
         </tbody>
@@ -361,29 +355,29 @@ code {
             <tr>
                 <td><strong>Retry Logic</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Retry logic is implemented for network requests but not in all cases</td>
-                <td>Ensure retry logic applies to all API calls</td>
+                <td>Some retry patterns</td>
+                <td>Implement consistent retry logic</td>
             </tr>
 
             <tr>
                 <td><strong>Set Timeouts On Io Operations</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Timeouts are set for I/O operations, but no specific values are documented</td>
-                <td>Define clear timeout thresholds and enforce them</td>
+                <td>Timeouts configured</td>
+                <td>Review timeout values</td>
             </tr>
 
             <tr>
                 <td><strong>Throttling Drop Request</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No throttling mechanism is in place</td>
-                <td>Add rate limiting to prevent abuse</td>
+                <td>No throttling found</td>
+                <td>Add rate limiting</td>
             </tr>
 
             <tr>
                 <td><strong>Circuit Breakers On Outgoing Requests</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Circuit breakers are used for critical API calls</td>
-                <td>Continue using circuit breakers</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No circuit breakers</td>
+                <td>Implement circuit breaker pattern</td>
             </tr>
 
         </tbody>
@@ -404,22 +398,22 @@ code {
             <tr>
                 <td><strong>Log System Errors</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>System errors are logged with detailed stack traces</td>
-                <td>Log all exceptions and errors with full details</td>
+                <td>Error logging present</td>
+                <td>Ensure all errors logged</td>
             </tr>
 
             <tr>
                 <td><strong>Use Http Standard Error Codes</strong></td>
                 <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Standard HTTP error codes are used for response handling</td>
-                <td>Ensure consistent use of status codes</td>
+                <td>Standard HTTP codes</td>
+                <td>Continue practice</td>
             </tr>
 
             <tr>
                 <td><strong>Include Client Error Tracking</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>Client-side errors are not tracked with user context or severity levels</td>
-                <td>Implement detailed client error tracking</td>
+                <td>No client tracking</td>
+                <td>Add client error monitoring</td>
             </tr>
 
         </tbody>
@@ -439,23 +433,23 @@ code {
 
             <tr>
                 <td><strong>Url Monitoring</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Health check endpoints are available for monitoring</td>
-                <td>Ensure all critical endpoints are monitored</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No health endpoints</td>
+                <td>Add health check endpoints</td>
             </tr>
 
             <tr>
                 <td><strong>Metrics Collection</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No metrics are collected for performance monitoring</td>
-                <td>Integrate APM tools for comprehensive monitoring</td>
+                <td>No metrics found</td>
+                <td>Add application metrics</td>
             </tr>
 
             <tr>
                 <td><strong>Performance Monitoring</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Performance metrics are collected and displayed in a dashboard</td>
-                <td>Use real-time insights for proactive maintenance</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No APM integration</td>
+                <td>Add performance monitoring</td>
             </tr>
 
         </tbody>
@@ -476,22 +470,22 @@ code {
             <tr>
                 <td><strong>Automated Regression Testing</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Regression tests are written but not regularly run</td>
-                <td>Implement automated testing and schedule regular runs</td>
+                <td>Some tests found</td>
+                <td>Increase test coverage</td>
             </tr>
 
             <tr>
                 <td><strong>Unit Testing</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Unit tests cover key components and logic</td>
-                <td>Ensure comprehensive coverage of all functionalities</td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Unit tests present</td>
+                <td>Improve coverage</td>
             </tr>
 
             <tr>
                 <td><strong>Integration Testing</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No integration tests are present</td>
-                <td>Add integration tests to verify cross-component interactions</td>
+                <td>No integration tests</td>
+                <td>Add integration tests</td>
             </tr>
 
         </tbody>
@@ -511,37 +505,37 @@ code {
 
             <tr>
                 <td><strong>Input Validation</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Input validation is performed for all API endpoints and forms</td>
-                <td>Ensure comprehensive input validation</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No validation found</td>
+                <td>Add input validation</td>
             </tr>
 
             <tr>
                 <td><strong>Authentication</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>JWT-based authentication is used for user sessions</td>
-                <td>Implement stronger authentication mechanisms</td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Some auth found</td>
+                <td>Strengthen authentication</td>
             </tr>
 
             <tr>
                 <td><strong>Authorization</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No role-based access control is in place</td>
-                <td>Add role-based access controls</td>
+                <td>No authorization</td>
+                <td>Add role-based access</td>
             </tr>
 
             <tr>
                 <td><strong>Encryption At Rest</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Data at rest is encrypted using AES-256</td>
-                <td>Implement additional encryption layers for sensitive data</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No encryption config</td>
+                <td>Add data encryption</td>
             </tr>
 
             <tr>
                 <td><strong>Encryption In Transit</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>HTTPS is used for all API calls and communications</td>
-                <td>Ensure all connections are encrypted</td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>HTTPS configured</td>
+                <td>Ensure all communications encrypted</td>
             </tr>
 
         </tbody>
@@ -561,23 +555,23 @@ code {
 
             <tr>
                 <td><strong>Caching Strategy</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Caching is implemented using Redis for frequently accessed data</td>
-                <td>Optimize caching strategies based on usage patterns</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No caching found</td>
+                <td>Add caching layer</td>
             </tr>
 
             <tr>
                 <td><strong>Connection Pooling</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Connection pools are used to manage database connections efficiently</td>
-                <td>Optimize connection pool size and configurations</td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Some pooling</td>
+                <td>Optimize connection pools</td>
             </tr>
 
             <tr>
                 <td><strong>Async Processing</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Asynchronous processing is used for long-running tasks like background jobs</td>
-                <td>Implement more efficient asynchronous patterns</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No async patterns</td>
+                <td>Add asynchronous processing</td>
             </tr>
 
         </tbody>
@@ -598,22 +592,22 @@ code {
             <tr>
                 <td><strong>Data Validation</strong></td>
                 <td><span class="status-partial">⚬ Partial</span></td>
-                <td>Data validation is in place for input fields and database models</td>
-                <td>Add comprehensive data validation for all inputs</td>
+                <td>Some validation</td>
+                <td>Add comprehensive validation</td>
             </tr>
 
             <tr>
                 <td><strong>Database Indexing</strong></td>
-                <td><span class="status-implemented">✓ Implemented</span></td>
-                <td>Database indexes are optimized based on query performance</td>
-                <td>Regularly review and optimize database indexes</td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No index optimization</td>
+                <td>Optimize database indexes</td>
             </tr>
 
             <tr>
                 <td><strong>Backup Strategy</strong></td>
                 <td><span class="status-not-implemented">✗ Missing</span></td>
-                <td>No backup strategy is in place</td>
-                <td>Implement regular backups of the database</td>
+                <td>No backup config</td>
+                <td>Implement backup strategy</td>
             </tr>
 
         </tbody>
@@ -684,12 +678,17 @@ code {
     <h2>Action Items</h2>
 
     <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
-        <h3 style="margin: 0 0 10px 0;">1. Enhance Application Resilience <span class="priority-high">(High)</span></h3>
-        <p>Implement the following availability and resilience practices: throttling_drop_request.</p>
+        <h3 style="margin: 0 0 10px 0;">1. Improve Logging and Auditability <span class="priority-medium">(Medium)</span></h3>
+        <p>Implement the following logging and auditability practices: tracking_id_for_log_messages, client_ui_errors_are_logged.</p>
     </div>
 
     <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
-        <h3 style="margin: 0 0 10px 0;">2. Improve Error Handling <span class="priority-medium">(Medium)</span></h3>
+        <h3 style="margin: 0 0 10px 0;">2. Enhance Application Resilience <span class="priority-high">(High)</span></h3>
+        <p>Implement the following availability and resilience practices: throttling_drop_request, circuit_breakers_on_outgoing_requests.</p>
+    </div>
+
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 10px 0;">3. Improve Error Handling <span class="priority-medium">(Medium)</span></h3>
         <p>Implement the following error handling practices: include_client_error_tracking.</p>
     </div>
 
