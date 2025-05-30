@@ -11,6 +11,7 @@ def main():
     parser.add_argument("--excel", help="Excel file to extract repo/component info from")
     parser.add_argument("--excel-dir", help="Directory containing multiple Excel files to process")
     parser.add_argument("--sheet", help="Sheet name in Excel file (optional)")
+    
     parser.add_argument("--include", nargs="+", 
         default=[
             "*.py", "*.js", "*.ts", "*.java", "*.go", "*.rb", "*.php",
@@ -32,12 +33,6 @@ def main():
     parser.add_argument("--no-cache", action="store_true", help="Disable LLM response caching")
     parser.add_argument("--github-token", help="GitHub authentication token for private repositories")
     
-    # Add Jira integration arguments
-    parser.add_argument("--jira-url", help="Jira server URL (e.g., https://your-domain.atlassian.net)")
-    parser.add_argument("--jira-username", help="Jira username or email")
-    parser.add_argument("--jira-api-token", help="Jira API token")
-    parser.add_argument("--jira-project-key", default="XYZ", help="Jira project key to search for (default: XYZ)")
-    
     args = parser.parse_args()
 
     # Validate input arguments
@@ -52,6 +47,8 @@ def main():
 
     # Create output directory if it doesn't exist
     os.makedirs(args.output, exist_ok=True)
+
+    print("\nUsing legacy analysis flow")
 
     # Process a directory of Excel files
     if args.excel_dir:
@@ -104,12 +101,7 @@ def main():
                     "use_cache": not args.no_cache,
                     "output_dir": file_output_dir,
                     "github_token": github_token,
-                    "excel_file": excel_file,
-                    # Add Jira configuration
-                    "jira_url": args.jira_url,
-                    "jira_username": args.jira_username,
-                    "jira_api_token": args.jira_api_token,
-                    "jira_project_key": args.jira_project_key
+                    "excel_file": excel_file
                 }
                 
                 if args.sheet:
@@ -145,12 +137,7 @@ def main():
             "max_file_size": args.max_size,
             "use_cache": not args.no_cache,
             "output_dir": args.output,
-            "github_token": github_token,
-            # Add Jira configuration
-            "jira_url": args.jira_url,
-            "jira_username": args.jira_username,
-            "jira_api_token": args.jira_api_token,
-            "jira_project_key": args.jira_project_key
+            "github_token": github_token
         }
 
         # If Excel is provided, set excel_file and (optionally) sheet_name
@@ -187,13 +174,16 @@ def process_single_excel(shared):
                 return False
             
             print(f"Processing Excel file: {excel_file}")
+            
+            # Use legacy Excel analysis flow
             analysis_flow = create_excel_analysis_flow()
         else:
             # For non-Excel processing
             if not shared.get("repo_url") and not shared.get("local_dir"):
                 print("Error: No repository URL or local directory specified.")
                 return False
-                
+            
+            # Use legacy analysis flow
             analysis_flow = create_analysis_flow()
             
         analysis_flow.run(shared)
@@ -208,8 +198,8 @@ def process_single_excel(shared):
                 print(f"- PDF: {shared['analysis_report']['pdf']}")
             
             # Print OpenShift assessment report info if available
-            if "ocp_assessment_report" in shared:
-                print(f"- OpenShift Assessment Report: {shared['ocp_assessment_report']}")
+            if "ocp_assessment_html" in shared:
+                print(f"- OpenShift Assessment Report: {shared['ocp_assessment_html']}")
                 
             return True
         else:

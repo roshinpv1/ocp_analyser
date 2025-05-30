@@ -15,6 +15,20 @@ class AnalyzeCode(Node):
         # Get caching preference
         use_cache = shared.get("use_cache", True)
         
+        # Check for Excel folders in files_data
+        excel_extensions = {'.xlsx', '.xls', '.xlsm', '.xlsb', '.csv'}
+        excel_folders = set()
+        
+        for file_path in files_data.keys():
+            dir_path = os.path.dirname(file_path)
+            dir_parts = dir_path.split(os.sep)
+            for part in dir_parts:
+                if any(part.lower().endswith(ext) for ext in excel_extensions):
+                    excel_folders.add(part)
+        
+        if excel_folders:
+            print(f"Found files from Excel folders: {', '.join(excel_folders)}")
+        
         # Build a file content map for validation later
         file_content_map = {}
         for file_path, file_content in files_data.items():
@@ -30,20 +44,30 @@ class AnalyzeCode(Node):
         component_questions = shared.get("excel_validation", {}).get("component_questions", None)
         
         # Create context for LLM
-        context = self.create_llm_context(files_data)
+        context = self.create_llm_context(files_data, excel_folders)
         
-        return context, file_listing, len(files_data), project_name, use_cache, file_content_map, component_questions
+        return context, file_listing, len(files_data), project_name, use_cache, file_content_map, component_questions, excel_folders
     
-    def create_llm_context(self, files_data):
+    def create_llm_context(self, files_data, excel_folders=None):
         # Extract content and create a summary
         context_parts = []
         
+        # Sort files by extension to group similar files together
+        sorted_files = sorted(files_data.items(), key=lambda x: os.path.splitext(x[0])[1])
+        
         # Add file snippets to provide context
         file_count = 0
-        for file_path, file_content in files_data.items():
-            # Limit to first 10 files to keep context manageable
-            if file_count >= 10:
+        for file_path, file_content in sorted_files:
+            # Limit to first 20 files to keep context manageable (increased from 10)
+            if file_count >= 20:
                 break
+                
+            # Check if file is in Excel folder (prioritize these)
+            in_excel_folder = excel_folders and any(folder in file_path for folder in excel_folders)
+            
+            # Skip very large files for context unless they're in Excel folders
+            if len(file_content) > 5000 and not in_excel_folder:
+                continue
                 
             # Truncate very large files
             if len(file_content) > 3000:
@@ -51,6 +75,10 @@ class AnalyzeCode(Node):
                 
             context_parts.append(f"File: {file_path}\n```\n{file_content}\n```\n")
             file_count += 1
+            
+        # Add special note for Excel folder files
+        if excel_folders:
+            context_parts.append(f"\nNOTE: The codebase includes files from Excel folders: {', '.join(excel_folders)}\n")
             
         # Add a summary of other files by extension
         extensions = {}
@@ -68,7 +96,7 @@ class AnalyzeCode(Node):
         return "\n".join(context_parts)
 
     def exec(self, prep_res):
-        context, file_listing, file_count, project_name, use_cache, file_content_map, component_questions = prep_res
+        context, file_listing, file_count, project_name, use_cache, file_content_map, component_questions, excel_folders = prep_res
         print(f"Analyzing code for comprehensive review...")
 
         # Check if there are any files to analyze
@@ -136,10 +164,12 @@ class AnalyzeCode(Node):
 4. Security findings
 5. OpenShift migration readiness 
 
-The project has {file_count} files. Here is a list of the files:
+The project has {file_count} files. Here is a list of some of the files:
 {file_listing[:20]}
 ...
 {file_listing[-20:] if len(file_listing) > 20 else ""}
+
+{"IMPORTANT: This project includes files from Excel folders. Pay special attention to these files." if excel_folders else ""}
 
 I will provide you with some code samples and information about the project. Based on this information, you will need to:
 
@@ -267,6 +297,11 @@ Also, if you find any additional components or technology stack items not explic
         try:
             # Create a cache key based on project_name and file_count
             cache_key = f"{project_name}_{file_count}"
+            if excel_folders:
+                # Add Excel folders to cache key to ensure proper cache differentiation
+                excel_folders_str = "_".join(sorted(excel_folders))
+                cache_key += f"_excel_{excel_folders_str}"
+                
             cache_file = os.path.join("cache", "code_analysis", f"{cache_key}.json")
             
             # Ensure cache directory exists
@@ -387,47 +422,71 @@ Also, if you find any additional components or technology stack items not explic
                         continue
                         
                     # Check required fields
-                    if not all(k in finding for k in ["category", "severity", "description", "location", "recommendation"]):
+                    if not all(k in finding for k in ["category", "severity", "description"]):
                         continue
                         
-                    # Validate location
-                    location = finding["location"]
-                    if not isinstance(location, dict) or not all(k in location for k in ["file", "line", "code"]):
-                        continue
+                    # Allow findings without location or with partial location
+                    if "location" not in finding:
+                        finding["location"] = {
+                            "file": "Unknown",
+                            "line": 0,
+                            "code": ""
+                        }
+                    else:
+                        location = finding["location"]
+                        if not isinstance(location, dict):
+                            finding["location"] = {
+                                "file": "Unknown",
+                                "line": 0,
+                                "code": ""
+                            }
+                        else:
+                            # Fill in any missing location fields
+                            if "file" not in location:
+                                location["file"] = "Unknown"
+                            if "line" not in location:
+                                location["line"] = 0
+                            if "code" not in location:
+                                location["code"] = ""
+                    
+                    # Make sure recommendation exists
+                    if "recommendation" not in finding:
+                        finding["recommendation"] = "No specific recommendation provided"
                         
                     # Validate types
                     if not isinstance(finding["category"], str) or \
                        not isinstance(finding["severity"], str) or \
                        not isinstance(finding["description"], str) or \
-                       not isinstance(finding["recommendation"], str) or \
-                       not isinstance(location["file"], str) or \
-                       not isinstance(location["code"], str):
+                       not isinstance(finding["recommendation"], str):
                         continue
-                        
+                    
                     # Convert line to int if it's a string
                     try:
-                        location["line"] = int(location["line"])
+                        finding["location"]["line"] = int(finding["location"]["line"])
                     except (ValueError, TypeError):
-                        continue
+                        finding["location"]["line"] = 0
                     
-                    # Validate file exists and line number is valid
-                    file_path = location["file"]
-                    if file_path not in file_content_map:
-                        continue
+                    # Only validate file and line if the file is known
+                    if finding["location"]["file"] != "Unknown" and finding["location"]["file"] in file_content_map:
+                        file_path = finding["location"]["file"]
+                        file_content = file_content_map[file_path]
+                        file_lines = file_content.split('\n')
                         
-                    file_content = file_content_map[file_path]
-                    file_lines = file_content.split('\n')
-                    
-                    if not (0 <= location["line"] < len(file_lines)):
-                        continue
-                    
-                    # Validate code snippet matches the actual line
-                    actual_line = file_lines[location["line"]].strip()
-                    reported_snippet = location["code"].strip()
-                    
-                    if reported_snippet not in actual_line:
-                        continue
+                        # Fix line number if out of range
+                        if not (0 <= finding["location"]["line"] < len(file_lines)):
+                            finding["location"]["line"] = 0
                             
+                        # Only validate code snippet if it's not empty and line is valid
+                        if finding["location"]["code"] and finding["location"]["line"] > 0:
+                            actual_line = file_lines[finding["location"]["line"]].strip()
+                            reported_snippet = finding["location"]["code"].strip()
+                            
+                            # If code snippet doesn't match line content, don't validate it
+                            # but keep the finding
+                            if reported_snippet not in actual_line:
+                                # No validation required, keep the finding as is
+                                pass
+                    
                     validated_findings.append(finding)
                 
                 # Validate component analysis
@@ -515,6 +574,21 @@ Also, if you find any additional components or technology stack items not explic
                     
                     validated_security_quality[category] = validated_practices
                 
+                # Add additional information about Excel folders if present
+                if excel_folders:
+                    if "Excel Folder Analysis" not in validated_tech_stack:
+                        validated_tech_stack["Excel Folder Analysis"] = []
+                    
+                    for folder in excel_folders:
+                        folder_files = [path for path in file_content_map.keys() if folder in path]
+                        if folder_files:
+                            validated_tech_stack["Excel Folder Analysis"].append({
+                                "name": f"Excel Folder: {folder}",
+                                "version": "N/A",
+                                "purpose": "Contains related application files",
+                                "files": folder_files[:10]  # Limit to first 10 files
+                            })
+                
                 print(f"Found {sum(len(techs) for techs in validated_tech_stack.values())} technologies, {len(validated_findings)} findings, and {len(validated_component_analysis)} components.")
                 print(f"Analyzed {len(validated_security_quality)} security and quality categories.")
                 
@@ -529,13 +603,32 @@ Also, if you find any additional components or technology stack items not explic
                                 match_str = "MATCH" if excel_answer == code_answer else "MISMATCH"
                                 print(f"- {component_name}: Excel={excel_answer}, Code={code_answer} => {match_str}")
                 
-                return {
-                    "technology_stack": validated_tech_stack,
-                    "findings": validated_findings,
-                    "component_analysis": validated_component_analysis,
-                    "excel_components": component_questions if component_questions else {},
-                    "security_quality_analysis": validated_security_quality
-                }
+                # Save valid analysis to cache
+                try:
+                    result = {
+                        "technology_stack": validated_tech_stack,
+                        "findings": validated_findings,
+                        "component_analysis": validated_component_analysis,
+                        "excel_components": component_questions if component_questions else {},
+                        "security_quality_analysis": validated_security_quality
+                    }
+                    
+                    with open(cache_file, 'w', encoding='utf-8') as f:
+                        json.dump(result, f, indent=2)
+                    print(f"Cached analysis results to {cache_file}")
+                    
+                    return result
+                    
+                except Exception as e:
+                    print(f"Warning: Could not cache results: {str(e)}")
+                    # Return the result even if caching fails
+                    return {
+                        "technology_stack": validated_tech_stack,
+                        "findings": validated_findings,
+                        "component_analysis": validated_component_analysis,
+                        "excel_components": component_questions if component_questions else {},
+                        "security_quality_analysis": validated_security_quality
+                    }
                 
             except Exception as e:
                 print(f"Warning: Unexpected error processing response: {str(e)}")
@@ -578,8 +671,23 @@ Also, if you find any additional components or technology stack items not explic
                 project_name = shared.get("project_name", "Unknown Project")
                 file_count = len(shared.get("files_data", {}))
                 
+                # Get Excel folders if any
+                excel_folders = []
+                for file_path in shared.get("files_data", {}).keys():
+                    dir_path = os.path.dirname(file_path)
+                    dir_parts = dir_path.split(os.sep)
+                    for part in dir_parts:
+                        if any(part.lower().endswith(ext) for ext in ['.xlsx', '.xls', '.xlsm', '.xlsb', '.csv']):
+                            excel_folders.append(part)
+                excel_folders = list(set(excel_folders))
+                
                 # Create a cache key based on project_name and file_count
                 cache_key = f"{project_name}_{file_count}"
+                if excel_folders:
+                    # Add Excel folders to cache key
+                    excel_folders_str = "_".join(sorted(excel_folders))
+                    cache_key += f"_excel_{excel_folders_str}"
+                    
                 cache_dir = os.path.join("cache", "code_analysis")
                 cache_file = os.path.join(cache_dir, f"{cache_key}.json")
                 
@@ -597,6 +705,13 @@ Also, if you find any additional components or technology stack items not explic
         print("DEBUG: Number of findings:", len(exec_res.get("findings", [])))
         print("DEBUG: Components detected:", len(exec_res.get("component_analysis", {})))
         print("DEBUG: Security and quality checks:", list(exec_res.get("security_quality_analysis", {}).keys()))
+        
+        # Check if we have Excel folder information and log it
+        excel_folder_tech = exec_res.get("technology_stack", {}).get("Excel Folder Analysis", [])
+        if excel_folder_tech:
+            print(f"DEBUG: Excel folder analysis included {len(excel_folder_tech)} folder entries")
+            for folder_entry in excel_folder_tech:
+                print(f"  - {folder_entry.get('name')} with {len(folder_entry.get('files', []))} files")
         
         # Validate we have actual data before storing in shared state
         if not exec_res.get("technology_stack") and not exec_res.get("findings") and not exec_res.get("component_analysis"):

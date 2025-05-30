@@ -8,48 +8,41 @@ class OcpAssessmentNode(Node):
     def prep(self, shared):
         print("\nDEBUG: Starting OcpAssessmentNode prep")
         
-        # Get Excel validation data from the shared state
+        # Get Excel validation data and set defaults if missing
         excel_validation = shared.get("excel_validation", {})
-        excel_file = shared.get("excel_file")
-        component_name = shared.get("project_name", "Unknown Component")
+        
+        # If no excel validation data, create basic entry
+        if not excel_validation:
+            print("WARNING: No Excel validation data found. Creating basic component entry.")
+            excel_validation = {
+                "component_name": shared.get("project_name", "Unknown Component"),
+                "business_criticality": "Medium",
+                "current_environment": "Unknown",
+                "application_type": "Unknown"
+            }
+        
+        # Get the project name for component identification
+        project_name = shared.get("project_name", "Unknown Project")
+        
+        # Ensure component_name is set
+        if "component_name" not in excel_validation:
+            excel_validation["component_name"] = project_name
+        
+        # Get output directory
         output_dir = shared.get("output_dir", "analysis_output")
         
-        # Extract Excel data to be used for OCP assessment
-        excel_data = {
-            "component_name": component_name,
-            "validation_results": excel_validation,
-            "excel_file_path": excel_file
-        }
+        # Get component analysis data for inclusion in assessment
+        code_analysis = shared.get("code_analysis", {})
+        component_analysis = code_analysis.get("component_analysis", {})
+        excel_components = code_analysis.get("excel_components", {})
         
-        # If we have component questions, include them
-        if "component_questions" in excel_validation:
-            excel_data["component_questions"] = excel_validation["component_questions"]
-            
-        # Add additional data from the Excel file if needed
-        try:
-            if excel_file and os.path.exists(excel_file):
-                wb = load_workbook(excel_file, read_only=True)
-                sheet = wb.active
-                
-                # Extract a more comprehensive dataset from Excel
-                all_data = {}
-                
-                for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
-                    if len(row) >= 3 and row[1].value:  # Question in second column
-                        question = str(row[1].value).strip() if row[1].value else ""
-                        answer = str(row[2].value).strip() if row[2].value else ""
-                        
-                        if question:
-                            all_data[question] = answer
-                
-                excel_data["all_form_data"] = all_data
-        except Exception as e:
-            print(f"Error extracting additional Excel data: {str(e)}")
-            
-        return excel_data, output_dir
+        print(f"DEBUG: Found {len(component_analysis)} detected components")
+        print(f"DEBUG: Found {len(excel_components)} Excel component declarations")
+        
+        return excel_validation, output_dir, component_analysis, excel_components
 
     def exec(self, prep_res):
-        excel_data, output_dir = prep_res
+        excel_data, output_dir, component_analysis, excel_components = prep_res
         print(f"\nPerforming OpenShift migration assessment for component: {excel_data.get('component_name', 'Unknown')}")
         
         # Define the system prompt for the OpenShift assessment
@@ -93,26 +86,68 @@ Your primary functions are:
 - Resource right-sizing recommendations based on utilization patterns
 - Horizontal vs vertical scaling recommendations
 - Service mesh adoption benefits for the specific application
+8. COMPONENT ANALYSIS - Include a comprehensive component analysis section that:
+- Compares components declared in the intake form with components actually detected in the codebase
+- Creates a detailed table with columns: Component | Declared | Detected | Status
+- Shows "Match" for components where declaration and detection align
+- Shows "Mismatch" for components where declaration and detection differ
+- Lists all predefined components from the intake form including:
+  venafi, redis, channel secure/pingfed, nas/smb, smtp, autosys, mtls/mutual auth, ndm, legacy jks file, 
+  soap calls, rest api, apigee, kafka, ibm mq, mq cipher suite, ldap, splunk, appd, elastic apm, 
+  harness/ucd for ci cd, hardrock/mtls auth, appdynamics, rabbitmq, database, mongodb, sqlserver, 
+  mysql, postgresql, oracle, cassandra, couchbase, neo4j, hadoop, spark, okta, saml, auth, jwt, 
+  openid, adfs, san, malwarescanner, any other service
+- Use "Yes/No" values for Declared and Detected columns
+- Provide clear status indicators for matches and mismatches
 
-The output must be formatted as a structured assessment report with clear sections, using tables where appropriate for comparative data. Do not extrapolate any data - be specific to display if the OpenShift assessment is successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an Summary with go/no-go recommendation, followed by detailed technical sections.
+The output must be formatted as a structured assessment report with clear sections, using tables where appropriate for comparative data. Do not extrapolate any data - be specific to display if the OpenShift assessment is successful or not successful with required scoring (0-100 scale with detailed rubric) and specific recommendations/reasons. Include an Summary with go/no-go recommendation, followed by detailed technical sections including the Component Analysis section.
 
 Each finding must include evidence from the intake data and reference to relevant OpenShift constraints or requirements.
 
 IMPORTANT: Do not return any Jinja2 template syntax like '{{% for %}}', '{{ variable }}', etc. Return final HTML content with actual values, not templates."""
+        
+        # Get component analysis data from shared state if available
+        component_analysis_data = ""
+        
+        if excel_components and component_analysis:
+            component_analysis_data = "\n\nCOMPONENT ANALYSIS DATA:\n"
+            component_analysis_data += "Excel Component Declarations:\n"
+            for comp_name, comp_data in excel_components.items():
+                declared = "Yes" if comp_data.get("is_yes", False) else "No"
+                component_analysis_data += f"- {comp_name}: Declared = {declared}\n"
+            
+            component_analysis_data += "\nDetected Components in Codebase:\n"
+            for comp_name, comp_data in component_analysis.items():
+                detected = comp_data.get("detected", "no")
+                evidence = comp_data.get("evidence", "No evidence")
+                component_analysis_data += f"- {comp_name}: Detected = {detected} (Evidence: {evidence[:100]}...)\n"
         
         # Instruct the LLM to return content suitable for HTML embedding, not a full HTML document
         user_content = f"""Perform the OCP intake assessment for the following data and generate the assessment report content (HTML compatible):
 
 {json.dumps(excel_data, indent=2)}
 
+{component_analysis_data}
+
 IMPORTANT REQUIREMENTS:
 1. DO NOT return a full HTML document with <html>, <head>, or <body> tags.
 2. DO NOT use any Jinja2 template syntax like '{{% for %}}', '{{ variable }}', etc. 
-3. Return only the content that would go inside the <body> tag, with proper HTML formatting.
-4. Use <div>, <h1>, <h2>, <p>, <table>, etc. elements to structure your report.
-5. Return FINAL HTML with actual values, not templates.
-6. Use proper CSS classes for styling compatibility with our report system.
-"""
+3. DO NOT wrap your response in markdown code blocks like ```html or ```
+4. Return only clean HTML content that would go inside a <div>, with proper HTML formatting.
+5. Use <div>, <h1>, <h2>, <p>, <table>, etc. elements to structure your report.
+6. Return FINAL HTML with actual values, not templates or code examples.
+7. Use proper CSS classes for styling compatibility with our report system.
+8. MUST include a "Component Analysis" section with the following table format:
+   <h2>Component Analysis</h2>
+   <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
+   <table>
+   <tr><th>Component</th><th>Declared</th><th>Detected</th><th>Status</th></tr>
+   <tr><td>venafi</td><td>No</td><td>No</td><td>Match</td></tr>
+   <tr><td>redis</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
+   ... (continue for all components listed in the system prompt)
+   </table>
+
+CRITICAL: Your response should start directly with HTML tags like <div> or <h1>, NOT with ```html or any markdown formatting."""
         
         # Combine into a complete prompt
         prompt = f"""
@@ -129,6 +164,38 @@ DO NOT USE ANY JINJA2 TEMPLATE SYNTAX - only return final HTML with actual value
             # Call LLM with the prompt
             print("Calling LLM for OpenShift migration assessment...")
             response = call_llm(prompt, use_cache=False)  # Always generate fresh assessment
+            
+            # Clean up the response to remove any markdown code blocks or nested HTML
+            import re
+            
+            # Remove markdown code blocks if present
+            if '```html' in response:
+                print("DEBUG: Removing markdown code blocks from LLM response")
+                response = re.sub(r'```html\s*', '', response)
+                response = re.sub(r'```\s*$', '', response, flags=re.MULTILINE)
+            
+            # Remove any nested HTML document structure if present
+            if '<!DOCTYPE html>' in response:
+                print("DEBUG: Removing nested HTML document structure")
+                # Extract content between <body> tags if present
+                body_match = re.search(r'<body[^>]*>(.*?)</body>', response, re.DOTALL | re.IGNORECASE)
+                if body_match:
+                    response = body_match.group(1)
+                else:
+                    # If no body tags, try to extract content after first <div> or <h1>
+                    content_match = re.search(r'(<(?:div|h1)[^>]*>.*)', response, re.DOTALL | re.IGNORECASE)
+                    if content_match:
+                        response = content_match.group(1)
+            
+            # Clean up any remaining unwanted tags
+            response = re.sub(r'</?html[^>]*>', '', response, flags=re.IGNORECASE)
+            response = re.sub(r'</?head[^>]*>.*?</head>', '', response, flags=re.DOTALL | re.IGNORECASE)
+            response = re.sub(r'<style[^>]*>.*?</style>', '', response, flags=re.DOTALL | re.IGNORECASE)
+            
+            # Ensure the response is properly formatted
+            response = response.strip()
+            
+            print(f"DEBUG: Cleaned response length: {len(response)} characters")
             
             # Use the same styling as the main analysis report for consistency
             css_styles = """
