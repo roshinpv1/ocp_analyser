@@ -221,35 +221,34 @@ def main():
     
     args = parser.parse_args()
     
-    # Initialize ChromaDB store
-    store = ReportStore()
-    
-    # Execute the appropriate command
-    if args.command == "list":
-        list_components(store, "analysis" if args.type == "analysis" else "ocp")
-    elif args.command == "search":
-        search_reports(store, args.query, "analysis" if args.type == "analysis" else "ocp", args.limit)
-    elif args.command == "get":
-        get_component_report(store, args.component, "analysis" if args.type == "analysis" else "ocp")
-    elif args.command == "similar":
-        find_similar_reports(
-            store, 
-            file_path=args.file, 
-            report_id=args.id, 
-            report_type="analysis" if args.type == "analysis" else "ocp",
-            limit=args.limit
-        )
-    elif args.command == "context":
-        context_search(
-            store,
-            context_description=args.description,
-            report_type="analysis" if args.type == "analysis" else "ocp",
-            limit=args.limit,
-            min_score=args.min_score,
-            component=args.component
-        )
-    else:
-        parser.print_help()
+    # Use context manager to prevent context leaks
+    with ReportStore() as store:
+        # Execute the appropriate command
+        if args.command == "list":
+            list_components(store, "analysis" if args.type == "analysis" else "ocp")
+        elif args.command == "search":
+            search_reports(store, args.query, "analysis" if args.type == "analysis" else "ocp", args.limit)
+        elif args.command == "get":
+            get_component_report(store, args.component, "analysis" if args.type == "analysis" else "ocp")
+        elif args.command == "similar":
+            find_similar_reports(
+                store, 
+                file_path=args.file, 
+                report_id=args.id, 
+                report_type="analysis" if args.type == "analysis" else "ocp",
+                limit=args.limit
+            )
+        elif args.command == "context":
+            context_search(
+                store,
+                context_description=args.description,
+                report_type="analysis" if args.type == "analysis" else "ocp",
+                limit=args.limit,
+                min_score=args.min_score,
+                component=args.component
+            )
+        else:
+            parser.print_help()
 
 if __name__ == "__main__":
     main()    

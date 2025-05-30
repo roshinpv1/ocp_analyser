@@ -20,6 +20,7 @@ class ReportStore:
         
         # Initialize ChromaDB client
         self.client = chromadb.PersistentClient(path=persist_directory)
+        self.persist_directory = persist_directory
         
         # Get or create collections for each report type
         self.analysis_collection = self.client.get_or_create_collection(
@@ -31,6 +32,31 @@ class ReportStore:
             name="ocp_assessment_reports",
             embedding_function=embedding_functions.DefaultEmbeddingFunction()
         )
+    
+    def __enter__(self):
+        """Context manager entry"""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit with cleanup"""
+        self.close()
+    
+    def close(self):
+        """Properly close ChromaDB client to prevent context leaks"""
+        try:
+            if hasattr(self, 'client') and self.client:
+                # Reset the client
+                self.client.reset()
+                self.client = None
+                self.analysis_collection = None
+                self.ocp_collection = None
+        except Exception as e:
+            # Suppress cleanup errors but log them
+            print(f"Warning: Error during ChromaDB cleanup: {str(e)}")
+    
+    def __del__(self):
+        """Destructor to ensure cleanup"""
+        self.close()
     
     def store_analysis_report(self, component_name, report_file_path, report_content=None):
         """
@@ -313,16 +339,15 @@ class ReportStore:
 
 # Example usage
 if __name__ == "__main__":
-    # Initialize the store
-    store = ReportStore()
-    
-    # Store a sample report
-    store.store_analysis_report(
-        "Test Component",
-        "test_report.md",
-        "This is a test analysis report content."
-    )
-    
-    # Query for reports
-    results = store.query_reports("analysis report")
-    print(f"Query results: {results}") 
+    # Use context manager to properly handle cleanup
+    with ReportStore() as store:
+        # Store a sample report
+        store.store_analysis_report(
+            "Test Component",
+            "test_report.md",
+            "This is a test analysis report content."
+        )
+        
+        # Query for reports
+        results = store.query_reports("analysis report")
+        print(f"Query results: {results}") 

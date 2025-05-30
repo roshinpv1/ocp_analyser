@@ -15,31 +15,29 @@ from utils.chromadb_store import ReportStore
 import subprocess
 
 
-store = ReportStore()
-
-
 def query_report(query : str) :
     try:
-       
-        hard_gates = store.context_similarity_search(
-            context_description=query,
-            collection_name="analysis_reports",
-            n_results=1,
-            min_score=0.9,
-            filter_criteria=None
-        )
-        
-        assessment = store.context_similarity_search(
-            context_description=query,
-            collection_name="ocp_assessment_reports",
-            n_results=1,
-            min_score=0.1,
-            filter_criteria=None
-        )
+        # Use context manager to prevent context leaks
+        with ReportStore() as store:
+            hard_gates = store.context_similarity_search(
+                context_description=query,
+                collection_name="analysis_reports",
+                n_results=1,
+                min_score=0.9,
+                filter_criteria=None
+            )
+            
+            assessment = store.context_similarity_search(
+                context_description=query,
+                collection_name="ocp_assessment_reports",
+                n_results=1,
+                min_score=0.1,
+                filter_criteria=None
+            )
 
-        print (hard_gates)
-       
-        return {"code_analysis": hard_gates, "assessment": assessment}
+            print (hard_gates)
+           
+            return {"code_analysis": hard_gates, "assessment": assessment}
     except Exception as e:
         return  {"code_analysis": [], "assessment": []}
  
