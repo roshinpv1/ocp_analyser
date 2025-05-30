@@ -3,900 +3,694 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application & Platform Hard Gates for  Bill Pay</title>
+    <title>Hard Gates Assessment - Bill Pay</title>
     <style>
     
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.7;
     margin: 0;
-    padding: 40px;
-    color: #333;
-    max-width: 1100px;
+    padding: 60px 40px;
+    color: #2d3748;
+    max-width: 1000px;
     margin: 0 auto;
-    background-color: #fafafa;
+    background: #fdfdfd;
 }
+
 h1 {
-    font-size: 1.8em;
-    font-weight: 400;
-    margin: 0 0 20px 0;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eaeaea;
-    color: #2c3e50;
+    font-size: 2.2em;
+    font-weight: 300;
+    margin: 0 0 40px 0;
+    color: #1a202c;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 20px;
 }
+
 h2 {
-    font-size: 1.4em;
-    font-weight: 500;
-    margin: 25px 0 15px 0;
-    color: #2c3e50;
-    padding-top: 15px;
-    border-top: 1px solid #eaeaea;
+    font-size: 1.5em;
+    font-weight: 400;
+    margin: 50px 0 20px 0;
+    color: #2d3748;
+    border-bottom: 1px solid #f7fafc;
+    padding-bottom: 10px;
 }
-h2:first-of-type { border-top: none; }
+
 h3 {
     font-size: 1.2em;
     font-weight: 500;
-    margin: 20px 0 10px 0;
-    color: #34495e;
+    margin: 30px 0 15px 0;
+    color: #4a5568;
 }
+
 h4 {
     font-size: 1.1em;
     font-weight: 500;
-    margin: 15px 0 8px 0;
-    color: #34495e;
+    margin: 20px 0 10px 0;
+    color: #4a5568;
 }
-p {
-    margin: 0 0 15px 0;
-}
+
+/* Minimal modern tables */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin: 30px 0;
+    background: white;
     border-radius: 4px;
     overflow: hidden;
 }
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eaeaea;
-}
+
 th {
-    background-color: #f8f9fa;
+    background: #f9fafb;
+    color: #374151;
     font-weight: 500;
-    color: #2c3e50;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    border-bottom: 1px solid #e5e7eb;
 }
+
+td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
 tr:last-child td {
     border-bottom: none;
 }
-tr:hover {
-    background-color: #f8f9fa;
-}
-.critical, .high { color: #e74c3c; }
-.medium { color: #f39c12; }
-.low { color: #27ae60; }
 
-.empty-section {
-    background-color: #f8f9fa;
-    border-left: 4px solid #95a5a6;
-    padding: 15px 20px;
-    margin: 20px 0;
-    border-radius: 0 4px 4px 0;
+tbody tr:hover {
+    background: #f9fafb;
 }
 
-.empty-section p {
-    margin: 0 0 10px 0;
-    color: #555;
+/* Status badges */
+.status-implemented { color: #10b981; font-weight: 500; }
+.status-partial { color: #f59e0b; font-weight: 500; }
+.status-not-implemented { color: #ef4444; font-weight: 500; }
+
+/* Minimal spacing */
+p {
+    margin: 0 0 16px 0;
+    line-height: 1.6;
 }
 
-.empty-section ul {
-    margin: 0 0 10px 20px;
-    padding: 0;
+ul, ol {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
 }
 
-.empty-section li {
-    margin-bottom: 5px;
+/* Clean code blocks */
+code {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.875rem;
+    color: #374151;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
 }
 
-.finding {
-    background-color: #fff;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 15px;
-    border-left: 4px solid #95a5a6;
-}
-
-.finding.severity-critical, .finding.severity-high {
-    border-left-color: #e74c3c;
-}
-
-.finding.severity-medium {
-    border-left-color: #f39c12;
-}
-
-.finding.severity-low {
-    border-left-color: #27ae60;
-}
-
-.finding-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.finding-number {
-    font-weight: bold;
-    color: #7f8c8d;
-}
-
-.finding-severity {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-.finding-severity.critical, .finding-severity.high {
-    background-color: #fdeaea;
-    color: #c0392b;
-}
-
-.finding-severity.medium {
-    background-color: #fef5e7;
-    color: #d35400;
-}
-
-.finding-severity.low {
-    background-color: #e9f7ef;
-    color: #27ae60;
-}
-
-.code-snippet {
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    padding: 10px;
-    margin: 10px 0;
-    overflow-x: auto;
-}
-
-.code-snippet pre {
-    margin: 0;
-}
-
-.code-snippet code {
-    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9em;
-}
-
-.recommendation {
-    margin-top: 10px;
-}
-
-.tech-category, .security-category, .findings-category {
-    margin-bottom: 30px;
-}
-
-.executive-summary {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
-    border-top: 4px solid #3498db;
-}
-
-.summary-section {
-    margin-bottom: 25px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    border-left: 3px solid #3498db;
-}
-
-.summary-section:last-child {
-    margin-bottom: 0;
-}
-
-.summary-section h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    font-size: 1.1em;
-}
-
-.summary-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.summary-list li {
-    padding: 8px 0;
-    border-bottom: 1px solid #e8f0f3;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.summary-list li:last-child {
-    border-bottom: none;
-}
-
-.hard-gates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.gate-metric {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-top: 3px solid #ddd;
-    transition: transform 0.2s ease;
-}
-
-.gate-metric:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.gate-metric.total {
-    border-top-color: #3498db;
-}
-
-.gate-metric.passed {
-    border-top-color: #27ae60;
-}
-
-.gate-metric.partial {
-    border-top-color: #f39c12;
-}
-
-.gate-metric.failed {
-    border-top-color: #e74c3c;
-}
-
-.metric-value {
-    font-size: 2.2em;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #2c3e50;
-}
-
-.metric-label {
-    font-size: 0.9em;
-    color: #7f8c8d;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.metric-icon {
-    font-size: 1.2em;
-}
-
-.completion-bar {
-    background-color: #ecf0f1;
-    border-radius: 20px;
-    height: 8px;
-    margin: 20px 0 10px 0;
-    overflow: hidden;
-}
-
-.completion-fill {
-    background: linear-gradient(90deg, #27ae60 0%, #2ecc71 50%, #27ae60 100%);
-    height: 100%;
-    border-radius: 20px;
-    transition: width 0.3s ease;
-}
-
-.completion-text {
-    text-align: center;
-    font-weight: 500;
-    color: #2c3e50;
-    font-size: 0.95em;
-}
-
-.security-overview {
-    border-left-color: #9b59b6;
-}
-
-.findings-overview {
-    border-left-color: #e67e22;
-}
-
-.component-validation {
-    border-left-color: #e74c3c;
-}
-
-.excel-folder {
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 15px;
-    border-left: 4px solid #3498db;
-}
-
-.excel-folder h4 {
-    color: #2980b9;
-    margin-top: 0;
-}
-
-.excel-files-list {
-    list-style-type: none;
-    padding-left: 10px;
-    margin: 10px 0;
-}
-
-.excel-files-list li {
-    margin-bottom: 5px;
-    padding: 3px 0;
-    border-bottom: 1px solid #eee;
-}
+/* Priority badges */
+.priority-critical { color: #ef4444; font-weight: 600; }
+.priority-high { color: #f59e0b; font-weight: 600; }
+.priority-medium { color: #3b82f6; font-weight: 600; }
         
     </style>
 </head>
 <body>
-    <h1>Application & Platform Hard Gates for  Bill Pay</h1>
+    <h1>Hard Gates Assessment</h1>
+    <p style="color: #718096; margin-bottom: 40px;">Bill Pay</p>
 
-    <div class="executive-summary">
-        <h2>📊 Executive Summary</h2>
+    <h2>📊 Executive Summary</h2>
+    
+    <h3>File Analysis</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Files Analyzed</td>
+                <td><strong>61</strong></td>
+            </tr>
+            
+        </tbody>
+    </table>
         
-        <!-- File Analysis Overview -->
-        <div class="summary-section">
-            <h3>📁 File Analysis Overview</h3>
-            <ul class="summary-list">
-                <li><strong>Files Analyzed:</strong> 16</li>
-                
-            </ul>
-        </div>
+    
+    <h3>Hard Gates Assessment</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Count</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Evaluated</td>
+                <td><strong>30</strong></td>
+                <td>100%</td>
+            </tr>
+            <tr>
+                <td><span class="status-implemented">✓ Passed</span></td>
+                <td><strong>19</strong></td>
+                <td>63.3%</td>
+            </tr>
+            <tr>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td><strong>5</strong></td>
+                <td>16.7%</td>
+            </tr>
+            <tr>
+                <td><span class="status-not-implemented">✗ Failed</span></td>
+                <td><strong>6</strong></td>
+                <td>20.0%</td>
+            </tr>
+            <tr style="border-top: 2px solid #e5e7eb;">
+                <td><strong>Overall Compliance</strong></td>
+                <td colspan="2"><strong>71.7%</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
         
+    
+    <h3>Code Findings</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Issues Found</td>
+                <td><strong>0 ✅</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
         
-        <!-- Security & Quality Overview -->
-        <div class="summary-section security-overview">
-            <h3>🔒 Security & Quality Overview</h3>
-            <ul class="summary-list">
-                <li>**Overall Implementation**: 46.7%
-**Practices Status**: 7 ✅ implemented, 0 ⚠️ partially implemented, 8 ❌ not implemented</li>
-            </ul>
-        </div>
-        
-        
-        
-        <!-- Hard Gates Assessment -->
-        <div class="summary-section hard-gates">
-            <h3>🛡️ Hard Gates Assessment</h3>
-            <div class="hard-gates-grid">
-                <div class="gate-metric total">
-                    <div class="metric-value">15</div>
-                    <div class="metric-label">Total Evaluated</div>
-                    <div class="metric-icon">📊</div>
-                </div>
-                <div class="gate-metric passed">
-                    <div class="metric-value">7</div>
-                    <div class="metric-label">Gates Met</div>
-                    <div class="metric-icon">✅</div>
-                </div>
-                <div class="gate-metric partial">
-                    <div class="metric-value">0</div>
-                    <div class="metric-label">Partially Met</div>
-                    <div class="metric-icon">⚠️</div>
-                </div>
-                <div class="gate-metric failed">
-                    <div class="metric-value">8</div>
-                    <div class="metric-label">Not Met</div>
-                    <div class="metric-icon">❌</div>
-                </div>
-            </div>
-            <div class="completion-bar"><div class="completion-fill" style="width: 46.7%"></div></div>
-            <div class="completion-text">46.7% Hard Gates Compliance</div>
-        </div>
-        
-        
-        
-        <!-- Code Analysis Findings -->
-        <div class="summary-section findings-overview">
-            <h3>🔍 Code Analysis Findings</h3>
-            <ul class="summary-list">
-                <li>**Total Issues Found**: 2
-**🟠 High Severity Issues**: 1
-**🟢 Low Severity Issues**: 1</li>
-            </ul>
-        </div>
-        
-        
-        
-        <!-- Component Validation -->
-        <div class="summary-section component-validation">
-            <h3>⚠️ Component Validation</h3>
-            <ul class="summary-list">
-                <li>**Declaration Mismatches**: 2 components need review</li>
-            </ul>
-        </div>
-        
+    
+    <h3>JIRA Analysis</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Stories</td>
+                <td><strong>3</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
+
+    <h2>Technology Stack</h2>
+
+    <h3>Languages</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>JavaScript</strong></td>
+                <td>ES6+</td>
+                <td>main application</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Frameworks</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Next.js</strong></td>
+                <td>13.x</td>
+                <td>frontend framework</td>
+            </tr>
+
+            <tr>
+                <td><strong>Vercel</strong></td>
+                <td>2.x</td>
+                <td>deployment platform</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Databases</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>PostgreSQL</strong></td>
+                <td>14.x</td>
+                <td>data storage</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h2>Hard Gates Analysis</h2>
+
+    <h3>Auditability</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Avoid Logging Confidential Data</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Confidential data is logged with masking or encryption</td>
+                <td>Continue practice</td>
+            </tr>
+
+            <tr>
+                <td><strong>Create Audit Trail Logs</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Audit logs are written but not analyzed for completeness</td>
+                <td>Add detailed audit logging and analysis</td>
+            </tr>
+
+            <tr>
+                <td><strong>Tracking Id For Log Messages</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Correlation IDs are added to log messages</td>
+                <td>Ensure correlation IDs are consistently used</td>
+            </tr>
+
+            <tr>
+                <td><strong>Log Rest Api Calls</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>API requests are logged with detailed information</td>
+                <td>Log all incoming and outgoing API calls</td>
+            </tr>
+
+            <tr>
+                <td><strong>Log Application Messages</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Application messages are logged but not structured consistently</td>
+                <td>Standardize logging structure for consistency</td>
+            </tr>
+
+            <tr>
+                <td><strong>Client Ui Errors Are Logged</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Client-side errors are logged with severity levels</td>
+                <td>Implement detailed client error tracking</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Availability</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Retry Logic</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Retry logic is implemented for network requests but not in all cases</td>
+                <td>Ensure retry logic applies to all API calls</td>
+            </tr>
+
+            <tr>
+                <td><strong>Set Timeouts On Io Operations</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Timeouts are set for I/O operations, but no specific values are documented</td>
+                <td>Define clear timeout thresholds and enforce them</td>
+            </tr>
+
+            <tr>
+                <td><strong>Throttling Drop Request</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No throttling mechanism is in place</td>
+                <td>Add rate limiting to prevent abuse</td>
+            </tr>
+
+            <tr>
+                <td><strong>Circuit Breakers On Outgoing Requests</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Circuit breakers are used for critical API calls</td>
+                <td>Continue using circuit breakers</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Error Handling</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Log System Errors</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>System errors are logged with detailed stack traces</td>
+                <td>Log all exceptions and errors with full details</td>
+            </tr>
+
+            <tr>
+                <td><strong>Use Http Standard Error Codes</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Standard HTTP error codes are used for response handling</td>
+                <td>Ensure consistent use of status codes</td>
+            </tr>
+
+            <tr>
+                <td><strong>Include Client Error Tracking</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>Client-side errors are not tracked with user context or severity levels</td>
+                <td>Implement detailed client error tracking</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Monitoring</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Url Monitoring</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Health check endpoints are available for monitoring</td>
+                <td>Ensure all critical endpoints are monitored</td>
+            </tr>
+
+            <tr>
+                <td><strong>Metrics Collection</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No metrics are collected for performance monitoring</td>
+                <td>Integrate APM tools for comprehensive monitoring</td>
+            </tr>
+
+            <tr>
+                <td><strong>Performance Monitoring</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Performance metrics are collected and displayed in a dashboard</td>
+                <td>Use real-time insights for proactive maintenance</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Testing</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Automated Regression Testing</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Regression tests are written but not regularly run</td>
+                <td>Implement automated testing and schedule regular runs</td>
+            </tr>
+
+            <tr>
+                <td><strong>Unit Testing</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Unit tests cover key components and logic</td>
+                <td>Ensure comprehensive coverage of all functionalities</td>
+            </tr>
+
+            <tr>
+                <td><strong>Integration Testing</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No integration tests are present</td>
+                <td>Add integration tests to verify cross-component interactions</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Security</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Input Validation</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Input validation is performed for all API endpoints and forms</td>
+                <td>Ensure comprehensive input validation</td>
+            </tr>
+
+            <tr>
+                <td><strong>Authentication</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>JWT-based authentication is used for user sessions</td>
+                <td>Implement stronger authentication mechanisms</td>
+            </tr>
+
+            <tr>
+                <td><strong>Authorization</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No role-based access control is in place</td>
+                <td>Add role-based access controls</td>
+            </tr>
+
+            <tr>
+                <td><strong>Encryption At Rest</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Data at rest is encrypted using AES-256</td>
+                <td>Implement additional encryption layers for sensitive data</td>
+            </tr>
+
+            <tr>
+                <td><strong>Encryption In Transit</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>HTTPS is used for all API calls and communications</td>
+                <td>Ensure all connections are encrypted</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Performance</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Caching Strategy</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Caching is implemented using Redis for frequently accessed data</td>
+                <td>Optimize caching strategies based on usage patterns</td>
+            </tr>
+
+            <tr>
+                <td><strong>Connection Pooling</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Connection pools are used to manage database connections efficiently</td>
+                <td>Optimize connection pool size and configurations</td>
+            </tr>
+
+            <tr>
+                <td><strong>Async Processing</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Asynchronous processing is used for long-running tasks like background jobs</td>
+                <td>Implement more efficient asynchronous patterns</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Data Management</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Data Validation</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Data validation is in place for input fields and database models</td>
+                <td>Add comprehensive data validation for all inputs</td>
+            </tr>
+
+            <tr>
+                <td><strong>Database Indexing</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Database indexes are optimized based on query performance</td>
+                <td>Regularly review and optimize database indexes</td>
+            </tr>
+
+            <tr>
+                <td><strong>Backup Strategy</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No backup strategy is in place</td>
+                <td>Implement regular backups of the database</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h2>JIRA Stories</h2>
+
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 15px 0;">XYZ-101: Implement Jira integration for code analyzer</h3>
+        <p><strong>Status:</strong> In Progress | <strong>Created:</strong> 2023-05-15T10:30:00.000+0000 | <strong>Updated:</strong> 2023-05-16T14:45:00.000+0000</p>
+
+        <p><strong>Description:</strong> As a user, I want to see my relevant Jira stories in the code analysis report so that I can track issues related to my codebase.
+
+**Acceptance Criteria:**
+- Fetch stories from Jira API
+- Display summary, status, and description
+- Show comments and attachments
+- Integrate with existing report</p>
+
+        <p><strong>Comments:</strong></p>
+        <ul style="margin: 10px 0;">
+
+            <li><strong>John Developer</strong> (2023-05-15T15:22:00.000+0000): I've started working on this. Initial API connection is working.</li>
+
+            <li><strong>Maria Manager</strong> (2023-05-15T16:05:00.000+0000): Great! Make sure to handle authentication errors gracefully.</li>
+
+        </ul>
+
+        <p><strong>Attachments:</strong></p>
+        <ul style="margin: 10px 0;">
+
+            <li>sample_attachment_1.png (2452 bytes)</li>
+
+        </ul>
+
     </div>
 
-    <div class="technology-stack">
-        <h2>Technology Stack</h2>
-
-        <div class="tech-category">
-            <h3>Languages</h3>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Version</th>
-                        <th>Purpose</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Python</td>
-                        <td>3.12-slim-bullseye</td>
-                        <td>Scripting language for the application</td>
-                    </tr>
-
-                    <tr>
-                        <td>JSON</td>
-                        <td>None</td>
-                        <td>Data interchange format</td>
-                    </tr>
-
-                </tbody>
-            </table>
-
-        </div>
-
-        <div class="tech-category">
-            <h3>Frameworks</h3>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Version</th>
-                        <th>Purpose</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Docker</td>
-                        <td>None</td>
-                        <td>Containerization platform</td>
-                    </tr>
-
-                    <tr>
-                        <td>Apify SDK (Node.js)</td>
-                        <td>None</td>
-                        <td>Actor runtime for the application</td>
-                    </tr>
-
-                </tbody>
-            </table>
-
-        </div>
-
-        <div class="tech-category">
-            <h3>Infrastructure</h3>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Version</th>
-                        <th>Purpose</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Docker</td>
-                        <td>None</td>
-                        <td>Containerization platform</td>
-                    </tr>
-
-                    <tr>
-                        <td>Apify Platform</td>
-                        <td>None</td>
-                        <td>Platform for deploying actors</td>
-                    </tr>
-
-                </tbody>
-            </table>
-
-        </div>
-
-    <div class="security-quality">
-        <h2>Security & Quality Analysis</h2>
-
-        <div class="security-category">
-            <h3>Auditability</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Status</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Avoid Logging Confidential Data</td>
-                        <td><span class="low">Implemented</span></td>
-                        <td>Logging `username` in .actor/README.md.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Create Audit Trail Logs</td>
-                        <td><span class="low">Implemented</span></td>
-                        <td>Writing logs to files (e.g., `$username.txt`) in the script.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Tracking Id For Log Messages</td>
-                        <td><span class="low">Implemented</span></td>
-                        <td>Including a timestamp in each log message.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Log Rest Api Calls</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>No explicit logging of REST API calls detected.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Log Application Messages</td>
-                        <td><span class="low">Implemented</span></td>
-                        <td>Logging messages within scripts like `sherlock.py`.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Client Ui Errors Are Logged</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>Not explicitly logged but can be inferred from context.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-            
-            <h4>Recommendations</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Avoid Logging Confidential Data</td>
-                        <td>Include additional client error tracking and logging for sensitive data.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Create Audit Trail Logs</td>
-                        <td>Use a consistent format and structure for audit log entries.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Tracking Id For Log Messages</td>
-                        <td>Ensure unique tracking IDs for all log messages to facilitate analysis.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Log Rest Api Calls</td>
-                        <td>Implement logging of incoming and outgoing HTTP requests.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Log Application Messages</td>
-                        <td>Consolidate logging in one central location for better manageability.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Client Ui Errors Are Logged</td>
-                        <td>Implement explicit logging of client-side UI errors.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-
-        <div class="security-category">
-            <h3>Availability</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Status</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Retry Logic</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>No explicit retry logic implemented.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Set Timeouts On Io Operations</td>
-                        <td><span class="low">Implemented</span></td>
-                        <td>Setting timeouts on IO operations like `timeout=10` in `sherlock.py`, but consider increasing or using exponential backoff.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Throttling Drop Request</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>No throttling or dropping requests explicitly implemented.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Circuit Breakers On Outgoing Requests</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>No circuit breakers on outgoing requests detected.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-            
-            <h4>Recommendations</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Retry Logic</td>
-                        <td>Add retry mechanisms for HTTP requests to handle transient failures gracefully.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Set Timeouts On Io Operations</td>
-                        <td>Implement exponential backoff for handling retryable errors.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Throttling Drop Request</td>
-                        <td>Consider implementing rate limiting to prevent abuse and maintain system stability.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Circuit Breakers On Outgoing Requests</td>
-                        <td>Use circuit breakers to monitor and isolate failures in the application.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-
-        <div class="security-category">
-            <h3>Error Handling</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Status</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Log System Errors</td>
-                        <td><span class="low">Implemented</span></td>
-                        <td>Logging errors to files (e.g., `$username.txt`) and messages within scripts like `sherlock.py`.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Use Http Standard Error Codes</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>Not explicitly used for error responses.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Include Client Error Tracking</td>
-                        <td><span class="low">Implemented</span></td>
-                        <td>Including client error details in log messages.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-            
-            <h4>Recommendations</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Log System Errors</td>
-                        <td>Ensure consistent error logging across all parts of the application.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Use Http Standard Error Codes</td>
-                        <td>Implement standardized HTTP status codes to ensure consistency in error handling responses.</td>
-                    </tr>
-
-                    <tr>
-                        <td>Include Client Error Tracking</td>
-                        <td>Ensure detailed logging of client errors, including stack traces and request/response details.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-
-        <div class="security-category">
-            <h3>Monitoring</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Status</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Url Monitoring</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>No monitoring implemented.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-            
-            <h4>Recommendations</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Url Monitoring</td>
-                        <td>Set up monitoring to track the availability and performance of the application.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-
-        <div class="security-category">
-            <h3>Testing</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Status</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Automated Regression Testing</td>
-                        <td><span class="high">Not Implemented</span></td>
-                        <td>No automated tests present.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-            
-            <h4>Recommendations</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>Automated Regression Testing</td>
-                        <td>Add unit, integration, and end-to-end tests to ensure the reliability and robustness of the application.</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 15px 0;">XYZ-102: Fix broken CSS in report generation</h3>
+        <p><strong>Status:</strong> To Do | <strong>Created:</strong> 2023-05-17T09:15:00.000+0000 | <strong>Updated:</strong> 2023-05-17T09:15:00.000+0000</p>
+
+        <p><strong>Description:</strong> The CSS styles in the generated report are not being applied correctly. The Jira stories section is not displaying images properly.
+
+**Steps to reproduce:**
+1. Generate a report with Jira stories
+2. Open the HTML report
+3. Notice the images are not displayed</p>
 
     </div>
 
-    <div class="findings">
-        <h2>Findings</h2>
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 15px 0;">XYZ-100: Set up project structure and dependencies</h3>
+        <p><strong>Status:</strong> Done | <strong>Created:</strong> 2023-05-10T08:00:00.000+0000 | <strong>Updated:</strong> 2023-05-12T16:30:00.000+0000</p>
 
-        <div class="findings-category">
-            <h3>Security</h3>
+        <p><strong>Description:</strong> Create the initial project structure with requirements.txt, main.py, and necessary modules.</p>
 
-            <div class="finding severity-high">
-                <div class="finding-header">
-                    <span class="finding-number">1</span>
-                    <span class="finding-severity high">High</span>
-                </div>
-                <h4>Legacy JKS files are used for storing sensitive credentials. These should be replaced with modern cryptographic methods.</h4>
-                <p><strong>Location:</strong> .actor/README.md:0</p>
+        <p><strong>Comments:</strong></p>
+        <ul style="margin: 10px 0;">
 
-                <div class="recommendation">
-                    <strong>Recommendation:</strong> Replace legacy JKS files with modern cryptographic methods and update the code accordingly.
-                </div>
-            </div>
+            <li><strong>John Developer</strong> (2023-05-12T15:45:00.000+0000): Completed and ready for review.</li>
 
-            <div class="finding severity-low">
-                <div class="finding-header">
-                    <span class="finding-number">2</span>
-                    <span class="finding-severity low">Low</span>
-                </div>
-                <h4>SSL/TLS misconfiguration is not explicitly configured in the provided codebase. Consider updating libraries and settings to use modern SSL/TLS protocols.</h4>
-                <p><strong>Location:</strong> .actor/README.md:0</p>
+            <li><strong>Sarah Reviewer</strong> (2023-05-12T16:30:00.000+0000): Looks good! Approved.</li>
 
-                <div class="recommendation">
-                    <strong>Recommendation:</strong> Review library usage and update configurations to use modern SSL/TLS protocols.
-                </div>
-            </div>
-
-        </div>
+        </ul>
 
     </div>
 
-    <div class="action-items">
-        <h2>Action Items</h2>
+    <h2>Action Items</h2>
 
-        <div class="action-item high">
-            <h3>1. Resolve Component Declaration Mismatches (Priority: High)</h3>
-            <p>There are discrepancies between the components declared in the intake form and those detected in the codebase. Review the Component Analysis section to identify and address these mismatches.</p>
-        </div>
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 10px 0;">1. Enhance Application Resilience <span class="priority-high">(High)</span></h3>
+        <p>Implement the following availability and resilience practices: throttling_drop_request.</p>
+    </div>
 
-        <div class="action-item high">
-            <h3>2. Address High Severity Findings (Priority: High)</h3>
-            <p>There are 1 high severity findings that should be addressed soon. These issues may impact the stability or security of the application.</p>
-        </div>
-
-        <div class="action-item medium">
-            <h3>3. Improve Logging and Auditability (Priority: Medium)</h3>
-            <p>Implement the following logging and auditability practices: log_rest_api_calls, client_ui_errors_are_logged.</p>
-        </div>
-
-        <div class="action-item high">
-            <h3>4. Enhance Application Resilience (Priority: High)</h3>
-            <p>Implement the following availability and resilience practices: retry_logic, throttling_drop_request, circuit_breakers_on_outgoing_requests.</p>
-        </div>
-
-        <div class="action-item medium">
-            <h3>5. Improve Error Handling (Priority: Medium)</h3>
-            <p>Implement the following error handling practices: use_http_standard_error_codes.</p>
-        </div>
-
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 10px 0;">2. Improve Error Handling <span class="priority-medium">(Medium)</span></h3>
+        <p>Implement the following error handling practices: include_client_error_tracking.</p>
     </div>
 
 </body>

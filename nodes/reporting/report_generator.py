@@ -107,8 +107,7 @@ class GenerateReport(Node):
         
         report += "\n"  # Add spacing
         
-        # Calculate statistics for Summary
-        security_stats = ""
+        # Calculate statistics for Hard Gates only
         hard_gate_stats = ""
         hard_gates_total = 0
         hard_gates_met = 0
@@ -141,19 +140,15 @@ class GenerateReport(Node):
                 
                 implementation_percentage = ((categories_implemented + 0.5 * categories_partial) / categories_total) * 100
                 
-                # Enhanced Security Statistics
-                security_stats = "### 🔒 Security & Quality Overview\n\n"
-                security_stats += f"- **Overall Implementation**: {implementation_percentage:.1f}%\n"
-                security_stats += f"- **Practices Status**: {categories_implemented} ✅ implemented, {categories_partial} ⚠️ partially implemented, {categories_not_implemented} ❌ not implemented\n\n"
-                
-                # Enhanced Hard Gate Statistics  
+                # Hard Gate Statistics only
                 hard_gate_stats = "### 🛡️ Hard Gates Assessment\n\n"
                 hard_gate_stats += f"| Metric | Count | Status |\n"
                 hard_gate_stats += f"|--------|-------|--------|\n"
-                hard_gate_stats += f"| **Total Evaluated** | {categories_total} | 📊 Complete |\n"
+                hard_gate_stats += f"| **Total Evaluated** | {categories_total} | 🟊 Complete |\n"
                 hard_gate_stats += f"| **Gates Met** | {categories_implemented} | ✅ Passed |\n"
                 hard_gate_stats += f"| **Gates Partially Met** | {categories_partial} | ⚠️ In Progress |\n"
-                hard_gate_stats += f"| **Gates Not Met** | {categories_not_implemented} | ❌ Failed |\n\n"
+                hard_gate_stats += f"| **Gates Not Met** | {categories_not_implemented} | ❌ Failed |\n"
+                hard_gate_stats += f"| **Compliance Percentage** | {implementation_percentage:.1f}% | {'🟢' if implementation_percentage >= 80 else '🟡' if implementation_percentage >= 60 else '🔴'} |\n\n"
         
         # Enhanced findings statistics
         findings_stats = ""
@@ -181,50 +176,45 @@ class GenerateReport(Node):
             findings_stats = "### 🔍 Code Analysis Findings\n\n"
             findings_stats += "- **Total Issues Found**: 0 ✅\n\n"
         
-        # Enhanced component mismatches
-        component_stats = ""
-        mismatches_count = 0
-        if excel_components and component_analysis:
-            for excel_comp, excel_data in excel_components.items():
-                excel_comp_lower = excel_comp.lower()
-                excel_declared = excel_data.get("is_yes", False)
-                
-                for comp_name, comp_data in component_analysis.items():
-                    if excel_comp_lower in comp_name.lower() or comp_name.lower() in excel_comp_lower:
-                        detected = comp_data["detected"].lower() == "yes"
-                        if excel_declared != detected:
-                            mismatches_count += 1
-                        break
-                        
-            if mismatches_count > 0:
-                component_stats = "### ⚠️ Component Validation\n\n"
-                component_stats += f"- **Declaration Mismatches**: {mismatches_count} components need review\n\n"
+        # JIRA Analysis statistics
+        jira_stats = ""
+        if jira_stories:
+            status_counts = {}
+            for story in jira_stories:
+                status = story.get('status', 'Unknown')
+                status_counts[status] = status_counts.get(status, 0) + 1
+            
+            jira_stats = "### 📋 JIRA Analysis\n\n"
+            jira_stats += f"- **Total Stories**: {len(jira_stories)}\n"
+            for status, count in status_counts.items():
+                jira_stats += f"- **{status}**: {count} stories\n"
+            jira_stats += "\n"
         
-        # Add all statistics to Summary with elegant formatting
-        report += security_stats + hard_gate_stats + findings_stats + component_stats
+        # Add all statistics to Summary
+        report += hard_gate_stats + findings_stats + jira_stats
         
         # Add table of contents
         report += "## Table of Contents\n\n"
-        report += "1. [Summary](#executive-summary)\n"
+        report += "1. [Summary](#summary)\n"
         report += "2. [Technology Stack](#technology-stack)\n"
         
         # Add Excel Folder section to TOC if present
         if file_summary.get('excel_folders'):
             report += "3. [Excel Folder Analysis](#excel-folder-analysis)\n"
-            report += "4. [Security & Quality Analysis](#security-quality-analysis)\n"
+            report += "4. [Hard Gates Analysis](#hard-gates-analysis)\n"
             report += "5. [Findings](#findings)\n"
             
             if jira_stories:
-                report += "6. [Jira Stories](#jira-stories)\n"
+                report += "6. [JIRA Stories](#jira-stories)\n"
                 report += "7. [Action Items](#action-items)\n"
             else:
                 report += "6. [Action Items](#action-items)\n"
         else:
-            report += "3. [Security & Quality Analysis](#security-quality-analysis)\n"
+            report += "3. [Hard Gates Analysis](#hard-gates-analysis)\n"
             report += "4. [Findings](#findings)\n"
             
             if jira_stories:
-                report += "5. [Jira Stories](#jira-stories)\n"
+                report += "5. [JIRA Stories](#jira-stories)\n"
                 report += "6. [Action Items](#action-items)\n"
             else:
                 report += "5. [Action Items](#action-items)\n"
@@ -329,17 +319,20 @@ class GenerateReport(Node):
                         report += f"- {folder}\n"
                     report += "\n"
         
-        # Security & Quality Analysis Section
-        report += "## Security & Quality Analysis\n\n"
+        # Hard Gates Analysis Section (replacing Security & Quality Analysis)
+        report += "## Hard Gates Analysis\n\n"
         
         if security_quality_analysis:
             # Categories to display
             categories = [
                 ("Auditability", "auditability"),
-                ("Availability", "availability"),
+                ("Availability", "availability"), 
                 ("Error Handling", "error_handling"),
                 ("Monitoring", "monitoring"),
-                ("Testing", "testing")
+                ("Testing", "testing"),
+                ("Security", "security"),
+                ("Performance", "performance"),
+                ("Data Management", "data_management")
             ]
             
             for display_name, category_key in categories:
@@ -349,9 +342,9 @@ class GenerateReport(Node):
                     
                 report += f"### {display_name}\n\n"
                 
-                # Table header - modified to match Technology Stack format
-                report += "| Practice | Status | Evidence |\n"
-                report += "|----------|--------|----------|\n"
+                # Simple table format
+                report += "| Practice | Status | Evidence | Recommendation |\n"
+                report += "|----------|--------|----------|----------------|\n"
                 
                 for practice, details in category_data.items():
                     if not isinstance(details, dict):
@@ -362,6 +355,7 @@ class GenerateReport(Node):
                     
                     implemented = details.get("implemented", "no").lower()
                     evidence = details.get("evidence", "No evidence")
+                    recommendation = details.get("recommendation", "No recommendation")
                     
                     status = "❌ Not Implemented"
                     if implemented == "yes":
@@ -369,28 +363,11 @@ class GenerateReport(Node):
                     elif implemented == "partial":
                         status = "⚠️ Partially Implemented"
                     
-                    # Using the same 3-column format as Technology Stack section
-                    report += f"| {practice_display} | {status} | {evidence} |\n"
-                
-                report += "\n"
-                
-                # Add a separate table for recommendations in the same section
-                report += "#### Recommendations\n\n"
-                report += "| Practice | Recommendation |\n"
-                report += "|----------|----------------|\n"
-                
-                for practice, details in category_data.items():
-                    if not isinstance(details, dict):
-                        continue
-                    
-                    practice_display = practice.replace("_", " ").title()
-                    recommendation = details.get("recommendation", "No recommendation")
-                    
-                    report += f"| {practice_display} | {recommendation} |\n"
+                    report += f"| {practice_display} | {status} | {evidence} | {recommendation} |\n"
                 
                 report += "\n"
         else:
-            report += "No security and quality analysis available.\n\n"
+            report += "No hard gates analysis available.\n\n"
         
         # Findings Section
         report += "## Findings\n\n"
@@ -436,14 +413,6 @@ class GenerateReport(Node):
         
         # Create action items from findings
         action_items = []
-        
-        # Add action items for component mismatches
-        if mismatches_count > 0:
-            action_items.append({
-                "title": "Resolve Component Declaration Mismatches",
-                "priority": "High",
-                "description": "There are discrepancies between the components declared in the intake form and those detected in the codebase. Review the Component Analysis section to identify and address these mismatches."
-            })
         
         # Add action items for findings
         if findings:
@@ -523,8 +492,8 @@ class GenerateReport(Node):
 
         # Add Jira Stories Section if available
         if jira_stories:
-            report += "## Jira Stories\n\n"
-            report += "The following Jira stories are relevant to this project:\n\n"
+            report += "## JIRA Stories\n\n"
+            report += "The following JIRA stories are relevant to this project:\n\n"
             
             for story in jira_stories:
                 report += f"### {story['key']}: {story['summary']}\n\n"
@@ -548,466 +517,276 @@ class GenerateReport(Node):
             
             report += "\n"
         
-        # Generate HTML content with Excel folder section
+        # Generate HTML content with minimal elegant CSS
         css = """
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.7;
     margin: 0;
-    padding: 40px;
-    color: #333;
-    max-width: 1100px;
+    padding: 60px 40px;
+    color: #2d3748;
+    max-width: 1000px;
     margin: 0 auto;
-    background-color: #fafafa;
+    background: #fdfdfd;
 }
+
 h1 {
-    font-size: 1.8em;
-    font-weight: 400;
-    margin: 0 0 20px 0;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eaeaea;
-    color: #2c3e50;
+    font-size: 2.2em;
+    font-weight: 300;
+    margin: 0 0 40px 0;
+    color: #1a202c;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 20px;
 }
+
 h2 {
-    font-size: 1.4em;
-    font-weight: 500;
-    margin: 25px 0 15px 0;
-    color: #2c3e50;
-    padding-top: 15px;
-    border-top: 1px solid #eaeaea;
+    font-size: 1.5em;
+    font-weight: 400;
+    margin: 50px 0 20px 0;
+    color: #2d3748;
+    border-bottom: 1px solid #f7fafc;
+    padding-bottom: 10px;
 }
-h2:first-of-type { border-top: none; }
+
 h3 {
     font-size: 1.2em;
     font-weight: 500;
-    margin: 20px 0 10px 0;
-    color: #34495e;
+    margin: 30px 0 15px 0;
+    color: #4a5568;
 }
+
 h4 {
     font-size: 1.1em;
     font-weight: 500;
-    margin: 15px 0 8px 0;
-    color: #34495e;
+    margin: 20px 0 10px 0;
+    color: #4a5568;
 }
-p {
-    margin: 0 0 15px 0;
-}
+
+/* Minimal modern tables */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin: 30px 0;
+    background: white;
     border-radius: 4px;
     overflow: hidden;
 }
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eaeaea;
-}
+
 th {
-    background-color: #f8f9fa;
+    background: #f9fafb;
+    color: #374151;
     font-weight: 500;
-    color: #2c3e50;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    border-bottom: 1px solid #e5e7eb;
 }
+
+td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
 tr:last-child td {
     border-bottom: none;
 }
-tr:hover {
-    background-color: #f8f9fa;
-}
-.critical, .high { color: #e74c3c; }
-.medium { color: #f39c12; }
-.low { color: #27ae60; }
 
-.empty-section {
-    background-color: #f8f9fa;
-    border-left: 4px solid #95a5a6;
-    padding: 15px 20px;
-    margin: 20px 0;
-    border-radius: 0 4px 4px 0;
+tbody tr:hover {
+    background: #f9fafb;
 }
 
-.empty-section p {
-    margin: 0 0 10px 0;
-    color: #555;
+/* Status badges */
+.status-implemented { color: #10b981; font-weight: 500; }
+.status-partial { color: #f59e0b; font-weight: 500; }
+.status-not-implemented { color: #ef4444; font-weight: 500; }
+
+/* Minimal spacing */
+p {
+    margin: 0 0 16px 0;
+    line-height: 1.6;
 }
 
-.empty-section ul {
-    margin: 0 0 10px 20px;
-    padding: 0;
+ul, ol {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
 }
 
-.empty-section li {
-    margin-bottom: 5px;
+/* Clean code blocks */
+code {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.875rem;
+    color: #374151;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
 }
 
-.finding {
-    background-color: #fff;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 15px;
-    border-left: 4px solid #95a5a6;
-}
-
-.finding.severity-critical, .finding.severity-high {
-    border-left-color: #e74c3c;
-}
-
-.finding.severity-medium {
-    border-left-color: #f39c12;
-}
-
-.finding.severity-low {
-    border-left-color: #27ae60;
-}
-
-.finding-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.finding-number {
-    font-weight: bold;
-    color: #7f8c8d;
-}
-
-.finding-severity {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-.finding-severity.critical, .finding-severity.high {
-    background-color: #fdeaea;
-    color: #c0392b;
-}
-
-.finding-severity.medium {
-    background-color: #fef5e7;
-    color: #d35400;
-}
-
-.finding-severity.low {
-    background-color: #e9f7ef;
-    color: #27ae60;
-}
-
-.code-snippet {
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    padding: 10px;
-    margin: 10px 0;
-    overflow-x: auto;
-}
-
-.code-snippet pre {
-    margin: 0;
-}
-
-.code-snippet code {
-    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9em;
-}
-
-.recommendation {
-    margin-top: 10px;
-}
-
-.tech-category, .security-category, .findings-category {
-    margin-bottom: 30px;
-}
-
-.executive-summary {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
-    border-top: 4px solid #3498db;
-}
-
-.summary-section {
-    margin-bottom: 25px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    border-left: 3px solid #3498db;
-}
-
-.summary-section:last-child {
-    margin-bottom: 0;
-}
-
-.summary-section h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    font-size: 1.1em;
-}
-
-.summary-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.summary-list li {
-    padding: 8px 0;
-    border-bottom: 1px solid #e8f0f3;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.summary-list li:last-child {
-    border-bottom: none;
-}
-
-.hard-gates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.gate-metric {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-top: 3px solid #ddd;
-    transition: transform 0.2s ease;
-}
-
-.gate-metric:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.gate-metric.total {
-    border-top-color: #3498db;
-}
-
-.gate-metric.passed {
-    border-top-color: #27ae60;
-}
-
-.gate-metric.partial {
-    border-top-color: #f39c12;
-}
-
-.gate-metric.failed {
-    border-top-color: #e74c3c;
-}
-
-.metric-value {
-    font-size: 2.2em;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #2c3e50;
-}
-
-.metric-label {
-    font-size: 0.9em;
-    color: #7f8c8d;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.metric-icon {
-    font-size: 1.2em;
-}
-
-.completion-bar {
-    background-color: #ecf0f1;
-    border-radius: 20px;
-    height: 8px;
-    margin: 20px 0 10px 0;
-    overflow: hidden;
-}
-
-.completion-fill {
-    background: linear-gradient(90deg, #27ae60 0%, #2ecc71 50%, #27ae60 100%);
-    height: 100%;
-    border-radius: 20px;
-    transition: width 0.3s ease;
-}
-
-.completion-text {
-    text-align: center;
-    font-weight: 500;
-    color: #2c3e50;
-    font-size: 0.95em;
-}
-
-.security-overview {
-    border-left-color: #9b59b6;
-}
-
-.findings-overview {
-    border-left-color: #e67e22;
-}
-
-.component-validation {
-    border-left-color: #e74c3c;
-}
-
-.excel-folder {
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 15px;
-    border-left: 4px solid #3498db;
-}
-
-.excel-folder h4 {
-    color: #2980b9;
-    margin-top: 0;
-}
-
-.excel-files-list {
-    list-style-type: none;
-    padding-left: 10px;
-    margin: 10px 0;
-}
-
-.excel-files-list li {
-    margin-bottom: 5px;
-    padding: 3px 0;
-    border-bottom: 1px solid #eee;
-}
+/* Priority badges */
+.priority-critical { color: #ef4444; font-weight: 600; }
+.priority-high { color: #f59e0b; font-weight: 600; }
+.priority-medium { color: #3b82f6; font-weight: 600; }
         """
         
-        # Process strings with backslashes outside f-strings 
+        # Process strings for clean HTML generation
         newline_str = '\n\n'
-        security_processed = security_stats.replace('- ', '').replace('### 🔒 Security & Quality Overview', '').replace(newline_str, '').strip() if security_stats else ""
         findings_processed = findings_stats.replace('- ', '').replace('### 🔍 Code Analysis Findings', '').replace(newline_str, '').strip() if findings_stats else ""
-        component_processed = component_stats.replace('- ', '').replace('### ⚠️ Component Validation', '').replace(newline_str, '').strip() if component_stats else ""
+        jira_processed = jira_stats.replace('- ', '').replace('### 📋 JIRA Analysis', '').replace(newline_str, '').strip() if jira_stats else ""
         
-        # Start with the basic HTML structure
+        # Start with the minimal elegant HTML structure
         html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application & Platform Hard Gates for  {project_name}</title>
+    <title>Hard Gates Assessment - {project_name}</title>
     <style>
     {css}
     </style>
 </head>
 <body>
-    <h1>Application & Platform Hard Gates for  {project_name}</h1>
+    <h1>Hard Gates Assessment</h1>
+    <p style="color: #718096; margin-bottom: 40px;">{project_name}</p>
 
-    <div class="executive-summary">
-        <h2>📊 Executive Summary</h2>
+    <h2>📊 Executive Summary</h2>
+    
+    <h3>File Analysis</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Files Analyzed</td>
+                <td><strong>{file_summary['count']}</strong></td>
+            </tr>
+            {f"<tr><td>Excel Folders</td><td><strong>{len(file_summary.get('excel_folders', []))}</strong></td></tr>" if file_summary.get('excel_folders') else ""}
+        </tbody>
+    </table>
         
-        <!-- File Analysis Overview -->
-        <div class="summary-section">
-            <h3>📁 File Analysis Overview</h3>
-            <ul class="summary-list">
-                <li><strong>Files Analyzed:</strong> {file_summary['count']}</li>
-                {f"<li><strong>Excel Folders:</strong> {len(file_summary.get('excel_folders', []))}</li>" if file_summary.get('excel_folders') else ""}
-            </ul>
-        </div>
+    {f'''
+    <h3>Hard Gates Assessment</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Count</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Evaluated</td>
+                <td><strong>{hard_gates_total}</strong></td>
+                <td>100%</td>
+            </tr>
+            <tr>
+                <td><span class="status-implemented">✓ Passed</span></td>
+                <td><strong>{hard_gates_met}</strong></td>
+                <td>{(hard_gates_met / hard_gates_total * 100):.1f}%</td>
+            </tr>
+            <tr>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td><strong>{hard_gates_partial}</strong></td>
+                <td>{(hard_gates_partial / hard_gates_total * 100):.1f}%</td>
+            </tr>
+            <tr>
+                <td><span class="status-not-implemented">✗ Failed</span></td>
+                <td><strong>{hard_gates_not_met}</strong></td>
+                <td>{(hard_gates_not_met / hard_gates_total * 100):.1f}%</td>
+            </tr>
+            <tr style="border-top: 2px solid #e5e7eb;">
+                <td><strong>Overall Compliance</strong></td>
+                <td colspan="2"><strong>{((hard_gates_met + 0.5 * hard_gates_partial) / hard_gates_total * 100):.1f}%</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    ''' if hard_gates_total > 0 else ""}
         
-        {f'''
-        <!-- Security & Quality Overview -->
-        <div class="summary-section security-overview">
-            <h3>🔒 Security & Quality Overview</h3>
-            <ul class="summary-list">
-                <li>{security_processed}</li>
-            </ul>
-        </div>
-        ''' if security_stats else ""}
+    {f'''
+    <h3>Code Findings</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Severity</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Issues</td>
+                <td><strong>{len(findings)}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    ''' if findings else '''
+    <h3>Code Findings</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Issues Found</td>
+                <td><strong>0 ✅</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    '''}
         
-        {f'''
-        <!-- Hard Gates Assessment -->
-        <div class="summary-section hard-gates">
-            <h3>🛡️ Hard Gates Assessment</h3>
-            <div class="hard-gates-grid">
-                <div class="gate-metric total">
-                    <div class="metric-value">{hard_gates_total}</div>
-                    <div class="metric-label">Total Evaluated</div>
-                    <div class="metric-icon">📊</div>
-                </div>
-                <div class="gate-metric passed">
-                    <div class="metric-value">{hard_gates_met}</div>
-                    <div class="metric-label">Gates Met</div>
-                    <div class="metric-icon">✅</div>
-                </div>
-                <div class="gate-metric partial">
-                    <div class="metric-value">{hard_gates_partial}</div>
-                    <div class="metric-label">Partially Met</div>
-                    <div class="metric-icon">⚠️</div>
-                </div>
-                <div class="gate-metric failed">
-                    <div class="metric-value">{hard_gates_not_met}</div>
-                    <div class="metric-label">Not Met</div>
-                    <div class="metric-icon">❌</div>
-                </div>
-            </div>
-            {f'<div class="completion-bar"><div class="completion-fill" style="width: {((hard_gates_met + 0.5 * hard_gates_partial) / hard_gates_total * 100):.1f}%"></div></div>' if hard_gates_total > 0 else ''}
-            {f'<div class="completion-text">{((hard_gates_met + 0.5 * hard_gates_partial) / hard_gates_total * 100):.1f}% Hard Gates Compliance</div>' if hard_gates_total > 0 else ''}
-        </div>
-        ''' if hard_gates_total > 0 else ""}
-        
-        {f'''
-        <!-- Code Analysis Findings -->
-        <div class="summary-section findings-overview">
-            <h3>🔍 Code Analysis Findings</h3>
-            <ul class="summary-list">
-                <li>{findings_processed}</li>
-            </ul>
-        </div>
-        ''' if findings_stats else ""}
-        
-        {f'''
-        <!-- Component Validation -->
-        <div class="summary-section component-validation">
-            <h3>⚠️ Component Validation</h3>
-            <ul class="summary-list">
-                <li>{component_processed}</li>
-            </ul>
-        </div>
-        ''' if component_stats else ""}
-    </div>
+    {f'''
+    <h3>JIRA Analysis</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Stories</td>
+                <td><strong>{len(jira_stories)}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    ''' if jira_stories else ""}
 
-    <div class="technology-stack">
-        <h2>Technology Stack</h2>
+    <h2>Technology Stack</h2>
 """
 
         if technology_stack:
             for category, techs in technology_stack.items():
+                if category == "Excel Folder Analysis":
+                    continue  # Handle separately below
+                    
                 html_content += f"""
-        <div class="tech-category">
-            <h3>{category.title()}</h3>
+    <h3>{category.title()}</h3>
 """
                 
                 if not isinstance(techs, list) or not techs:
                     html_content += """
-            <p>No items found in this category.</p>
+    <p style="color: #718096;">No items found in this category.</p>
 """
                 else:
                     html_content += """
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Version</th>
-                        <th>Purpose</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
 """
                     
                     for tech in techs:
@@ -1019,48 +798,88 @@ tr:hover {
                         purpose = tech.get("purpose", "N/A")
                         
                         html_content += f"""
-                    <tr>
-                        <td>{name}</td>
-                        <td>{version}</td>
-                        <td>{purpose}</td>
-                    </tr>
+            <tr>
+                <td><strong>{name}</strong></td>
+                <td>{version}</td>
+                <td>{purpose}</td>
+            </tr>
 """
                     
                     html_content += """
-                </tbody>
-            </table>
-"""
-                
-                html_content += """
-        </div>
+        </tbody>
+    </table>
 """
         else:
             html_content += """
-        <div class="empty-section">
-            <p>No technology stack information was detected. This may happen if:</p>
-            <ul>
-                <li>The codebase is very small or consists of simple files</li>
-                <li>The files analyzed didn't contain clear technology indicators</li>
-                <li>The analysis was unable to complete successfully</li>
-            </ul>
-            <p>Consider uploading a more complete codebase or checking the analysis logs for errors.</p>
-        </div>
+    <p style="color: #718096;">No technology stack information available.</p>
 """
-        
-        # Security & Quality Analysis Section
+
+        # Excel Folder Analysis Section (if applicable)
+        if file_summary.get('excel_folders') or "Excel Folder Analysis" in technology_stack:
+            html_content += """
+    <h2>Excel Folder Analysis</h2>
+"""
+            
+            excel_folder_tech = technology_stack.get("Excel Folder Analysis", [])
+            if excel_folder_tech:
+                html_content += """
+    <table>
+        <thead>
+            <tr>
+                <th>Folder</th>
+                <th>Files</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+"""
+                
+                for tech in excel_folder_tech:
+                    if not isinstance(tech, dict):
+                        continue
+                    
+                    name = tech.get("name", "Unknown")
+                    files = tech.get("files", [])
+                    purpose = tech.get("purpose", "N/A")
+                    
+                    # Format the folder name
+                    folder_name = name
+                    if name.startswith("Excel Folder: "):
+                        folder_name = name[len("Excel Folder: "):]
+                    
+                    html_content += f"""
+            <tr>
+                <td><strong>{folder_name}</strong></td>
+                <td>{len(files)}</td>
+                <td>{purpose}</td>
+            </tr>
+"""
+                
+                html_content += """
+        </tbody>
+    </table>
+"""
+            else:
+                html_content += """
+    <p style="color: #718096;">Excel folders detected but analysis unavailable.</p>
+"""
+
+        # Hard Gates Analysis Section
         html_content += """
-    <div class="security-quality">
-        <h2>Security & Quality Analysis</h2>
+    <h2>Hard Gates Analysis</h2>
 """
         
         if security_quality_analysis:
             # Categories to display
             categories = [
                 ("Auditability", "auditability"),
-                ("Availability", "availability"),
+                ("Availability", "availability"), 
                 ("Error Handling", "error_handling"),
                 ("Monitoring", "monitoring"),
-                ("Testing", "testing")
+                ("Testing", "testing"),
+                ("Security", "security"),
+                ("Performance", "performance"),
+                ("Data Management", "data_management")
             ]
             
             for display_name, category_key in categories:
@@ -1069,17 +888,17 @@ tr:hover {
                     continue
                     
                 html_content += f"""
-        <div class="security-category">
-            <h3>{display_name}</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Status</th>
-                        <th>Evidence</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <h3>{display_name}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
 """
                 
                 for practice, details in category_data.items():
@@ -1091,81 +910,38 @@ tr:hover {
                     
                     implemented = details.get("implemented", "no").lower()
                     evidence = details.get("evidence", "No evidence")
-                    
-                    status_class = ""
-                    status_text = "Not Implemented"
-                    if implemented == "yes":
-                        status_class = "low"
-                        status_text = "Implemented"
-                    elif implemented == "partial":
-                        status_class = "medium"
-                        status_text = "Partially Implemented"
-                    else:
-                        status_class = "high"
-                    
-                    html_content += f"""
-                    <tr>
-                        <td>{practice_display}</td>
-                        <td><span class="{status_class}">{status_text}</span></td>
-                        <td>{evidence}</td>
-                    </tr>
-"""
-                
-                html_content += """
-                </tbody>
-            </table>
-            
-            <h4>Recommendations</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Practice</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-"""
-                
-                for practice, details in category_data.items():
-                    if not isinstance(details, dict):
-                        continue
-                    
-                    practice_display = practice.replace("_", " ").title()
                     recommendation = details.get("recommendation", "No recommendation")
                     
+                    if implemented == "yes":
+                        status = '<span class="status-implemented">✓ Implemented</span>'
+                    elif implemented == "partial":
+                        status = '<span class="status-partial">⚬ Partial</span>'
+                    else:
+                        status = '<span class="status-not-implemented">✗ Missing</span>'
+                    
                     html_content += f"""
-                    <tr>
-                        <td>{practice_display}</td>
-                        <td>{recommendation}</td>
-                    </tr>
+            <tr>
+                <td><strong>{practice_display}</strong></td>
+                <td>{status}</td>
+                <td>{evidence}</td>
+                <td>{recommendation}</td>
+            </tr>
 """
                 
                 html_content += """
-                </tbody>
-            </table>
-        </div>
+        </tbody>
+    </table>
 """
         else:
             html_content += """
-        <div class="empty-section">
-            <p>No security and quality analysis information is available. This may happen if:</p>
-            <ul>
-                <li>The codebase doesn't have clear security or quality patterns to analyze</li>
-                <li>The files analyzed weren't sufficient for a comprehensive security review</li>
-                <li>The analysis was unable to complete successfully</li>
-            </ul>
-            <p>Consider uploading a more complete codebase or checking the analysis logs for errors.</p>
-        </div>
+    <p style="color: #718096;">No hard gates analysis available.</p>
 """
 
-        html_content += """
-    </div>
-
-    <div class="findings">
-        <h2>Findings</h2>
-"""
-
+        # Findings Section
         if findings:
+            html_content += """
+    <h2>Code Findings</h2>
+"""
             # Group findings by category
             findings_by_category = {}
             for finding in findings:
@@ -1177,8 +953,7 @@ tr:hover {
             # Add findings by category
             for category, category_findings in findings_by_category.items():
                 html_content += f"""
-        <div class="findings-category">
-            <h3>{category.title()}</h3>
+    <h3>{category.title()}</h3>
 """
                 
                 for i, finding in enumerate(category_findings):
@@ -1198,202 +973,88 @@ tr:hover {
                         line = "?"
                         code = ""
                     
-                    severity_class = severity.lower()
+                    severity_class = f"priority-{severity.lower()}"
                     
                     html_content += f"""
-            <div class="finding severity-{severity_class}">
-                <div class="finding-header">
-                    <span class="finding-number">{i+1}</span>
-                    <span class="finding-severity {severity_class}">{severity.title()}</span>
-                </div>
-                <h4>{description}</h4>
-                <p><strong>Location:</strong> {file_path}:{line}</p>
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h4 style="margin: 0 0 10px 0;">{i+1}. {description} <span class="{severity_class}">({severity.title()})</span></h4>
+        <p><strong>Location:</strong> {file_path}:{line}</p>
 """
                     
                     if code:
                         html_content += f"""
-                <div class="code-snippet">
-                    <pre><code>{code}</code></pre>
-                </div>
+        <p><strong>Code:</strong> <code>{code}</code></p>
 """
                     
                     html_content += f"""
-                <div class="recommendation">
-                    <strong>Recommendation:</strong> {recommendation}
-                </div>
-            </div>
-"""
-                
-                html_content += """
-        </div>
-"""
-        else:
-            html_content += """
-        <div class="empty-section">
-            <p>No findings were identified in the codebase. This could mean either:</p>
-            <ul>
-                <li>The codebase follows good practices and has no notable issues</li>
-                <li>The analysis was limited in scope or couldn't detect common issues</li>
-                <li>The analysis was unable to complete successfully</li>
-            </ul>
-            <p>You may want to perform a manual review of critical security aspects to confirm the absence of issues.</p>
-        </div>
-"""
-        
-        html_content += """
+        <p><strong>Recommendation:</strong> {recommendation}</p>
     </div>
-
-    <div class="action-items">
-        <h2>Action Items</h2>
 """
 
-        if action_items:
-            for i, item in enumerate(action_items):
-                priority_class = item['priority'].lower()
+        # JIRA Stories Section
+        if jira_stories:
+            html_content += """
+    <h2>JIRA Stories</h2>
+"""
+            
+            for story in jira_stories:
                 html_content += f"""
-        <div class="action-item {priority_class}">
-            <h3>{i+1}. {item['title']} (Priority: {item['priority']})</h3>
-            <p>{item['description']}</p>
-        </div>
-"""
-        else:
-            html_content += """
-        <p>No specific action items identified. The codebase appears to follow good practices.</p>
-"""
-
-        html_content += """
-    </div>
-"""
-
-        # Add Excel Folder Analysis section to HTML
-        if file_summary.get('excel_folders') or "Excel Folder Analysis" in technology_stack:
-            html_content += """
-    <div class="excel-folder-analysis">
-        <h2>Excel Folder Analysis</h2>
-"""
-            
-            excel_folder_tech = technology_stack.get("Excel Folder Analysis", [])
-            if excel_folder_tech:
-                html_content += """
-        <p>The following Excel folders were found in the codebase:</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Folder</th>
-                    <th>Files</th>
-                    <th>Purpose</th>
-                </tr>
-            </thead>
-            <tbody>
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 15px 0;">{story['key']}: {story['summary']}</h3>
+        <p><strong>Status:</strong> {story['status']} | <strong>Created:</strong> {story['created']} | <strong>Updated:</strong> {story['updated']}</p>
 """
                 
-                for tech in excel_folder_tech:
-                    if not isinstance(tech, dict):
-                        continue
-                    
-                    name = tech.get("name", "Unknown")
-                    files = tech.get("files", [])
-                    purpose = tech.get("purpose", "N/A")
-                    
-                    # Format the folder name
-                    folder_name = name
-                    if name.startswith("Excel Folder: "):
-                        folder_name = name[len("Excel Folder: "):]
-                    
+                if story['description']:
                     html_content += f"""
-                <tr>
-                    <td>{folder_name}</td>
-                    <td>{len(files)}</td>
-                    <td>{purpose}</td>
-                </tr>
+        <p><strong>Description:</strong> {story['description']}</p>
 """
                 
-                html_content += """
-            </tbody>
-        </table>
-        
-        <h3>Excel Folder Contents</h3>
-"""
-                
-                for tech in excel_folder_tech:
-                    if not isinstance(tech, dict):
-                        continue
-                    
-                    name = tech.get("name", "Unknown")
-                    files = tech.get("files", [])
-                    
-                    # Format the folder name
-                    folder_name = name
-                    if name.startswith("Excel Folder: "):
-                        folder_name = name[len("Excel Folder: "):]
-                    
-                    html_content += f"""
-        <div class="excel-folder">
-            <h4>{folder_name}</h4>
-"""
-                    
-                    if files:
-                        html_content += """
-            <p>Files in this folder:</p>
-            <ul class="excel-files-list">
-"""
-                        for file in files[:10]:  # Show up to 10 files
-                            html_content += f"""
-                <li>{file}</li>
-"""
-                        
-                        if len(files) > 10:
-                            html_content += f"""
-                <li>... and {len(files) - 10} more files</li>
-"""
-                        
-                        html_content += """
-            </ul>
-"""
-                    else:
-                        html_content += """
-            <p>No files listed for this folder.</p>
-"""
-                    
+                if story['comments']:
                     html_content += """
-        </div>
+        <p><strong>Comments:</strong></p>
+        <ul style="margin: 10px 0;">
 """
-            else:
-                html_content += """
-        <div class="empty-section">
-            <p>Excel folders were detected but no detailed analysis is available. This could be because:</p>
-            <ul>
-                <li>The files in these folders could not be properly analyzed</li>
-                <li>The analysis process didn't complete successfully for these folders</li>
-            </ul>
-"""
-                
-                if file_summary.get('excel_folders'):
-                    html_content += """
-            <p>Detected Excel folders:</p>
-            <ul>
-"""
-                    for folder in file_summary['excel_folders']:
+                    for comment in story['comments']:
                         html_content += f"""
-                <li>{folder}</li>
+            <li><strong>{comment['author']}</strong> ({comment['created']}): {comment['body']}</li>
 """
                     html_content += """
-            </ul>
+        </ul>
 """
                 
-                html_content += """
-        </div>
+                if story['attachments']:
+                    html_content += """
+        <p><strong>Attachments:</strong></p>
+        <ul style="margin: 10px 0;">
 """
-            
-            html_content += """
+                    for attachment in story['attachments']:
+                        html_content += f"""
+            <li>{attachment['filename']} ({attachment['size']} bytes)</li>
+"""
+                    html_content += """
+        </ul>
+"""
+                html_content += """
     </div>
 """
 
-        # Closing HTML tags
+        # Action Items Section
+        if action_items:
+            html_content += """
+    <h2>Action Items</h2>
+"""
+            for i, item in enumerate(action_items):
+                priority_class = f"priority-{item['priority'].lower()}"
+                html_content += f"""
+    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
+        <h3 style="margin: 0 0 10px 0;">{i+1}. {item['title']} <span class="{priority_class}">({item['priority']})</span></h3>
+        <p>{item['description']}</p>
+    </div>
+"""
+
         html_content += """
 </body>
-</html>
-"""
+</html>"""
 
         # Generate PDF
         pdf_path = None

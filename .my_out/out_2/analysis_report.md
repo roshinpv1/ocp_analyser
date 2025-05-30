@@ -2,40 +2,37 @@
 
 ## Summary
 
-📁 **Files Analyzed**: 16
-📂 **File Types**: .py (7), .json (5), .sh (1), .md (1)
-
-### 🔒 Security & Quality Overview
-
-- **Overall Implementation**: 46.7%
-- **Practices Status**: 7 ✅ implemented, 0 ⚠️ partially implemented, 8 ❌ not implemented
+📁 **Files Analyzed**: 61
+📂 **File Types**: .md (4), .txt (2), .py (13), .yml (2), .js (15), .ts (13), .json (9), .css (1)
 
 ### 🛡️ Hard Gates Assessment
 
 | Metric | Count | Status |
 |--------|-------|--------|
-| **Total Evaluated** | 15 | 📊 Complete |
-| **Gates Met** | 7 | ✅ Passed |
-| **Gates Partially Met** | 0 | ⚠️ In Progress |
-| **Gates Not Met** | 8 | ❌ Failed |
+| **Total Evaluated** | 30 | 🟊 Complete |
+| **Gates Met** | 19 | ✅ Passed |
+| **Gates Partially Met** | 5 | ⚠️ In Progress |
+| **Gates Not Met** | 6 | ❌ Failed |
+| **Compliance Percentage** | 71.7% | 🟡 |
 
 ### 🔍 Code Analysis Findings
 
-- **Total Issues Found**: 2
-- **🟠 High Severity Issues**: 1
-- **🟢 Low Severity Issues**: 1
+- **Total Issues Found**: 0 ✅
 
-### ⚠️ Component Validation
+### 📋 JIRA Analysis
 
-- **Declaration Mismatches**: 2 components need review
+- **Total Stories**: 3
+- **In Progress**: 1 stories
+- **To Do**: 1 stories
+- **Done**: 1 stories
 
 ## Table of Contents
 
-1. [Summary](#executive-summary)
+1. [Summary](#summary)
 2. [Technology Stack](#technology-stack)
-3. [Security & Quality Analysis](#security-quality-analysis)
+3. [Hard Gates Analysis](#hard-gates-analysis)
 4. [Findings](#findings)
-5. [Jira Stories](#jira-stories)
+5. [JIRA Stories](#jira-stories)
 6. [Action Items](#action-items)
 ## Technology Stack
 
@@ -43,146 +40,110 @@
 
 | Name | Version | Purpose |
 |------|---------|--------|
-| Python | 3.12-slim-bullseye | Scripting language for the application |
-| JSON | None | Data interchange format |
+| JavaScript | ES6+ | main application |
 
 ### Frameworks
 
 | Name | Version | Purpose |
 |------|---------|--------|
-| Docker | None | Containerization platform |
-| Apify SDK (Node.js) | None | Actor runtime for the application |
+| Next.js | 13.x | frontend framework |
+| Vercel | 2.x | deployment platform |
 
-### Infrastructure
+### Databases
 
 | Name | Version | Purpose |
 |------|---------|--------|
-| Docker | None | Containerization platform |
-| Apify Platform | None | Platform for deploying actors |
+| PostgreSQL | 14.x | data storage |
 
-## Security & Quality Analysis
+## Hard Gates Analysis
 
 ### Auditability
 
-| Practice | Status | Evidence |
-|----------|--------|----------|
-| Avoid Logging Confidential Data | ✅ Implemented | Logging `username` in .actor/README.md. |
-| Create Audit Trail Logs | ✅ Implemented | Writing logs to files (e.g., `$username.txt`) in the script. |
-| Tracking Id For Log Messages | ✅ Implemented | Including a timestamp in each log message. |
-| Log Rest Api Calls | ❌ Not Implemented | No explicit logging of REST API calls detected. |
-| Log Application Messages | ✅ Implemented | Logging messages within scripts like `sherlock.py`. |
-| Client Ui Errors Are Logged | ❌ Not Implemented | Not explicitly logged but can be inferred from context. |
-
-#### Recommendations
-
-| Practice | Recommendation |
-|----------|----------------|
-| Avoid Logging Confidential Data | Include additional client error tracking and logging for sensitive data. |
-| Create Audit Trail Logs | Use a consistent format and structure for audit log entries. |
-| Tracking Id For Log Messages | Ensure unique tracking IDs for all log messages to facilitate analysis. |
-| Log Rest Api Calls | Implement logging of incoming and outgoing HTTP requests. |
-| Log Application Messages | Consolidate logging in one central location for better manageability. |
-| Client Ui Errors Are Logged | Implement explicit logging of client-side UI errors. |
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Avoid Logging Confidential Data | ✅ Implemented | Confidential data is logged with masking or encryption | Continue practice |
+| Create Audit Trail Logs | ⚠️ Partially Implemented | Audit logs are written but not analyzed for completeness | Add detailed audit logging and analysis |
+| Tracking Id For Log Messages | ✅ Implemented | Correlation IDs are added to log messages | Ensure correlation IDs are consistently used |
+| Log Rest Api Calls | ✅ Implemented | API requests are logged with detailed information | Log all incoming and outgoing API calls |
+| Log Application Messages | ⚠️ Partially Implemented | Application messages are logged but not structured consistently | Standardize logging structure for consistency |
+| Client Ui Errors Are Logged | ✅ Implemented | Client-side errors are logged with severity levels | Implement detailed client error tracking |
 
 ### Availability
 
-| Practice | Status | Evidence |
-|----------|--------|----------|
-| Retry Logic | ❌ Not Implemented | No explicit retry logic implemented. |
-| Set Timeouts On Io Operations | ✅ Implemented | Setting timeouts on IO operations like `timeout=10` in `sherlock.py`, but consider increasing or using exponential backoff. |
-| Throttling Drop Request | ❌ Not Implemented | No throttling or dropping requests explicitly implemented. |
-| Circuit Breakers On Outgoing Requests | ❌ Not Implemented | No circuit breakers on outgoing requests detected. |
-
-#### Recommendations
-
-| Practice | Recommendation |
-|----------|----------------|
-| Retry Logic | Add retry mechanisms for HTTP requests to handle transient failures gracefully. |
-| Set Timeouts On Io Operations | Implement exponential backoff for handling retryable errors. |
-| Throttling Drop Request | Consider implementing rate limiting to prevent abuse and maintain system stability. |
-| Circuit Breakers On Outgoing Requests | Use circuit breakers to monitor and isolate failures in the application. |
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Retry Logic | ⚠️ Partially Implemented | Retry logic is implemented for network requests but not in all cases | Ensure retry logic applies to all API calls |
+| Set Timeouts On Io Operations | ✅ Implemented | Timeouts are set for I/O operations, but no specific values are documented | Define clear timeout thresholds and enforce them |
+| Throttling Drop Request | ❌ Not Implemented | No throttling mechanism is in place | Add rate limiting to prevent abuse |
+| Circuit Breakers On Outgoing Requests | ✅ Implemented | Circuit breakers are used for critical API calls | Continue using circuit breakers |
 
 ### Error Handling
 
-| Practice | Status | Evidence |
-|----------|--------|----------|
-| Log System Errors | ✅ Implemented | Logging errors to files (e.g., `$username.txt`) and messages within scripts like `sherlock.py`. |
-| Use Http Standard Error Codes | ❌ Not Implemented | Not explicitly used for error responses. |
-| Include Client Error Tracking | ✅ Implemented | Including client error details in log messages. |
-
-#### Recommendations
-
-| Practice | Recommendation |
-|----------|----------------|
-| Log System Errors | Ensure consistent error logging across all parts of the application. |
-| Use Http Standard Error Codes | Implement standardized HTTP status codes to ensure consistency in error handling responses. |
-| Include Client Error Tracking | Ensure detailed logging of client errors, including stack traces and request/response details. |
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Log System Errors | ✅ Implemented | System errors are logged with detailed stack traces | Log all exceptions and errors with full details |
+| Use Http Standard Error Codes | ✅ Implemented | Standard HTTP error codes are used for response handling | Ensure consistent use of status codes |
+| Include Client Error Tracking | ❌ Not Implemented | Client-side errors are not tracked with user context or severity levels | Implement detailed client error tracking |
 
 ### Monitoring
 
-| Practice | Status | Evidence |
-|----------|--------|----------|
-| Url Monitoring | ❌ Not Implemented | No monitoring implemented. |
-
-#### Recommendations
-
-| Practice | Recommendation |
-|----------|----------------|
-| Url Monitoring | Set up monitoring to track the availability and performance of the application. |
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Url Monitoring | ✅ Implemented | Health check endpoints are available for monitoring | Ensure all critical endpoints are monitored |
+| Metrics Collection | ❌ Not Implemented | No metrics are collected for performance monitoring | Integrate APM tools for comprehensive monitoring |
+| Performance Monitoring | ✅ Implemented | Performance metrics are collected and displayed in a dashboard | Use real-time insights for proactive maintenance |
 
 ### Testing
 
-| Practice | Status | Evidence |
-|----------|--------|----------|
-| Automated Regression Testing | ❌ Not Implemented | No automated tests present. |
-
-#### Recommendations
-
-| Practice | Recommendation |
-|----------|----------------|
-| Automated Regression Testing | Add unit, integration, and end-to-end tests to ensure the reliability and robustness of the application. |
-
-## Findings
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Automated Regression Testing | ⚠️ Partially Implemented | Regression tests are written but not regularly run | Implement automated testing and schedule regular runs |
+| Unit Testing | ✅ Implemented | Unit tests cover key components and logic | Ensure comprehensive coverage of all functionalities |
+| Integration Testing | ❌ Not Implemented | No integration tests are present | Add integration tests to verify cross-component interactions |
 
 ### Security
 
-#### 1. Legacy JKS files are used for storing sensitive credentials. These should be replaced with modern cryptographic methods. (Severity: High)
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Input Validation | ✅ Implemented | Input validation is performed for all API endpoints and forms | Ensure comprehensive input validation |
+| Authentication | ✅ Implemented | JWT-based authentication is used for user sessions | Implement stronger authentication mechanisms |
+| Authorization | ❌ Not Implemented | No role-based access control is in place | Add role-based access controls |
+| Encryption At Rest | ✅ Implemented | Data at rest is encrypted using AES-256 | Implement additional encryption layers for sensitive data |
+| Encryption In Transit | ✅ Implemented | HTTPS is used for all API calls and communications | Ensure all connections are encrypted |
 
-**Location**: .actor/README.md:0
+### Performance
 
-**Recommendation**: Replace legacy JKS files with modern cryptographic methods and update the code accordingly.
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Caching Strategy | ✅ Implemented | Caching is implemented using Redis for frequently accessed data | Optimize caching strategies based on usage patterns |
+| Connection Pooling | ✅ Implemented | Connection pools are used to manage database connections efficiently | Optimize connection pool size and configurations |
+| Async Processing | ✅ Implemented | Asynchronous processing is used for long-running tasks like background jobs | Implement more efficient asynchronous patterns |
 
-#### 2. SSL/TLS misconfiguration is not explicitly configured in the provided codebase. Consider updating libraries and settings to use modern SSL/TLS protocols. (Severity: Low)
+### Data Management
 
-**Location**: .actor/README.md:0
+| Practice | Status | Evidence | Recommendation |
+|----------|--------|----------|----------------|
+| Data Validation | ⚠️ Partially Implemented | Data validation is in place for input fields and database models | Add comprehensive data validation for all inputs |
+| Database Indexing | ✅ Implemented | Database indexes are optimized based on query performance | Regularly review and optimize database indexes |
+| Backup Strategy | ❌ Not Implemented | No backup strategy is in place | Implement regular backups of the database |
 
-**Recommendation**: Review library usage and update configurations to use modern SSL/TLS protocols.
+## Findings
+
+No findings were identified in the codebase.
 
 ## Action Items
 
-### 1. Resolve Component Declaration Mismatches (Priority: High)
+### 1. Enhance Application Resilience (Priority: High)
 
-There are discrepancies between the components declared in the intake form and those detected in the codebase. Review the Component Analysis section to identify and address these mismatches.
+Implement the following availability and resilience practices: throttling_drop_request.
 
-### 2. Address High Severity Findings (Priority: High)
+### 2. Improve Error Handling (Priority: Medium)
 
-There are 1 high severity findings that should be addressed soon. These issues may impact the stability or security of the application.
+Implement the following error handling practices: include_client_error_tracking.
 
-### 3. Improve Logging and Auditability (Priority: Medium)
+## JIRA Stories
 
-Implement the following logging and auditability practices: log_rest_api_calls, client_ui_errors_are_logged.
-
-### 4. Enhance Application Resilience (Priority: High)
-
-Implement the following availability and resilience practices: retry_logic, throttling_drop_request, circuit_breakers_on_outgoing_requests.
-
-### 5. Improve Error Handling (Priority: Medium)
-
-Implement the following error handling practices: use_http_standard_error_codes.
-
-## Jira Stories
-
-The following Jira stories are relevant to this project:
+The following JIRA stories are relevant to this project:
 
 ### XYZ-101: Implement Jira integration for code analyzer
 

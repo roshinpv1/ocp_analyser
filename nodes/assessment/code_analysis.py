@@ -111,10 +111,22 @@ class AnalyzeCode(Node):
             }
 
         # Simplified and shorter prompt to avoid token limits
-        prompt = f"""Analyze this {project_name} codebase ({file_count} files) and provide analysis in VALID JSON format.
+        prompt = f"""Analyze this {project_name} codebase ({file_count} files) for comprehensive hard gates assessment.
 
 CODE SAMPLES:
 {context[:3000]}...
+
+HARD GATES ANALYSIS REQUIRED:
+1. AUDITABILITY: Logging practices, audit trails, tracking IDs, API call logging
+2. AVAILABILITY: Retry logic, timeouts, circuit breakers, throttling  
+3. ERROR HANDLING: Error logging, HTTP codes, client error tracking
+4. MONITORING: Health checks, URL monitoring, metrics collection
+5. TESTING: Automated testing, unit tests, integration tests
+6. SECURITY: Authentication, authorization, input validation, encryption
+7. PERFORMANCE: Caching, connection pooling, async processing
+8. DATA MANAGEMENT: Database practices, data validation, backup strategies
+
+Analyze code patterns, configuration files, dependencies, and implementation details.
 
 Return ONLY valid JSON with this structure:
 
@@ -134,44 +146,72 @@ Return ONLY valid JSON with this structure:
     {{
       "category": "security",
       "severity": "high",
-      "description": "Security issue found",
+      "description": "Missing input validation in REST endpoints",
       "location": "file.java:123",
-      "recommendation": "Fix this"
+      "recommendation": "Add input validation and sanitization"
     }}
   ],
   "component_analysis": {{
-    "Redis": {{"detected": "yes", "evidence": "Found redis imports"}},
-    "KAFKA": {{"detected": "no", "evidence": "No kafka references"}},
+    "Redis": {{"detected": "yes", "evidence": "Found redis imports in config"}},
+    "KAFKA": {{"detected": "no", "evidence": "No kafka references found"}},
     "REST API": {{"detected": "yes", "evidence": "REST controllers found"}},
-    "SOAP": {{"detected": "no", "evidence": "No SOAP services"}},
-    "LDAP": {{"detected": "no", "evidence": "No LDAP config"}},
+    "SOAP": {{"detected": "no", "evidence": "No SOAP services detected"}},
+    "LDAP": {{"detected": "no", "evidence": "No LDAP configuration"}},
     "MySQL": {{"detected": "yes", "evidence": "Database config found"}},
     "JWT": {{"detected": "yes", "evidence": "JWT tokens used"}},
-    "MTLS": {{"detected": "no", "evidence": "No mutual TLS"}}
+    "MTLS": {{"detected": "no", "evidence": "No mutual TLS found"}}
   }},
   "security_quality_analysis": {{
     "auditability": {{
-      "logging_practices": {{"implemented": "yes", "evidence": "Logging found", "recommendation": "Continue"}},
-      "audit_trails": {{"implemented": "no", "evidence": "No audit system", "recommendation": "Add audit logs"}}
+      "avoid_logging_confidential_data": {{"implemented": "yes", "evidence": "No sensitive data in logs", "recommendation": "Continue practice"}},
+      "create_audit_trail_logs": {{"implemented": "partial", "evidence": "Some logging found", "recommendation": "Add comprehensive audit logging"}},
+      "tracking_id_for_log_messages": {{"implemented": "no", "evidence": "No correlation IDs", "recommendation": "Add tracking IDs"}},
+      "log_rest_api_calls": {{"implemented": "yes", "evidence": "API logging present", "recommendation": "Ensure all endpoints logged"}},
+      "log_application_messages": {{"implemented": "partial", "evidence": "Some app logging", "recommendation": "Standardize logging"}},
+      "client_ui_errors_are_logged": {{"implemented": "no", "evidence": "No client error logging", "recommendation": "Add client error tracking"}}
     }},
     "availability": {{
-      "retry_logic": {{"implemented": "partial", "evidence": "Some retries", "recommendation": "Add more"}},
-      "timeouts": {{"implemented": "yes", "evidence": "Timeouts set", "recommendation": "Review values"}}
+      "retry_logic": {{"implemented": "partial", "evidence": "Some retry patterns", "recommendation": "Implement consistent retry logic"}},
+      "set_timeouts_on_io_operations": {{"implemented": "yes", "evidence": "Timeouts configured", "recommendation": "Review timeout values"}},
+      "throttling_drop_request": {{"implemented": "no", "evidence": "No throttling found", "recommendation": "Add rate limiting"}},
+      "circuit_breakers_on_outgoing_requests": {{"implemented": "no", "evidence": "No circuit breakers", "recommendation": "Implement circuit breaker pattern"}}
     }},
     "error_handling": {{
-      "error_logging": {{"implemented": "yes", "evidence": "Error logs", "recommendation": "Standardize"}},
-      "http_codes": {{"implemented": "yes", "evidence": "Standard codes", "recommendation": "Continue"}}
+      "log_system_errors": {{"implemented": "yes", "evidence": "Error logging present", "recommendation": "Ensure all errors logged"}},
+      "use_http_standard_error_codes": {{"implemented": "yes", "evidence": "Standard HTTP codes", "recommendation": "Continue practice"}},
+      "include_client_error_tracking": {{"implemented": "no", "evidence": "No client tracking", "recommendation": "Add client error monitoring"}}
     }},
     "monitoring": {{
-      "url_monitoring": {{"implemented": "no", "evidence": "No monitoring", "recommendation": "Add health checks"}}
+      "url_monitoring": {{"implemented": "no", "evidence": "No health endpoints", "recommendation": "Add health check endpoints"}},
+      "metrics_collection": {{"implemented": "no", "evidence": "No metrics found", "recommendation": "Add application metrics"}},
+      "performance_monitoring": {{"implemented": "no", "evidence": "No APM integration", "recommendation": "Add performance monitoring"}}
     }},
     "testing": {{
-      "automated_testing": {{"implemented": "partial", "evidence": "Some tests", "recommendation": "Increase coverage"}}
+      "automated_regression_testing": {{"implemented": "partial", "evidence": "Some tests found", "recommendation": "Increase test coverage"}},
+      "unit_testing": {{"implemented": "partial", "evidence": "Unit tests present", "recommendation": "Improve coverage"}},
+      "integration_testing": {{"implemented": "no", "evidence": "No integration tests", "recommendation": "Add integration tests"}}
+    }},
+    "security": {{
+      "input_validation": {{"implemented": "no", "evidence": "No validation found", "recommendation": "Add input validation"}},
+      "authentication": {{"implemented": "partial", "evidence": "Some auth found", "recommendation": "Strengthen authentication"}},
+      "authorization": {{"implemented": "no", "evidence": "No authorization", "recommendation": "Add role-based access"}},
+      "encryption_at_rest": {{"implemented": "no", "evidence": "No encryption config", "recommendation": "Add data encryption"}},
+      "encryption_in_transit": {{"implemented": "partial", "evidence": "HTTPS configured", "recommendation": "Ensure all communications encrypted"}}
+    }},
+    "performance": {{
+      "caching_strategy": {{"implemented": "no", "evidence": "No caching found", "recommendation": "Add caching layer"}},
+      "connection_pooling": {{"implemented": "partial", "evidence": "Some pooling", "recommendation": "Optimize connection pools"}},
+      "async_processing": {{"implemented": "no", "evidence": "No async patterns", "recommendation": "Add asynchronous processing"}}
+    }},
+    "data_management": {{
+      "data_validation": {{"implemented": "partial", "evidence": "Some validation", "recommendation": "Add comprehensive validation"}},
+      "database_indexing": {{"implemented": "no", "evidence": "No index optimization", "recommendation": "Optimize database indexes"}},
+      "backup_strategy": {{"implemented": "no", "evidence": "No backup config", "recommendation": "Implement backup strategy"}}
     }}
   }}
 }}
 
-Focus on: Java frameworks, databases, security patterns, API types, authentication. Return ONLY the JSON, no other text.
+Focus on real implementation patterns, not just declarations. Look for actual code usage, configuration files, and architectural patterns.
 """
 
         try:
@@ -414,10 +454,31 @@ Focus on: Java frameworks, databases, security patterns, API types, authenticati
                         "include_client_error_tracking"
                     ],
                     "monitoring": [
-                        "url_monitoring"
+                        "url_monitoring",
+                        "metrics_collection", 
+                        "performance_monitoring"
                     ],
                     "testing": [
-                        "automated_regression_testing"
+                        "automated_regression_testing",
+                        "unit_testing",
+                        "integration_testing"
+                    ],
+                    "security": [
+                        "input_validation",
+                        "authentication",
+                        "authorization", 
+                        "encryption_at_rest",
+                        "encryption_in_transit"
+                    ],
+                    "performance": [
+                        "caching_strategy",
+                        "connection_pooling",
+                        "async_processing"
+                    ],
+                    "data_management": [
+                        "data_validation",
+                        "database_indexing",
+                        "backup_strategy"
                     ]
                 }
                 
