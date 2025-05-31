@@ -215,109 +215,198 @@ DO NOT USE ANY JINJA2 TEMPLATE SYNTAX - only return final HTML with actual value
             # Use the same styling as the main analysis report for consistency
             css_styles = """
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
     margin: 0;
-    padding: 40px;
-    color: #333;
-    max-width: 1100px;
+    padding: 40px 20px;
+    color: #374151;
+    max-width: 900px;
     margin: 0 auto;
-    background-color: #fafafa;
+    background: #f3f4f6;
 }
+
 h1 {
-    font-size: 1.8em;
-    font-weight: 400;
-    margin: 0 0 20px 0;
+    font-size: 2em;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+    color: #1f2937;
+    border-bottom: 3px solid #2563eb;
     padding-bottom: 15px;
-    border-bottom: 1px solid #eaeaea;
-    color: #2c3e50;
 }
+
 h2 {
     font-size: 1.4em;
-    font-weight: 500;
-    margin: 25px 0 15px 0;
-    color: #2c3e50;
-    padding-top: 15px;
-    border-top: 1px solid #eaeaea;
+    font-weight: 600;
+    margin: 40px 0 15px 0;
+    color: #1f2937;
 }
-h2:first-of-type { border-top: none; }
+
 h3 {
-    font-size: 1.2em;
-    font-weight: 500;
-    margin: 20px 0 10px 0;
-    color: #34495e;
-}
-h4 {
     font-size: 1.1em;
+    font-weight: 600;
+    margin: 25px 0 10px 0;
+    color: #374151;
+}
+
+h4 {
+    font-size: 1em;
     font-weight: 500;
     margin: 15px 0 8px 0;
-    color: #34495e;
+    color: #6b7280;
 }
+
 p {
     margin: 0 0 15px 0;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    border-radius: 4px;
+    background: #fff;
+    border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
 }
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eaeaea;
-}
+
 th {
-    background-color: #f8f9fa;
-    font-weight: 500;
-    color: #2c3e50;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.875em;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
+
+td {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875em;
+    border: none;
+    color: #374151;
+}
+
 tr:last-child td {
     border-bottom: none;
 }
-tr:hover {
-    background-color: #f8f9fa;
+
+tbody tr:nth-child(even) {
+    background: #f9fafb;
 }
-.critical { color: #e74c3c; }
-.high { color: #e67e22; }
-.medium { color: #3498db; }
-.low { color: #2ecc71; }
-.score-high { color: #2ecc71; }
-.score-medium { color: #f39c12; }
-.score-low { color: #e74c3c; }
+
+tbody tr:nth-child(odd) {
+    background: #fff;
+}
+
+tbody tr:hover {
+    background: #eff6ff !important;
+    transition: background-color 0.15s ease;
+}
+
+td:first-child {
+    background: #f8fafc !important;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+tbody tr:hover td:first-child {
+    background: #e0f2fe !important;
+}
+
+.critical { 
+    color: #dc2626; 
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.high { 
+    color: #d97706; 
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.medium { 
+    color: #2563eb; 
+    font-weight: 600;
+    background: #eff6ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.low { 
+    color: #059669;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+
+.score-high { 
+    color: #059669;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.score-medium { 
+    color: #d97706; 
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.score-low { 
+    color: #dc2626; 
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
 
 .executive-summary, .section {
     background-color: #fff;
     padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     margin-bottom: 25px;
+    border: 1px solid #e5e7eb;
 }
+
 .finding {
-    padding: 15px;
+    padding: 16px 20px;
     margin: 15px 0;
-    border-left: 4px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
+    border-left: 4px solid #e5e7eb;
+    background-color: #f9fafb;
+    border-radius: 0 8px 8px 0;
 }
-.finding.critical { border-left-color: #e74c3c; }
-.finding.high { border-left-color: #e67e22; }
-.finding.medium { border-left-color: #3498db; }
-.finding.low { border-left-color: #2ecc71; }
+.finding.critical { border-left-color: #dc2626; }
+.finding.high { border-left-color: #d97706; }
+.finding.medium { border-left-color: #2563eb; }
+.finding.low { border-left-color: #059669; }
 
 .action-item {
-    padding: 15px;
+    padding: 16px 20px;
     margin: 15px 0;
-    border-left: 4px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
+    border-left: 4px solid #e5e7eb;
+    background-color: #f9fafb;
+    border-radius: 0 8px 8px 0;
 }
-.action-item.critical { border-left-color: #e74c3c; }
-.action-item.high { border-left-color: #e67e22; }
-.action-item.medium { border-left-color: #3498db; }
-.action-item.low { border-left-color: #2ecc71; }
+.action-item.critical { border-left-color: #dc2626; }
+.action-item.high { border-left-color: #d97706; }
+.action-item.medium { border-left-color: #2563eb; }
+.action-item.low { border-left-color: #059669; }
 """
             
             # Create a complete HTML document with proper styling

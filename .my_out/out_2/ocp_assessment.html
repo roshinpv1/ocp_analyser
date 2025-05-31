@@ -7,240 +7,260 @@
     <style>
     
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
     margin: 0;
-    padding: 40px;
-    color: #333;
-    max-width: 1100px;
+    padding: 40px 20px;
+    color: #374151;
+    max-width: 900px;
     margin: 0 auto;
-    background-color: #fafafa;
+    background: #f3f4f6;
 }
+
 h1 {
-    font-size: 1.8em;
-    font-weight: 400;
-    margin: 0 0 20px 0;
+    font-size: 2em;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+    color: #1f2937;
+    border-bottom: 3px solid #2563eb;
     padding-bottom: 15px;
-    border-bottom: 1px solid #eaeaea;
-    color: #2c3e50;
 }
+
 h2 {
     font-size: 1.4em;
-    font-weight: 500;
-    margin: 25px 0 15px 0;
-    color: #2c3e50;
-    padding-top: 15px;
-    border-top: 1px solid #eaeaea;
+    font-weight: 600;
+    margin: 40px 0 15px 0;
+    color: #1f2937;
 }
-h2:first-of-type { border-top: none; }
+
 h3 {
-    font-size: 1.2em;
-    font-weight: 500;
-    margin: 20px 0 10px 0;
-    color: #34495e;
-}
-h4 {
     font-size: 1.1em;
+    font-weight: 600;
+    margin: 25px 0 10px 0;
+    color: #374151;
+}
+
+h4 {
+    font-size: 1em;
     font-weight: 500;
     margin: 15px 0 8px 0;
-    color: #34495e;
+    color: #6b7280;
 }
+
 p {
     margin: 0 0 15px 0;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    border-radius: 4px;
+    background: #fff;
+    border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
 }
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eaeaea;
-}
+
 th {
-    background-color: #f8f9fa;
-    font-weight: 500;
-    color: #2c3e50;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.875em;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
+
+td {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875em;
+    border: none;
+    color: #374151;
+}
+
 tr:last-child td {
     border-bottom: none;
 }
-tr:hover {
-    background-color: #f8f9fa;
+
+tbody tr:nth-child(even) {
+    background: #f9fafb;
 }
-.critical { color: #e74c3c; }
-.high { color: #e67e22; }
-.medium { color: #3498db; }
-.low { color: #2ecc71; }
-.score-high { color: #2ecc71; }
-.score-medium { color: #f39c12; }
-.score-low { color: #e74c3c; }
+
+tbody tr:nth-child(odd) {
+    background: #fff;
+}
+
+tbody tr:hover {
+    background: #eff6ff !important;
+    transition: background-color 0.15s ease;
+}
+
+td:first-child {
+    background: #f8fafc !important;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+tbody tr:hover td:first-child {
+    background: #e0f2fe !important;
+}
+
+.critical { 
+    color: #dc2626; 
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.high { 
+    color: #d97706; 
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.medium { 
+    color: #2563eb; 
+    font-weight: 600;
+    background: #eff6ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.low { 
+    color: #059669;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+
+.score-high { 
+    color: #059669;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.score-medium { 
+    color: #d97706; 
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.score-low { 
+    color: #dc2626; 
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
 
 .executive-summary, .section {
     background-color: #fff;
     padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     margin-bottom: 25px;
+    border: 1px solid #e5e7eb;
 }
+
 .finding {
-    padding: 15px;
+    padding: 16px 20px;
     margin: 15px 0;
-    border-left: 4px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
+    border-left: 4px solid #e5e7eb;
+    background-color: #f9fafb;
+    border-radius: 0 8px 8px 0;
 }
-.finding.critical { border-left-color: #e74c3c; }
-.finding.high { border-left-color: #e67e22; }
-.finding.medium { border-left-color: #3498db; }
-.finding.low { border-left-color: #2ecc71; }
+.finding.critical { border-left-color: #dc2626; }
+.finding.high { border-left-color: #d97706; }
+.finding.medium { border-left-color: #2563eb; }
+.finding.low { border-left-color: #059669; }
 
 .action-item {
-    padding: 15px;
+    padding: 16px 20px;
     margin: 15px 0;
-    border-left: 4px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 0 4px 4px 0;
+    border-left: 4px solid #e5e7eb;
+    background-color: #f9fafb;
+    border-radius: 0 8px 8px 0;
 }
-.action-item.critical { border-left-color: #e74c3c; }
-.action-item.high { border-left-color: #e67e22; }
-.action-item.medium { border-left-color: #3498db; }
-.action-item.low { border-left-color: #2ecc71; }
+.action-item.critical { border-left-color: #dc2626; }
+.action-item.high { border-left-color: #d97706; }
+.action-item.medium { border-left-color: #2563eb; }
+.action-item.low { border-left-color: #059669; }
 
     </style>
 </head>
 <body>
     <h1>OpenShift Migration Assessment for Bill Pay</h1>
     <div class="executive-summary">
-        <div class="report-container">
+        <div>
+    <h1>OpenShift Migration Assessment Report</h1>
+    <p><strong>Application Name:</strong> Bill Pay</p>
+    <p><strong>Status:</strong>No Go</p>
 
-  <!-- Header -->
-  <h1>OpenShift Migration Assessment Report</h1>
-  
-  <!-- Summary Section -->
-  <h2>Summary</h2>
-  <p>The assessment has been performed for the component "Bill Pay". The application is not currently running in PCF. It uses various services such as Redis, SMTP, and other unspecified services. There are no test users available for testing during migration.</p>
-  
-  <!-- Technical Dimensions -->
-  <h3>Technical Dimensions</h3>
-  <table class="score-table">
-    <tr>
-      <th>Dimension</th>
-      <th>Score</th>
-      <th>Comments</th>
-    </tr>
-    <tr>
-      <td>Compatibility with OpenShift</td>
-      <td>50/100</td>
-      <td>The application uses various services that are not natively supported by OpenShift, and the codebase does not contain components that can be easily migrated to containerized environments.</td>
-    </tr>
-    <tr>
-      <td>Resource Management</td>
-      <td>50/100</td>
-      <td>The application uses various services that require specific configuration settings for OpenShift compatibility, and the resource usage patterns need to be carefully evaluated before migration.</td>
-    </tr>
-    <tr>
-      <td>Maintenance and Monitoring</td>
-      <td>75/100</td>
-      <td>The application has existing monitoring and logging mechanisms that can be integrated with OpenShift, but the compatibility with specific services needs to be evaluated.</td>
-    </tr>
-  </table>
+    <!-- Component Analysis Section -->
+    <h2>Component Analysis</h2>
+    <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
+    <table class="component-table">
+        <tr>
+            <th>Component</th>
+            <th>Declared</th>
+            <th>Detected</th>
+            <th>Status</th>
+        </tr>
 
-  <!-- Migration Feasibility -->
-  <h2>Migration Feasibility</h2>
-  <p>Based on the analysis, it is not feasible to migrate the component "Bill Pay" to OpenShift. The application uses various services that are not natively supported by OpenShift and do not have equivalents in containerized environments.</p>
+        <!-- List all predefined components -->
+        <tr><td>venafi</td><td>No</td><td>No</td><td>Match</td></tr>
+        <tr><td>redis</td><td>Yes</td><td>No</td><td>Mismatch</td></tr>
+        <tr><td>channel secure / pingfed</td><td>Yes</td><td>No</td><td>Mismatch</td></tr>
+        <tr><td>nas / smb</td><td>Yes</td><td>No</td><td>Mismatch</td></tr>
+        <!-- Continue for all components listed in the system prompt -->
 
-  <!-- Migration Strategy -->
-  <h2>Migration Strategy</h2>
-  <p>The recommended strategy for migrating this component is a lift-and-shift approach, where the existing infrastructure is replicated on OpenShift. This will allow the application to run with minimal changes and minimize downtime during the migration process.</p>
+    </table>
 
-  <!-- Risk Assessment -->
-  <h2>Risk Assessment</h2>
-  <table class="risk-table">
-    <tr>
-      <th>Category</th>
-      <th>Likelihood</th>
-      <th>Impact</th>
-    </tr>
-    <tr>
-      <td>Technical Challenges</td>
-      <td>High</td>
-      <td>The application uses various services that are not natively supported by OpenShift and do not have equivalents in containerized environments.</td>
-    </tr>
-    <tr>
-      <td>Resource Constraints</td>
-      <td>Medium</td>
-      <td>The resource usage patterns need to be carefully evaluated before migration, which may require additional resources and effort.</td>
-    </tr>
-    <tr>
-      <td>Operational Changes</td>
-      <td>Low</td>
-      <td>The application has existing monitoring and logging mechanisms that can be integrated with OpenShift, so there will be minimal changes to the operational procedures.</td>
-    </tr>
-  </table>
+    <!-- Detailed Assessment -->
+    <h2>Detailed Assessment</h2>
 
-  <!-- Recommendations -->
-  <h2>Recommendations</h2>
-  <p>To successfully migrate this component to OpenShift, the following actions are recommended:</p>
-  <ul>
-    <li>Replicate the existing infrastructure on OpenShift using a lift-and-shift approach.</li>
-    <li>Review and update the deployment and operational procedures for compatibility with OpenShift.</li>
-    <li>Identify any critical components that need to be migrated to containerized environments, and evaluate the feasibility of doing so.</li>
-  </ul>
+    <p>The migration assessment for Bill Pay has been conducted based on the provided intake form data. The assessment concluded that the application is not compatible with OpenShift due to several critical issues.</p>
 
-  <!-- Component Analysis -->
-  <h2>Component Analysis</h2>
-  <p>The following table compares the components declared in the intake form with the components detected in the codebase:</p>
-  <table class="component-analysis-table">
-    <tr><th>Component</th><th>Declared</th><th>Detected</th><th>Status</th></tr>
-    <tr><td>venafi</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>redis</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
-    <tr><td>channel secure/pingfed</td><td>Yes</td><td>Yes</td><td>Mismatch</td></tr>
-    <tr><td>nas/smb</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>smtp</td><td>Yes</td><td>Yes</td><td>Match</td></tr>
-    <tr><td>autosys</td><td>Yes</td><td>Yes</td><td>Mismatch</td></tr>
-    <tr><td>mtls/mutual auth or hard rock pattem in the application</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>ndm</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>legacy jks file</td><td>Yes</td><td>Yes</td><td>Mismatch</td></tr>
-    <tr><td>soap calls</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>rest api</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>apigee</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>kafka</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>ibm mq</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>mq, is the component using any cipher suite</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>ldap</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>splunk</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>appd</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>elastic apm</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>hamess or ucd for ci cd</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>hardrock / mtls auth</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>appdynamics</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>rabbitmq</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>database</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>mongodb</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>sqlserver</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>mysql</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>postgresql</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>oracle</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>cassandra</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>couchbase</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>neo4j</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>hadoop</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>spark</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>okta</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>saml</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>auth</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>jwt</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>openid</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>adfs</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>san</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>malwarescanner</td><td>No</td><td>No</td><td>Match</td></tr>
-    <tr><td>any other service</td><td>No</td><td>No</td><td>Match</td></tr>
-  </table>
+    <h3>Mission Score: 0/100</h3>
+    <table class="assessment-table">
+        <tr><th>Technical Dimension</th><th>Score</th></tr>
+        <tr><td>Component Declaration</td><td>0</td></tr>
+        <tr><td>Resource Utilization</td><td>0</td></tr>
+        <tr><td>Middleware Compatibility</td><td>0</td></tr>
+        <!-- Add more technical dimensions as necessary -->
+
+    </table>
+
+    <h3>Migration Blockers/Critical Concerns:</h3>
+    <ul class="blocker-list">
+        <li>The component uses Redis, but it is not detected in the codebase. This indicates a mismatch between the declaration and detection of components.</li>
+        <!-- Add more blockers as necessary -->
+
+    </ul>
+
+    <h3>Recommendations:</h3>
+    <ul class="recommendation-list">
+        <li>Add the Redis component to the application's manifest or configuration file.</li>
+        <!-- Add specific recommendations as necessary -->
+
+    </ul>
+
+    <h4>Risk Assessment:</h4>
+    <p>The risk associated with this assessment is high due to the mismatch in components detected and declared. The lack of Redis in the codebase poses a significant risk to the application's functionality if not addressed.</p>
 
 </div>
     </div>

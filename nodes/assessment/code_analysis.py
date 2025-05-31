@@ -454,32 +454,13 @@ Focus on real implementation patterns, not just declarations. Look for actual co
                         "include_client_error_tracking"
                     ],
                     "monitoring": [
-                        "url_monitoring",
-                        "metrics_collection", 
-                        "performance_monitoring"
+                        "url_monitoring"
                     ],
                     "testing": [
                         "automated_regression_testing",
-                        "unit_testing",
-                        "integration_testing"
-                    ],
-                    "security": [
-                        "input_validation",
-                        "authentication",
-                        "authorization", 
-                        "encryption_at_rest",
-                        "encryption_in_transit"
-                    ],
-                    "performance": [
-                        "caching_strategy",
-                        "connection_pooling",
-                        "async_processing"
-                    ],
-                    "data_management": [
-                        "data_validation",
-                        "database_indexing",
-                        "backup_strategy"
+                        "unit_testing"
                     ]
+                   
                 }
                 
                 security_quality = analysis.get("security_quality_analysis", {})

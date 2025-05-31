@@ -102,7 +102,7 @@ class GenerateReport(Node):
         
         # Add Excel folder information if present
         if file_summary.get('excel_folders'):
-            report += f"📊 **Excel Folders**: {len(file_summary['excel_folders'])}\n"
+            report += f"**Excel Folders**: {len(file_summary['excel_folders'])}\n"
             report += "  - " + ", ".join(file_summary['excel_folders']) + "\n"
         
         report += "\n"  # Add spacing
@@ -141,14 +141,14 @@ class GenerateReport(Node):
                 implementation_percentage = ((categories_implemented + 0.5 * categories_partial) / categories_total) * 100
                 
                 # Hard Gate Statistics only
-                hard_gate_stats = "### 🛡️ Hard Gates Assessment\n\n"
+                hard_gate_stats = "### Hard Gates Assessment\n\n"
                 hard_gate_stats += f"| Metric | Count | Status |\n"
                 hard_gate_stats += f"|--------|-------|--------|\n"
-                hard_gate_stats += f"| **Total Evaluated** | {categories_total} | 🟊 Complete |\n"
-                hard_gate_stats += f"| **Gates Met** | {categories_implemented} | ✅ Passed |\n"
-                hard_gate_stats += f"| **Gates Partially Met** | {categories_partial} | ⚠️ In Progress |\n"
-                hard_gate_stats += f"| **Gates Not Met** | {categories_not_implemented} | ❌ Failed |\n"
-                hard_gate_stats += f"| **Compliance Percentage** | {implementation_percentage:.1f}% | {'🟢' if implementation_percentage >= 80 else '🟡' if implementation_percentage >= 60 else '🔴'} |\n\n"
+                hard_gate_stats += f"| **Total Evaluated** | {categories_total} | Complete |\n"
+                hard_gate_stats += f"| **Gates Met** | {categories_implemented} | Passed |\n"
+                hard_gate_stats += f"| **Gates Partially Met** | {categories_partial} | In Progress |\n"
+                hard_gate_stats += f"| **Gates Not Met** | {categories_not_implemented} | Failed |\n"
+                hard_gate_stats += f"| **Compliance Percentage** | {implementation_percentage:.1f}% | {'Good' if implementation_percentage >= 80 else 'Fair' if implementation_percentage >= 60 else 'Needs Improvement'} |\n\n"
         
         # Enhanced findings statistics
         findings_stats = ""
@@ -161,20 +161,20 @@ class GenerateReport(Node):
                 else:
                     severity_counts["low"] += 1
             
-            findings_stats = "### 🔍 Code Analysis Findings\n\n"
+            findings_stats = "### Code Analysis Findings\n\n"
             findings_stats += f"- **Total Issues Found**: {len(findings)}\n"
             if severity_counts["critical"] > 0:
-                findings_stats += f"- **🔴 Critical Issues**: {severity_counts['critical']}\n"
+                findings_stats += f"- **Critical Issues**: {severity_counts['critical']}\n"
             if severity_counts["high"] > 0:
-                findings_stats += f"- **🟠 High Severity Issues**: {severity_counts['high']}\n"
+                findings_stats += f"- **High Severity Issues**: {severity_counts['high']}\n"
             if severity_counts["medium"] > 0:
-                findings_stats += f"- **🟡 Medium Severity Issues**: {severity_counts['medium']}\n"
+                findings_stats += f"- **Medium Severity Issues**: {severity_counts['medium']}\n"
             if severity_counts["low"] > 0:
-                findings_stats += f"- **🟢 Low Severity Issues**: {severity_counts['low']}\n"
+                findings_stats += f"- **Low Severity Issues**: {severity_counts['low']}\n"
             findings_stats += "\n"
         else:
-            findings_stats = "### 🔍 Code Analysis Findings\n\n"
-            findings_stats += "- **Total Issues Found**: 0 ✅\n\n"
+            findings_stats = "### Code Analysis Findings\n\n"
+            findings_stats += "- **Total Issues Found**: 0\n\n"
         
         # JIRA Analysis statistics
         jira_stats = ""
@@ -184,7 +184,7 @@ class GenerateReport(Node):
                 status = story.get('status', 'Unknown')
                 status_counts[status] = status_counts.get(status, 0) + 1
             
-            jira_stats = "### 📋 JIRA Analysis\n\n"
+            jira_stats = "### JIRA Analysis\n\n"
             jira_stats += f"- **Total Stories**: {len(jira_stories)}\n"
             for status, count in status_counts.items():
                 jira_stats += f"- **{status}**: {count} stories\n"
@@ -517,140 +517,198 @@ class GenerateReport(Node):
             
             report += "\n"
         
-        # Generate HTML content with minimal elegant CSS
+        # Generate HTML content with ultra-minimal elegant CSS
         css = """
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
     margin: 0;
-    padding: 60px 40px;
-    color: #2d3748;
-    max-width: 1000px;
+    padding: 40px 20px;
+    color: #374151;
+    max-width: 900px;
     margin: 0 auto;
-    background: #fdfdfd;
+    background: #f3f4f6;
 }
 
 h1 {
-    font-size: 2.2em;
-    font-weight: 300;
-    margin: 0 0 40px 0;
-    color: #1a202c;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 20px;
+    font-size: 2em;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+    color: #1f2937;
+    border-bottom: 3px solid #2563eb;
+    padding-bottom: 15px;
 }
 
 h2 {
-    font-size: 1.5em;
-    font-weight: 400;
-    margin: 50px 0 20px 0;
-    color: #2d3748;
-    border-bottom: 1px solid #f7fafc;
-    padding-bottom: 10px;
+    font-size: 1.4em;
+    font-weight: 600;
+    margin: 40px 0 15px 0;
+    color: #1f2937;
 }
 
 h3 {
-    font-size: 1.2em;
-    font-weight: 500;
-    margin: 30px 0 15px 0;
-    color: #4a5568;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 25px 0 10px 0;
+    color: #374151;
 }
 
 h4 {
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 500;
-    margin: 20px 0 10px 0;
-    color: #4a5568;
+    margin: 15px 0 8px 0;
+    color: #6b7280;
 }
 
-/* Minimal modern tables */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 30px 0;
-    background: white;
-    border-radius: 4px;
+    margin: 20px 0;
+    background: #fff;
+    border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
 }
 
 th {
-    background: #f9fafb;
-    color: #374151;
-    font-weight: 500;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
     padding: 16px 20px;
     text-align: left;
-    font-size: 0.875rem;
-    letter-spacing: 0.025em;
-    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.875em;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 td {
-    padding: 16px 20px;
+    padding: 12px 20px;
     border-bottom: 1px solid #f3f4f6;
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: 0.875em;
+    border: none;
+    color: #374151;
 }
 
 tr:last-child td {
     border-bottom: none;
 }
 
-tbody tr:hover {
+tbody tr:nth-child(even) {
     background: #f9fafb;
 }
 
-/* Status badges */
-.status-implemented { color: #10b981; font-weight: 500; }
-.status-partial { color: #f59e0b; font-weight: 500; }
-.status-not-implemented { color: #ef4444; font-weight: 500; }
+tbody tr:nth-child(odd) {
+    background: #fff;
+}
 
-/* Minimal spacing */
+tbody tr:hover {
+    background: #eff6ff !important;
+    transition: background-color 0.15s ease;
+}
+
+td:first-child {
+    background: #f8fafc !important;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+tbody tr:hover td:first-child {
+    background: #e0f2fe !important;
+}
+
+.status-implemented { 
+    color: #059669;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.status-partial { 
+    color: #d97706;
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.status-not-implemented { 
+    color: #dc2626;
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+
 p {
-    margin: 0 0 16px 0;
-    line-height: 1.6;
+    margin: 0 0 15px 0;
 }
 
 ul, ol {
-    margin: 0 0 16px 0;
+    margin: 0 0 15px 0;
     padding-left: 20px;
 }
 
-/* Clean code blocks */
 code {
-    background: #f3f4f6;
+    background: #f1f5f9;
     padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 0.875rem;
-    color: #374151;
-    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #2563eb;
+    font-family: Monaco, Consolas, monospace;
+    border: 1px solid #e2e8f0;
 }
 
-/* Priority badges */
-.priority-critical { color: #ef4444; font-weight: 600; }
-.priority-high { color: #f59e0b; font-weight: 600; }
-.priority-medium { color: #3b82f6; font-weight: 600; }
+.priority-critical { 
+    color: #dc2626; 
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.priority-high { 
+    color: #d97706; 
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.priority-medium { 
+    color: #2563eb; 
+    font-weight: 600;
+    background: #eff6ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
         """
         
         # Process strings for clean HTML generation
         newline_str = '\n\n'
-        findings_processed = findings_stats.replace('- ', '').replace('### 🔍 Code Analysis Findings', '').replace(newline_str, '').strip() if findings_stats else ""
-        jira_processed = jira_stats.replace('- ', '').replace('### 📋 JIRA Analysis', '').replace(newline_str, '').strip() if jira_stats else ""
+        findings_processed = findings_stats.replace('- ', '').replace('### Code Analysis Findings', '').replace(newline_str, '').strip() if findings_stats else ""
+        jira_processed = jira_stats.replace('- ', '').replace('### JIRA Analysis', '').replace(newline_str, '').strip() if jira_stats else ""
         
-        # Start with the minimal elegant HTML structure
+        # Start with the ultra-minimal clean HTML structure
         html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hard Gates Assessment - {project_name}</title>
+    <title>{project_name} - Assessment Report</title>
     <style>
     {css}
     </style>
 </head>
 <body>
-    <h1>Hard Gates Assessment</h1>
-    <p style="color: #718096; margin-bottom: 40px;">{project_name}</p>
+    <h1>{project_name}</h1>
+    <p style="color: #2563eb; margin-bottom: 30px; font-weight: 500;">Assessment Report</p>
 
-    <h2>📊 Executive Summary</h2>
+    <h2>Executive Summary</h2>
     
     <h3>File Analysis</h3>
     <table>
@@ -700,7 +758,7 @@ code {
                 <td><strong>{hard_gates_not_met}</strong></td>
                 <td>{(hard_gates_not_met / hard_gates_total * 100):.1f}%</td>
             </tr>
-            <tr style="border-top: 2px solid #e5e7eb;">
+            <tr>
                 <td><strong>Overall Compliance</strong></td>
                 <td colspan="2"><strong>{((hard_gates_met + 0.5 * hard_gates_partial) / hard_gates_total * 100):.1f}%</strong></td>
             </tr>
@@ -736,7 +794,7 @@ code {
         <tbody>
             <tr>
                 <td>Total Issues Found</td>
-                <td><strong>0 ✅</strong></td>
+                <td><strong>0</strong></td>
             </tr>
         </tbody>
     </table>
@@ -774,7 +832,7 @@ code {
                 
                 if not isinstance(techs, list) or not techs:
                     html_content += """
-    <p style="color: #718096;">No items found in this category.</p>
+    <p style="color: #999;">No items found in this category.</p>
 """
                 else:
                     html_content += """
@@ -811,7 +869,7 @@ code {
 """
         else:
             html_content += """
-    <p style="color: #718096;">No technology stack information available.</p>
+    <p style="color: #999;">No technology stack information available.</p>
 """
 
         # Excel Folder Analysis Section (if applicable)
@@ -861,7 +919,7 @@ code {
 """
             else:
                 html_content += """
-    <p style="color: #718096;">Excel folders detected but analysis unavailable.</p>
+    <p style="color: #999;">Excel folders detected but analysis unavailable.</p>
 """
 
         # Hard Gates Analysis Section
@@ -934,7 +992,7 @@ code {
 """
         else:
             html_content += """
-    <p style="color: #718096;">No hard gates analysis available.</p>
+    <p style="color: #999;">No hard gates analysis available.</p>
 """
 
         # Findings Section
