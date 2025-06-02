@@ -39,6 +39,39 @@ A powerful tool for analyzing codebases to assess their resiliency, observabilit
 
 3. Configure LLM API access in `utils/call_llm.py`
 
+4. **Configure the application** (optional):
+   ```bash
+   cp config.env.example .env
+   # Edit .env with your preferred settings
+   ```
+
+## Configuration
+
+The OCP Analyzer supports configurable settings through environment variables. See `README_CONFIGURATION.md` for detailed configuration options.
+
+### Quick Configuration
+
+#### Enable ChromaDB Storage (Default)
+```env
+USE_CHROMADB=true
+CHROMADB_PERSIST_DIR=./chroma_db
+```
+
+#### Disable ChromaDB Storage
+```env
+USE_CHROMADB=false
+```
+
+When ChromaDB is enabled, the system provides:
+- Vector storage for analysis reports and OCP assessments
+- Semantic search capabilities
+- AI agent interface for querying reports
+
+When ChromaDB is disabled, the system:
+- Still generates HTML, Markdown, and PDF reports
+- Operates in a minimal mode without vector storage
+- Continues functioning normally for analysis tasks
+
 ### Usage
 
 #### Analyzing a GitHub Repository
@@ -98,7 +131,6 @@ python main.py --repo https://github.com/username/repo \
 The analyzer generates comprehensive reports in multiple formats:
 - **HTML**: Interactive web-based report with visualizations
 - **Markdown**: Text-based report for version control systems
-- **PDF**: Printable document for distribution
 
 Reports include:
 - Code architecture overview
@@ -151,6 +183,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Built using [PocketFlow](https://github.com/The-Pocket/PocketFlow) - A 100-line LLM framework
 - Special thanks to all contributors and users
-
-
-

@@ -517,183 +517,6 @@ class GenerateReport(Node):
             
             report += "\n"
         
-        # Generate HTML content with ultra-minimal elegant CSS
-        css = """
-body {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 40px 20px;
-    color: #374151;
-    max-width: 900px;
-    margin: 0 auto;
-    background: #f3f4f6;
-}
-
-h1 {
-    font-size: 2em;
-    font-weight: 600;
-    margin: 0 0 30px 0;
-    color: #1f2937;
-    border-bottom: 3px solid #2563eb;
-    padding-bottom: 15px;
-}
-
-h2 {
-    font-size: 1.4em;
-    font-weight: 600;
-    margin: 40px 0 15px 0;
-    color: #1f2937;
-}
-
-h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin: 25px 0 10px 0;
-    color: #374151;
-}
-
-h4 {
-    font-size: 1em;
-    font-weight: 500;
-    margin: 15px 0 8px 0;
-    color: #6b7280;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    border: 1px solid #e5e7eb;
-}
-
-th {
-    background: #2563eb;
-    color: #fff;
-    font-weight: 600;
-    padding: 16px 20px;
-    text-align: left;
-    font-size: 0.875em;
-    border: none;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-td {
-    padding: 12px 20px;
-    border-bottom: 1px solid #f3f4f6;
-    font-size: 0.875em;
-    border: none;
-    color: #374151;
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-tbody tr:nth-child(even) {
-    background: #f9fafb;
-}
-
-tbody tr:nth-child(odd) {
-    background: #fff;
-}
-
-tbody tr:hover {
-    background: #eff6ff !important;
-    transition: background-color 0.15s ease;
-}
-
-td:first-child {
-    background: #f8fafc !important;
-    font-weight: 600;
-    color: #1f2937;
-}
-
-tbody tr:hover td:first-child {
-    background: #e0f2fe !important;
-}
-
-.status-implemented { 
-    color: #059669;
-    font-weight: 600;
-    background: #ecfdf5;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75em;
-}
-.status-partial { 
-    color: #d97706;
-    font-weight: 600;
-    background: #fffbeb;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75em;
-}
-.status-not-implemented { 
-    color: #dc2626;
-    font-weight: 600;
-    background: #fef2f2;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75em;
-}
-
-p {
-    margin: 0 0 15px 0;
-}
-
-ul, ol {
-    margin: 0 0 15px 0;
-    padding-left: 20px;
-}
-
-code {
-    background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.8em;
-    color: #2563eb;
-    font-family: Monaco, Consolas, monospace;
-    border: 1px solid #e2e8f0;
-}
-
-.priority-critical { 
-    color: #dc2626; 
-    font-weight: 600;
-    background: #fef2f2;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.75em;
-}
-.priority-high { 
-    color: #d97706; 
-    font-weight: 600;
-    background: #fffbeb;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.75em;
-}
-.priority-medium { 
-    color: #2563eb; 
-    font-weight: 600;
-    background: #eff6ff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.75em;
-}
-        """
-        
-        # Process strings for clean HTML generation
-        newline_str = '\n\n'
-        findings_processed = findings_stats.replace('- ', '').replace('### Code Analysis Findings', '').replace(newline_str, '').strip() if findings_stats else ""
-        jira_processed = jira_stats.replace('- ', '').replace('### JIRA Analysis', '').replace(newline_str, '').strip() if jira_stats else ""
-        
-        # Start with the ultra-minimal clean HTML structure
         html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -701,7 +524,173 @@ code {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{project_name} - Assessment Report</title>
     <style>
-    {css}
+    body {{
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 40px 20px;
+        color: #374151;
+        max-width: 900px;
+        margin: 0 auto;
+        background: #f3f4f6;
+    }}
+
+    h1 {{
+        font-size: 2em;
+        font-weight: 600;
+        margin: 0 0 30px 0;
+        color: #1f2937;
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 15px;
+    }}
+
+    h2 {{
+        font-size: 1.4em;
+        font-weight: 600;
+        margin: 40px 0 15px 0;
+        color: #1f2937;
+    }}
+
+    h3 {{
+        font-size: 1.1em;
+        font-weight: 600;
+        margin: 25px 0 10px 0;
+        color: #374151;
+    }}
+
+    h4 {{
+        font-size: 1em;
+        font-weight: 500;
+        margin: 15px 0 8px 0;
+        color: #6b7280;
+    }}
+
+    table {{
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }}
+
+    th {{
+        background: #2563eb;
+        color: #fff;
+        font-weight: 600;
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 0.875em;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }}
+
+    td {{
+        padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.875em;
+        border: none;
+        color: #374151;
+    }}
+
+    tr:last-child td {{
+        border-bottom: none;
+    }}
+
+    tbody tr:nth-child(even) {{
+        background: #f9fafb;
+    }}
+
+    tbody tr:nth-child(odd) {{
+        background: #fff;
+    }}
+
+    tbody tr:hover {{
+        background: #eff6ff !important;
+        transition: background-color 0.15s ease;
+    }}
+
+    td:first-child {{
+        background: #f8fafc !important;
+        font-weight: 600;
+        color: #1f2937;
+    }}
+
+    tbody tr:hover td:first-child {{
+        background: #e0f2fe !important;
+    }}
+
+    .status-implemented {{ 
+        color: #059669;
+        font-weight: 600;
+        background: #ecfdf5;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }}
+    .status-partial {{ 
+        color: #d97706;
+        font-weight: 600;
+        background: #fffbeb;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }}
+    .status-not-implemented {{ 
+        color: #dc2626;
+        font-weight: 600;
+        background: #fef2f2;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }}
+
+    p {{
+        margin: 0 0 15px 0;
+    }}
+
+    ul, ol {{
+        margin: 0 0 15px 0;
+        padding-left: 20px;
+    }}
+
+    code {{
+        background: #f1f5f9;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        color: #2563eb;
+        font-family: Monaco, Consolas, monospace;
+        border: 1px solid #e2e8f0;
+    }}
+
+    .priority-critical {{ 
+        color: #dc2626; 
+        font-weight: 600;
+        background: #fef2f2;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }}
+    .priority-high {{ 
+        color: #d97706; 
+        font-weight: 600;
+        background: #fffbeb;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }}
+    .priority-medium {{ 
+        color: #2563eb; 
+        font-weight: 600;
+        background: #eff6ff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }}
     </style>
 </head>
 <body>
@@ -1114,17 +1103,6 @@ code {
 </body>
 </html>"""
 
-        # Generate PDF
-        pdf_path = None
-        try:
-            from weasyprint import HTML
-            pdf_path = os.path.join(output_dir, "analysis_report.pdf")
-            HTML(string=html_content).write_pdf(pdf_path)
-            print(f"Generated PDF report: {pdf_path}")
-        except Exception as e:
-            print(f"Warning: Could not generate PDF: {str(e)}")
-            print("Please ensure WeasyPrint is installed correctly.")
-        
         # Save both Markdown and HTML
         os.makedirs(output_dir, exist_ok=True)
         
@@ -1140,8 +1118,7 @@ code {
             
         return {
             "markdown": md_path,
-            "html": html_path,
-            "pdf": pdf_path
+            "html": html_path
         }
 
     def post(self, shared, prep_res, exec_res):
@@ -1152,34 +1129,37 @@ code {
         print(f"\nAnalysis reports generated:")
         print(f"- Markdown: {exec_res['markdown']}")
         print(f"- HTML: {exec_res['html']}")
-        if exec_res['pdf']:
-            print(f"- PDF: {exec_res['pdf']}")
-            
+        
         # Print command to open the HTML report for easier viewing
         print(f"\nOpen the HTML report with: open {exec_res['html']}")
         
-        # Store reports in ChromaDB
+        # Store reports in ChromaDB (if enabled)
         try:
-            from utils.chromadb_store import ReportStore
+            from utils.chromadb_wrapper import get_chromadb_wrapper
             
-            # Get component name
-            project_name = shared.get("project_name", "Unknown Project")
+            wrapper = get_chromadb_wrapper()
             
-            # Use context manager to properly handle ChromaDB cleanup
-            with ReportStore() as store:
+            if wrapper.is_enabled():
+                # Get component name
+                project_name = shared.get("project_name", "Unknown Project")
+                
                 # Store the analysis report
                 analysis_report_path = exec_res['markdown']
                 if os.path.exists(analysis_report_path):
-                    store.store_analysis_report(project_name, analysis_report_path)
+                    success = wrapper.store_analysis_report(project_name, analysis_report_path)
+                    if success:
+                        print("Stored analysis report in ChromaDB successfully")
                 
                 # Store the OCP assessment report if it exists
                 output_dir = os.path.dirname(analysis_report_path)
-                ocp_assessment_path = os.path.join(output_dir, "ocp_assessment.html")
                 ocp_assessment_md_path = os.path.join(output_dir, "ocp_assessment.md")
+                ocp_assessment_path = os.path.join(output_dir, "ocp_assessment.html")
                 
                 # Check if OCP markdown report exists, if not try to extract content from HTML
                 if os.path.exists(ocp_assessment_md_path):
-                    store.store_ocp_assessment(project_name, ocp_assessment_md_path)
+                    success = wrapper.store_ocp_assessment(project_name, ocp_assessment_md_path)
+                    if success:
+                        print("Stored OCP assessment in ChromaDB successfully")
                 elif os.path.exists(ocp_assessment_path):
                     # If we only have HTML, extract text content
                     import re
@@ -1191,20 +1171,23 @@ code {
                         text_content = re.sub(r'<[^>]*>', ' ', html_content)
                         text_content = re.sub(r'\s+', ' ', text_content).strip()
                         
-                        # Create a markdown file from the extracted text
-                        ocp_assessment_md_path = os.path.join(output_dir, "ocp_assessment.md")
-                        with open(ocp_assessment_md_path, 'w', encoding='utf-8') as file:
-                            file.write(f"# OpenShift Migration Assessment for {project_name}\n\n")
-                            file.write(text_content)
+                        # Create content for storage
+                        ocp_content = f"# OpenShift Migration Assessment for {project_name}\n\n{text_content}"
                         
-                        store.store_ocp_assessment(project_name, ocp_assessment_md_path)
+                        # Also save the markdown file for future use
+                        with open(ocp_assessment_md_path, 'w', encoding='utf-8') as file:
+                            file.write(ocp_content)
+                        
+                        success = wrapper.store_ocp_assessment(project_name, ocp_assessment_md_path)
+                        if success:
+                            print("Stored OCP assessment in ChromaDB successfully")
                     except Exception as e:
                         print(f"Error extracting text from OCP HTML: {str(e)}")
-            
-            print("\nStored reports in ChromaDB successfully")
+            else:
+                print("ChromaDB storage is disabled - skipping storage")
             
         except Exception as e:
-            print(f"\nWarning: Could not store reports in ChromaDB: {str(e)}")
+            print(f"Warning: Could not store reports in ChromaDB: {str(e)}")
         
         # Return a simple string action rather than a complex object
         return "default" 

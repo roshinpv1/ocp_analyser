@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Now we can import from utils
-from utils.chromadb_store import ReportStore
+from utils.chromadb_wrapper import get_chromadb_wrapper
 
    
 import subprocess
@@ -17,29 +17,21 @@ import subprocess
 
 def query_report(query : str) :
     try:
-        # Use context manager to prevent context leaks
-        with ReportStore() as store:
-            hard_gates = store.context_similarity_search(
-                context_description=query,
-                collection_name="analysis_reports",
-                n_results=1,
-                min_score=0.9,
-                filter_criteria=None
-            )
-            
-            assessment = store.context_similarity_search(
-                context_description=query,
-                collection_name="ocp_assessment_reports",
-                n_results=1,
-                min_score=0.1,
-                filter_criteria=None
-            )
+        # Use configurable ChromaDB wrapper
+        wrapper = get_chromadb_wrapper()
+        
+        if not wrapper.is_enabled():
+            return {"code_analysis": [], "assessment": []}
+        
+        hard_gates = wrapper.search_analysis_reports(query, n_results=1)
+        assessment = wrapper.search_ocp_assessments(query, n_results=1)
 
-            print (hard_gates)
-           
-            return {"code_analysis": hard_gates, "assessment": assessment}
+        print(hard_gates)
+       
+        return {"code_analysis": hard_gates, "assessment": assessment}
     except Exception as e:
-        return  {"code_analysis": [], "assessment": []}
+        print(f"Error querying reports: {str(e)}")
+        return {"code_analysis": [], "assessment": []}
  
 
 

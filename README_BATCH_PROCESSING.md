@@ -62,10 +62,10 @@ The script:
   ├── excelfile1_name/
   │   ├── analysis_report.html
   │   ├── analysis_report.md
-  │   └── analysis_report.pdf
+  │   └── ocp_assessment.html
   ├── excelfile2_name/
   │   ├── analysis_report.html
   │   ├── analysis_report.md
-  │   └── analysis_report.pdf
+  │   └── ocp_assessment.html
   └── ...
   ``` 

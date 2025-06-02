@@ -1,32 +1,31 @@
 # Core dependencies
-numpy
-pandas
-matplotlib
-scikit-learn
-jupyter
-openpyxl
-tabulate
+requests>=2.31.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+openpyxl>=3.1.2
+xlrd>=2.0.1
+PyYAML>=6.0.1
+jinja2>=3.1.2
 
-# Web UI
-gradio>=4.0.0
-plotly
+# LLM and AI
+google-generativeai>=0.3.2
+openai>=1.6.1
 
-# ChromaDB for vector database
+# Vector database and embeddings
 chromadb>=0.4.18
 sentence-transformers>=2.2.2
 
-# Other utilities
-pyyaml
+# Web scraping and automation
+beautifulsoup4>=4.12.2
+lxml>=4.9.3
 
-pocketflow>=0.0.1
-requests>=2.28.0
-gitpython>=3.1.40
-google-cloud-aiplatform>=1.25.0
-google-genai>=1.9.0
-python-dotenv>=1.0.0
-pathspec>=0.11.0
-weasyprint>=60.1
-openai==1.68.2
-anthropic>=0.18.1
+# Data analysis
+pandas>=2.1.4
+numpy>=1.24.3
+
+# JIRA integration
 jira>=3.5.2
-google-ads
+
+# Image processing for attachments
+Pillow>=10.1.0

@@ -6,35 +6,56 @@ Query Reports CLI - A utility for searching and retrieving reports from ChromaDB
 import os
 import sys
 import argparse
-from utils.chromadb_store import ReportStore
+from utils.chromadb_wrapper import get_chromadb_wrapper
 
-def list_components(store, report_type):
+def list_components(wrapper, report_type):
     """List all components with stored reports."""
-    collection_name = "analysis_reports" if report_type == "analysis" else "ocp_assessment_reports"
-    components = store.list_components(collection_name)
+    if not wrapper.is_enabled():
+        print("ChromaDB storage is disabled - no reports available")
+        return
+        
+    if report_type == "analysis":
+        reports = wrapper.get_all_analysis_reports()
+    else:
+        reports = wrapper.get_all_ocp_assessments()
     
-    if not components:
+    if not reports:
         print(f"No {report_type} reports found in the database.")
         return
+    
+    # Extract unique component names from metadata
+    components = set()
+    for report in reports:
+        metadata = report.get('metadata', {})
+        component = metadata.get('project_name', metadata.get('component_name', 'Unknown'))
+        components.add(component)
     
     print(f"\nComponents with {report_type} reports:")
     for i, component in enumerate(sorted(components), 1):
         print(f"{i}. {component}")
 
-def search_reports(store, query, report_type, limit=5):
+def search_reports(wrapper, query, report_type, limit=5):
     """Search for reports matching the query."""
-    collection_name = "analysis_reports" if report_type == "analysis" else "ocp_assessment_reports"
-    results = store.query_reports(query, collection_name, limit)
+    if not wrapper.is_enabled():
+        print("ChromaDB storage is disabled - no reports available")
+        return
+        
+    if report_type == "analysis":
+        results = wrapper.search_analysis_reports(query, n_results=limit)
+    else:
+        results = wrapper.search_ocp_assessments(query, n_results=limit)
     
-    if not results or not results['documents'][0]:
+    if not results:
         print(f"No matching {report_type} reports found for query: '{query}'")
         return
     
     print(f"\nSearch results for query: '{query}'")
-    print(f"Found {len(results['documents'][0])} matches\n")
+    print(f"Found {len(results)} matches\n")
     
-    for i, (doc, metadata) in enumerate(zip(results['documents'][0], results['metadatas'][0]), 1):
-        component = metadata.get('component_name', 'Unknown')
+    for i, result in enumerate(results, 1):
+        metadata = result.get('metadata', {})
+        document = result.get('document', '')
+        component = metadata.get('project_name', metadata.get('component_name', 'Unknown'))
         file_path = metadata.get('file_path', 'Unknown')
         
         print(f"Result {i}:")
@@ -42,7 +63,7 @@ def search_reports(store, query, report_type, limit=5):
         print(f"File: {file_path}")
         
         # Show a snippet of the document (first 200 chars)
-        snippet = doc[:200] + "..." if len(doc) > 200 else doc
+        snippet = document[:200] + "..." if len(document) > 200 else document
         print(f"Snippet: {snippet}")
         print("-" * 80)
 
@@ -221,34 +242,35 @@ def main():
     
     args = parser.parse_args()
     
-    # Use context manager to prevent context leaks
-    with ReportStore() as store:
-        # Execute the appropriate command
-        if args.command == "list":
-            list_components(store, "analysis" if args.type == "analysis" else "ocp")
-        elif args.command == "search":
-            search_reports(store, args.query, "analysis" if args.type == "analysis" else "ocp", args.limit)
-        elif args.command == "get":
-            get_component_report(store, args.component, "analysis" if args.type == "analysis" else "ocp")
-        elif args.command == "similar":
-            find_similar_reports(
-                store, 
-                file_path=args.file, 
-                report_id=args.id, 
-                report_type="analysis" if args.type == "analysis" else "ocp",
-                limit=args.limit
-            )
-        elif args.command == "context":
-            context_search(
-                store,
-                context_description=args.description,
-                report_type="analysis" if args.type == "analysis" else "ocp",
-                limit=args.limit,
-                min_score=args.min_score,
-                component=args.component
-            )
-        else:
-            parser.print_help()
+    # Get the configurable ChromaDB wrapper
+    wrapper = get_chromadb_wrapper()
+    
+    # Execute the appropriate command
+    if args.command == "list":
+        list_components(wrapper, "analysis" if args.type == "analysis" else "ocp")
+    elif args.command == "search":
+        search_reports(wrapper, args.query, "analysis" if args.type == "analysis" else "ocp", args.limit)
+    elif args.command == "get":
+        get_component_report(wrapper, args.component, "analysis" if args.type == "analysis" else "ocp")
+    elif args.command == "similar":
+        find_similar_reports(
+            wrapper, 
+            file_path=args.file, 
+            report_id=args.id, 
+            report_type="analysis" if args.type == "analysis" else "ocp",
+            limit=args.limit
+        )
+    elif args.command == "context":
+        context_search(
+            wrapper,
+            context_description=args.description,
+            report_type="analysis" if args.type == "analysis" else "ocp",
+            limit=args.limit,
+            min_score=args.min_score,
+            component=args.component
+        )
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()    

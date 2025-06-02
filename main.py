@@ -191,11 +191,11 @@ def process_single_excel(shared):
         # The reports are already saved by the GenerateReport node
         # Just print the paths from the shared state
         if "analysis_report" in shared:
-            print("\nAnalysis complete! Reports generated:")
+            print(f"\nAnalysis reports generated:")
             print(f"- Markdown: {shared['analysis_report']['markdown']}")
             print(f"- HTML: {shared['analysis_report']['html']}")
-            if shared['analysis_report']['pdf']:
-                print(f"- PDF: {shared['analysis_report']['pdf']}")
+            
+            print(f"\nOpen the HTML report with: open {shared['analysis_report']['html']}")
             
             # Print OpenShift assessment report info if available
             if "ocp_assessment_html" in shared:
