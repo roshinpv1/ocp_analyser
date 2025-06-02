@@ -368,10 +368,6 @@ h4 {
     color: #6b7280;
 }
 
-p {
-    margin: 0 0 15px 0;
-}
-
 table {
     width: 100%;
     border-collapse: collapse;
@@ -428,6 +424,75 @@ td:first-child {
 
 tbody tr:hover td:first-child {
     background: #e0f2fe !important;
+}
+
+.status-implemented { 
+    color: #059669;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.status-partial { 
+    color: #d97706;
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.status-not-implemented { 
+    color: #dc2626;
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+
+p {
+    margin: 0 0 15px 0;
+}
+
+ul, ol {
+    margin: 0 0 15px 0;
+    padding-left: 20px;
+}
+
+code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #2563eb;
+    font-family: Monaco, Consolas, monospace;
+    border: 1px solid #e2e8f0;
+}
+
+.priority-critical { 
+    color: #dc2626; 
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.priority-high { 
+    color: #d97706; 
+    font-weight: 600;
+    background: #fffbeb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+}
+.priority-medium { 
+    color: #2563eb; 
+    font-weight: 600;
+    background: #eff6ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
 }
 
 .critical { 
@@ -542,7 +607,7 @@ tbody tr:hover td:first-child {
 </html>"""
             
             # Save the assessment to a file
-            assessment_path = os.path.join(output_dir, "ocp_assessment.html")
+            assessment_path = os.path.join(output_dir, "intake_assessment.html")
             with open(assessment_path, "w", encoding="utf-8") as f:
                 f.write(html_content)
                 
@@ -564,7 +629,7 @@ tbody tr:hover td:first-child {
                 markdown_content += clean_response
                 
                 # Save the Markdown file
-                markdown_path = os.path.join(output_dir, "ocp_assessment.md")
+                markdown_path = os.path.join(output_dir, "intake_assessment.md")
                 with open(markdown_path, "w", encoding="utf-8") as f:
                     f.write(markdown_content)
                 
@@ -591,13 +656,37 @@ tbody tr:hover td:first-child {
 
     def post(self, shared, prep_res, exec_res):
         # Store the assessment results in shared state
-        shared["ocp_assessment"] = exec_res
+        shared["intake_assessment"] = exec_res
         
         # Store paths for easier access by other nodes
-        shared["ocp_assessment_html"] = exec_res.get("assessment_html_path")
-        shared["ocp_assessment_md"] = exec_res.get("assessment_md_path")
+        shared["intake_assessment_html"] = exec_res.get("assessment_html_path")
+        shared["intake_assessment_md"] = exec_res.get("assessment_md_path")
         
         print("OpenShift assessment completed successfully")
+        
+        # Store in ChromaDB if available and markdown file exists
+        try:
+            from utils.chromadb_wrapper import get_chromadb_wrapper
+            
+            wrapper = get_chromadb_wrapper()
+            if wrapper.is_enabled():
+                # Get project name from prep_res
+                excel_data, output_dir, component_analysis, excel_components = prep_res
+                project_name = excel_data.get('component_name', shared.get("project_name", "Unknown Project"))
+                
+                # Store the OCP assessment report if markdown file exists
+                md_path = exec_res.get("assessment_md_path")
+                if md_path and os.path.exists(md_path):
+                    success = wrapper.store_ocp_assessment(project_name, md_path)
+                    if success:
+                        print("Stored OpenShift assessment in ChromaDB successfully")
+                else:
+                    print("Warning: No Markdown file available for ChromaDB storage")
+            else:
+                print("ChromaDB storage is disabled - skipping OCP assessment storage")
+                
+        except Exception as e:
+            print(f"Warning: Could not store OCP assessment in ChromaDB: {str(e)}")
         
         # Return "success" action for flow control
         return "success" 

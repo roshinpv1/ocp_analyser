@@ -1107,12 +1107,12 @@ class GenerateReport(Node):
         os.makedirs(output_dir, exist_ok=True)
         
         # Save Markdown
-        md_path = os.path.join(output_dir, "analysis_report.md")
+        md_path = os.path.join(output_dir, "hard_gate_assessment.md")
         with open(md_path, "w", encoding="utf-8") as f:
             f.write(report)
             
         # Save HTML
-        html_path = os.path.join(output_dir, "analysis_report.html")
+        html_path = os.path.join(output_dir, "hard_gate_assessment.html")
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
             
@@ -1123,10 +1123,10 @@ class GenerateReport(Node):
 
     def post(self, shared, prep_res, exec_res):
         # Store the report paths in shared state
-        shared["analysis_report"] = exec_res
+        shared["hard_gate_assessment"] = exec_res
         
         # Print the report paths
-        print(f"\nAnalysis reports generated:")
+        print(f"\nHard gate assessment reports generated:")
         print(f"- Markdown: {exec_res['markdown']}")
         print(f"- HTML: {exec_res['html']}")
         
@@ -1143,28 +1143,28 @@ class GenerateReport(Node):
                 # Get component name
                 project_name = shared.get("project_name", "Unknown Project")
                 
-                # Store the analysis report
-                analysis_report_path = exec_res['markdown']
-                if os.path.exists(analysis_report_path):
-                    success = wrapper.store_analysis_report(project_name, analysis_report_path)
+                # Store the hard gate assessment report
+                hard_gate_assessment_path = exec_res['markdown']
+                if os.path.exists(hard_gate_assessment_path):
+                    success = wrapper.store_analysis_report(project_name, hard_gate_assessment_path)
                     if success:
-                        print("Stored analysis report in ChromaDB successfully")
+                        print("Stored hard gate assessment report in ChromaDB successfully")
                 
-                # Store the OCP assessment report if it exists
-                output_dir = os.path.dirname(analysis_report_path)
-                ocp_assessment_md_path = os.path.join(output_dir, "ocp_assessment.md")
-                ocp_assessment_path = os.path.join(output_dir, "ocp_assessment.html")
+                # Store the intake assessment report if it exists
+                output_dir = os.path.dirname(hard_gate_assessment_path)
+                intake_assessment_md_path = os.path.join(output_dir, "intake_assessment.md")
+                intake_assessment_path = os.path.join(output_dir, "intake_assessment.html")
                 
-                # Check if OCP markdown report exists, if not try to extract content from HTML
-                if os.path.exists(ocp_assessment_md_path):
-                    success = wrapper.store_ocp_assessment(project_name, ocp_assessment_md_path)
+                # Check if intake markdown report exists, if not try to extract content from HTML
+                if os.path.exists(intake_assessment_md_path):
+                    success = wrapper.store_ocp_assessment(project_name, intake_assessment_md_path)
                     if success:
-                        print("Stored OCP assessment in ChromaDB successfully")
-                elif os.path.exists(ocp_assessment_path):
+                        print("Stored intake assessment in ChromaDB successfully")
+                elif os.path.exists(intake_assessment_path):
                     # If we only have HTML, extract text content
                     import re
                     try:
-                        with open(ocp_assessment_path, 'r', encoding='utf-8') as file:
+                        with open(intake_assessment_path, 'r', encoding='utf-8') as file:
                             html_content = file.read()
                             
                         # Simple regex to extract text from HTML tags
@@ -1172,22 +1172,21 @@ class GenerateReport(Node):
                         text_content = re.sub(r'\s+', ' ', text_content).strip()
                         
                         # Create content for storage
-                        ocp_content = f"# OpenShift Migration Assessment for {project_name}\n\n{text_content}"
+                        intake_content = f"# OpenShift Migration Assessment for {project_name}\n\n{text_content}"
                         
                         # Also save the markdown file for future use
-                        with open(ocp_assessment_md_path, 'w', encoding='utf-8') as file:
-                            file.write(ocp_content)
+                        with open(intake_assessment_md_path, 'w', encoding='utf-8') as file:
+                            file.write(intake_content)
                         
-                        success = wrapper.store_ocp_assessment(project_name, ocp_assessment_md_path)
+                        success = wrapper.store_ocp_assessment(project_name, intake_assessment_md_path)
                         if success:
-                            print("Stored OCP assessment in ChromaDB successfully")
+                            print("Stored intake assessment in ChromaDB successfully")
                     except Exception as e:
-                        print(f"Error extracting text from OCP HTML: {str(e)}")
+                        print(f"Error extracting text from intake assessment HTML: {str(e)}")
             else:
                 print("ChromaDB storage is disabled - skipping storage")
             
         except Exception as e:
             print(f"Warning: Could not store reports in ChromaDB: {str(e)}")
         
-        # Return a simple string action rather than a complex object
         return "default" 

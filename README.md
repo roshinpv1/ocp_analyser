@@ -132,13 +132,32 @@ The analyzer generates comprehensive reports in multiple formats:
 - **HTML**: Interactive web-based report with visualizations
 - **Markdown**: Text-based report for version control systems
 
-Reports include:
+### Report Types
+
+#### 1. Hard Gate Assessment Report
 - Code architecture overview
 - Identified resiliency patterns and gaps
 - Observability assessment
-- OpenShift migration recommendations
 - Related Jira stories (if configured)
 - Actionable next steps
+
+#### 2. Intake Assessment Report  
+- Platform-specific readiness assessment
+- Resource utilization analysis
+- Configuration recommendations
+- Migration considerations
+
+#### 3. Migration Insights Report ✨ NEW
+- **OpenShift migration readiness checklist**
+- **Platform migration recommendations** (TAS/TKGI to OpenShift)
+- **Technology stack compatibility analysis**
+- **Service bindings and dependencies assessment**
+- **Go/No-Go migration status**
+- **Actionable migration insights for teams**
+
+The Migration Insights report is specifically designed for leadership teams and migration specialists, providing structured assessment data for migrating applications from traditional platforms to OpenShift.
+
+Users now get three reports from analysis: Hard Gate Assessment (technical), Intake Assessment (OpenShift readiness), and Migration Insights (migration readiness with Go/No-Go decisions). Implementation follows exact user specifications including system prompt, required sections, HTML formatting, and data integration.
 
 ## Excel Integration
 

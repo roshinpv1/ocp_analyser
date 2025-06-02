@@ -190,17 +190,24 @@ def process_single_excel(shared):
 
         # The reports are already saved by the GenerateReport node
         # Just print the paths from the shared state
-        if "analysis_report" in shared:
+        if "hard_gate_assessment" in shared:
             print(f"\nAnalysis reports generated:")
-            print(f"- Markdown: {shared['analysis_report']['markdown']}")
-            print(f"- HTML: {shared['analysis_report']['html']}")
+            print(f"- Markdown: {shared['hard_gate_assessment']['markdown']}")
+            print(f"- HTML: {shared['hard_gate_assessment']['html']}")
             
-            print(f"\nOpen the HTML report with: open {shared['analysis_report']['html']}")
-            
-            # Print OpenShift assessment report info if available
-            if "ocp_assessment_html" in shared:
-                print(f"- OpenShift Assessment Report: {shared['ocp_assessment_html']}")
+            if "intake_assessment_html" in shared:
+                print(f"- Intake Assessment: {shared['intake_assessment_html']}")
                 
+            if "migration_insights_html" in shared:
+                print(f"- Migration Insights: {shared['migration_insights_html']}")
+            
+            print(f"\nOpen the HTML reports with:")
+            print(f"- Hard Gate Assessment: open {shared['hard_gate_assessment']['html']}")
+            if "intake_assessment_html" in shared:
+                print(f"- Intake Assessment: open {shared['intake_assessment_html']}")
+            if "migration_insights_html" in shared:
+                print(f"- Migration Insights: open {shared['migration_insights_html']}")
+            
             return True
         else:
             print("Warning: Analysis completed but no reports were generated.")
