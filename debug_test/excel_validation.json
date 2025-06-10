@@ -1,0 +1,24 @@
+{
+  "component_name": "TestComponent1",
+  "repo_url": "https://github.com/test/component1",
+  "validation": {
+    "total_rows": 4,
+    "mandatory_fields": 1,
+    "git_repo_url": "https://github.com/test/component1",
+    "git_repo_valid": true,
+    "is_valid": true,
+    "unanswered_mandatory": [],
+    "component_questions": {
+      "redis": {
+        "question": "Is the component using Redis?",
+        "answer": "no",
+        "is_yes": false
+      },
+      "kafka": {
+        "question": "Is the component using Kafka?",
+        "answer": "yes",
+        "is_yes": true
+      }
+    }
+  }
+}

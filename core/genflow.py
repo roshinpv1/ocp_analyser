@@ -40,7 +40,13 @@ class Flow(BaseNode):
     def __init__(self,start=None): super().__init__(); self.start_node=start
     def start(self,start): self.start_node=start; return start
     def get_next_node(self,curr,action):
+        print(f"DEBUG FLOW: get_next_node called with action='{action}' for node {type(curr).__name__}")
+        print(f"DEBUG FLOW: Available successors: {list(curr.successors.keys())}")
         nxt=curr.successors.get(action or "default")
+        if nxt:
+            print(f"DEBUG FLOW: Found next node: {type(nxt).__name__}")
+        else:
+            print(f"DEBUG FLOW: No next node found for action '{action}'")
         if not nxt and curr.successors: warnings.warn(f"Flow ends: '{action}' not found in {list(curr.successors)}")
         return nxt
     def _orch(self,shared,params=None):

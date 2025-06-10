@@ -662,4 +662,5 @@ Focus on real implementation patterns, not just declarations. Look for actual co
         
         shared["code_analysis"] = exec_res
         print("DEBUG: Stored code_analysis in shared state")
+        print(f"DEBUG: AnalyzeCode returning action: 'default'")
         return "default" 

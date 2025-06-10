@@ -6,7 +6,8 @@ from utils.call_llm import call_llm
 
 class OcpAssessmentNode(Node):
     def prep(self, shared):
-        print("\nDEBUG: Starting OcpAssessmentNode prep")
+        print("\n=== DEBUG: OcpAssessmentNode prep() called ===")
+        print("DEBUG: Starting OcpAssessmentNode prep")
         
         # Get Excel validation data and set defaults if missing
         excel_validation = shared.get("excel_validation", {})
@@ -38,12 +39,18 @@ class OcpAssessmentNode(Node):
         
         print(f"DEBUG: Found {len(component_analysis)} detected components")
         print(f"DEBUG: Found {len(excel_components)} Excel component declarations")
+        print("=== DEBUG: OcpAssessmentNode prep() completed ===")
         
         return excel_validation, output_dir, component_analysis, excel_components
 
     def exec(self, prep_res):
+        print("\n=== DEBUG: OcpAssessmentNode exec() called ===")
         excel_data, output_dir, component_analysis, excel_components = prep_res
         print(f"\nPerforming OpenShift migration assessment for component: {excel_data.get('component_name', 'Unknown')}")
+        print(f"DEBUG: Output dir: {output_dir}")
+        print(f"DEBUG: Component analysis entries: {len(component_analysis)}")
+        print(f"DEBUG: Excel components entries: {len(excel_components)}")
+        print("=== DEBUG: OcpAssessmentNode exec() starting LLM call ===")
         
         # Define the system prompt for the OpenShift assessment
         system_prompt = """You are an OpenShift migration intake assessment agent, designed to evaluate if application components can be migrated to OpenShift.

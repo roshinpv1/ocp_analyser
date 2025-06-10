@@ -16,12 +16,13 @@ def create_analysis_flow():
     # Instantiate nodes
     fetch_repo = FetchRepo()
     analyze_code = AnalyzeCode(max_retries=5, wait=20)
+    ocp_assessment = OcpAssessmentNode(max_retries=3, wait=10)  # Add OCP assessment to regular flow
     fetch_jira = FetchJiraStories()
     generate_report = GenerateReport()
     migration_insights = GenerateMigrationInsights()  # Add migration insights
 
-    # Connect nodes in sequence
-    fetch_repo >> analyze_code >> fetch_jira >> generate_report >> migration_insights
+    # Connect nodes in sequence - NOW INCLUDES OCP ASSESSMENT
+    fetch_repo >> analyze_code >> ocp_assessment >> fetch_jira >> generate_report >> migration_insights
 
     # Create the flow starting with FetchRepo
     analysis_flow = Flow(start=fetch_repo)
@@ -33,9 +34,9 @@ def create_excel_analysis_flow():
 
     # Instantiate nodes
     process_excel = ProcessExcel(max_retries=3, wait=5)  # Add retry limit to Excel processing
-    ocp_assessment = OcpAssessmentNode(max_retries=3, wait=10)
     fetch_repo = FetchRepo(max_retries=2, wait=5)  # Add retry limit to repo fetching
     analyze_code = AnalyzeCode(max_retries=5, wait=20)
+    ocp_assessment = OcpAssessmentNode(max_retries=3, wait=10)  # Move after code analysis
     fetch_jira = FetchJiraStories(max_retries=2, wait=5)  # Add retry limit to Jira fetching
     generate_report = GenerateReport(max_retries=2, wait=5)  # Add retry limit to report generation
     migration_insights = GenerateMigrationInsights(max_retries=2, wait=5)  # Add migration insights
@@ -56,37 +57,24 @@ def create_excel_analysis_flow():
     # Connect the terminal error node
     process_excel - "terminal_error" >> terminal_error
     
-    process_excel - "success" >> ocp_assessment  # Run OCP assessment on successful Excel processing
+    # NEW FLOW ORDER: ProcessExcel → FetchRepo → AnalyzeCode → OcpAssessment → Jira → Reports
+    process_excel - "success" >> fetch_repo  # Run repo fetch on successful Excel processing
     
-    # Connect OCP assessment to continue the normal flow
-    ocp_assessment - "success" >> fetch_repo  # Use the "success" action returned by OcpAssessmentNode
-    
-    # Connect nodes in sequence for successful flow
-    fetch_repo >> analyze_code >> fetch_jira >> generate_report >> migration_insights
+    # Connect the main analysis flow
+    fetch_repo >> analyze_code >> ocp_assessment >> fetch_jira >> generate_report >> migration_insights
+
+    # DEBUG: Print the flow connections to verify they're set up correctly
+    print("=== DEBUG: Excel Analysis Flow Connections ===")
+    print(f"ProcessExcel successors: {process_excel.successors}")
+    print(f"FetchRepo successors: {fetch_repo.successors}")
+    print(f"AnalyzeCode successors: {analyze_code.successors}")
+    print(f"OcpAssessment successors: {ocp_assessment.successors}")
+    print(f"FetchJira successors: {fetch_jira.successors}")
+    print(f"GenerateReport successors: {generate_report.successors}")
+    print(f"MigrationInsights successors: {migration_insights.successors}")
+    print("=== END DEBUG ===")
 
     # Create the flow starting with ProcessExcel
     analysis_flow = Flow(start=process_excel)
 
     return analysis_flow
-
-def create_analysis_flow():
-    """Create and return the complete analysis flow."""
-    
-    # Create all the nodes
-    start_node = StartAnalysis()
-    preprocess_node = PreprocessCode()
-    analyze_node = AnalyzeCodebase()
-    excel_processor = ProcessExcelFormData()
-    assessment_node = GenerateOCPAssessment()
-    report_node = GenerateReport()
-    migration_insights_node = GenerateMigrationInsights()  # New node
-    
-    # Create the flow connections
-    start_node >> preprocess_node
-    preprocess_node >> analyze_node
-    analyze_node >> excel_processor
-    excel_processor >> assessment_node
-    assessment_node >> report_node
-    report_node >> migration_insights_node  # Add migration insights after the main report
-    
-    return Flow(start=start_node)
