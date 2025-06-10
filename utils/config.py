@@ -41,6 +41,12 @@ class Config:
         return value in ('true', '1', 'yes', 'on')
     
     @property
+    def use_endpoint_embeddings(self) -> bool:
+        """Whether to use endpoint-based embedding models."""
+        value = os.getenv('USE_ENDPOINT_EMBEDDINGS', 'false').lower()
+        return value in ('true', '1', 'yes', 'on')
+    
+    @property
     def local_model_name(self) -> str:
         """Local embedding model name."""
         return os.getenv('LOCAL_MODEL_NAME', 'sentence-transformers/all-MiniLM-L6-v2')
@@ -80,10 +86,28 @@ class Config:
         """Default project name."""
         return os.getenv('DEFAULT_PROJECT_NAME', 'Unknown Project')
     
+    @property
+    def embedding_endpoint_url(self) -> str:
+        """Embedding endpoint URL."""
+        return os.getenv('EMBEDDING_ENDPOINT_URL', 'http://localhost:1234')
+    
+    @property
+    def embedding_endpoint_timeout(self) -> int:
+        """Embedding endpoint timeout in seconds."""
+        try:
+            return int(os.getenv('EMBEDDING_ENDPOINT_TIMEOUT', '30'))
+        except ValueError:
+            return 30
+    
     def get_chromadb_enabled_message(self) -> str:
         """Get a message indicating ChromaDB status."""
         if self.use_chromadb:
-            embedding_type = "local embeddings" if self.use_local_embeddings else "API embeddings"
+            if self.use_local_embeddings:
+                embedding_type = "local embeddings"
+            elif self.use_endpoint_embeddings:
+                embedding_type = f"endpoint embeddings ({self.embedding_endpoint_url})"
+            else:
+                embedding_type = "API embeddings"
             return f"ChromaDB storage enabled with {embedding_type} (directory: {self.chromadb_persist_dir})"
         else:
             return "ChromaDB storage disabled"
@@ -93,6 +117,9 @@ class Config:
         return f"""OCP Analyser Configuration:
   ChromaDB Enabled: {self.use_chromadb}
   Local Embeddings: {self.use_local_embeddings}
+  Endpoint Embeddings: {self.use_endpoint_embeddings}
+  Embedding Endpoint URL: {self.embedding_endpoint_url}
+  Embedding Endpoint Timeout: {self.embedding_endpoint_timeout}s
   ChromaDB Directory: {self.chromadb_persist_dir}
   Local Model: {self.local_model_name}
   Model Cache Dir: {self.local_model_cache_dir}

@@ -674,26 +674,58 @@ code {
         # Store in ChromaDB if available and markdown file exists
         try:
             from utils.chromadb_wrapper import get_chromadb_wrapper
+            from datetime import datetime
             
             wrapper = get_chromadb_wrapper()
             if wrapper.is_enabled():
-                # Get project name from prep_res
+                # Get component name with fallback priority
                 excel_data, output_dir, component_analysis, excel_components = prep_res
-                project_name = excel_data.get('component_name', shared.get("project_name", "Unknown Project"))
+                component_name = (
+                    excel_data.get('component_name') or
+                    shared.get("component_name") or 
+                    shared.get("project_name") or 
+                    "Unknown Component"
+                )
+                
+                print(f"Storing Intake Assessment in ChromaDB for component: {component_name}")
                 
                 # Store the OCP assessment report if markdown file exists
                 md_path = exec_res.get("assessment_md_path")
                 if md_path and os.path.exists(md_path):
-                    success = wrapper.store_ocp_assessment(project_name, md_path)
+                    # Read the content to add metadata
+                    with open(md_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    # Add metadata to content for better searchability
+                    enhanced_content = f"""# Intake Assessment Report
+
+**Component Name:** {component_name}
+**Report Type:** Intake Assessment (OCP Migration)
+**Analysis Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**File Path:** {md_path}
+
+{content}
+"""
+                    
+                    # Store with enhanced metadata in OCP collection
+                    success = wrapper.store_ocp_assessment(
+                        component_name=component_name,
+                        report_file_path=md_path,
+                        report_content=enhanced_content
+                    )
                     if success:
-                        print("Stored OpenShift assessment in ChromaDB successfully")
+                        print("✅ Stored Intake Assessment in ChromaDB successfully")
+                    else:
+                        print("❌ Failed to store Intake Assessment in ChromaDB")
                 else:
-                    print("Warning: No Markdown file available for ChromaDB storage")
+                    print("⚠️ Warning: No Markdown file available for ChromaDB storage")
             else:
                 print("ChromaDB storage is disabled - skipping OCP assessment storage")
                 
         except Exception as e:
             print(f"Warning: Could not store OCP assessment in ChromaDB: {str(e)}")
+            import traceback
+            traceback.print_exc()
         
         # Return "success" action for flow control
         return "success" 

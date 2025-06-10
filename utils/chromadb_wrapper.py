@@ -54,6 +54,14 @@ class ChromaDBWrapper:
                             name=self.config.chromadb_ocp_collection,
                             embedding_function=self._store.embedding_function
                         )
+                elif self.config.use_endpoint_embeddings:
+                    print(f"Using endpoint embeddings for ChromaDB: {self.config.embedding_endpoint_url}")
+                    from utils.endpoint_chromadb_store import EndpointReportStore
+                    self._store = EndpointReportStore(
+                        persist_directory=self.config.chromadb_persist_dir,
+                        endpoint_url=self.config.embedding_endpoint_url,
+                        timeout=self.config.embedding_endpoint_timeout
+                    )
                 else:
                     print("Using API-based embeddings for ChromaDB")
                     from utils.chromadb_store import ReportStore
@@ -64,10 +72,14 @@ class ChromaDBWrapper:
                 print(f"Warning: ChromaDB or embedding dependencies not available: {str(e)}")
                 if self.config.use_local_embeddings:
                     print("Hint: Install sentence-transformers for local embeddings: pip install sentence-transformers")
+                elif self.config.use_endpoint_embeddings:
+                    print(f"Hint: Ensure embedding endpoint is running at {self.config.embedding_endpoint_url}")
                 print("ChromaDB storage will be disabled")
                 self._store = None
             except Exception as e:
                 print(f"Warning: Failed to initialize ChromaDB: {str(e)}")
+                if self.config.use_endpoint_embeddings:
+                    print(f"Hint: Check if embedding endpoint {self.config.embedding_endpoint_url} is accessible")
                 print("ChromaDB storage will be disabled")
                 self._store = None
         else:

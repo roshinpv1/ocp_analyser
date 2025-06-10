@@ -1,6 +1,7 @@
 import os
 import re
 from core.genflow import Node
+from datetime import datetime
 
 class GenerateReport(Node):
     def prep(self, shared):
@@ -1140,53 +1141,50 @@ class GenerateReport(Node):
             wrapper = get_chromadb_wrapper()
             
             if wrapper.is_enabled():
-                # Get component name
-                project_name = shared.get("project_name", "Unknown Project")
+                # Get component name with fallback priority
+                component_name = (
+                    shared.get("component_name") or 
+                    shared.get("project_name") or 
+                    shared.get("excel_validation", {}).get("component_name") or
+                    "Unknown Component"
+                )
                 
-                # Store the hard gate assessment report
-                hard_gate_assessment_path = exec_res['markdown']
-                if os.path.exists(hard_gate_assessment_path):
-                    success = wrapper.store_analysis_report(project_name, hard_gate_assessment_path)
+                print(f"Storing reports in ChromaDB for component: {component_name}")
+                
+                # Store the hard gate assessment report with detailed metadata
+                hard_gate_html_path = exec_res['html']
+                hard_gate_md_path = exec_res['markdown']
+                
+                if os.path.exists(hard_gate_md_path):
+                    # Read the content to add metadata
+                    with open(hard_gate_md_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    # Add metadata to content for better searchability
+                    enhanced_content = f"""# Hard Gate Assessment Report
+
+**Component Name:** {component_name}
+**Report Type:** Hard Gate Assessment
+**Analysis Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**File Path:** {hard_gate_md_path}
+
+{content}
+"""
+                    
+                    # Store with enhanced metadata
+                    success = wrapper.store_analysis_report(
+                        component_name=component_name,
+                        report_file_path=hard_gate_md_path,
+                        report_content=enhanced_content
+                    )
                     if success:
-                        print("Stored hard gate assessment report in ChromaDB successfully")
+                        print("✅ Stored Hard Gate Assessment report in ChromaDB successfully")
+                    else:
+                        print("❌ Failed to store Hard Gate Assessment report in ChromaDB")
                 
-                # Store the intake assessment report if it exists
-                output_dir = os.path.dirname(hard_gate_assessment_path)
-                intake_assessment_md_path = os.path.join(output_dir, "intake_assessment.md")
-                intake_assessment_path = os.path.join(output_dir, "intake_assessment.html")
-                
-                # Check if intake markdown report exists, if not try to extract content from HTML
-                if os.path.exists(intake_assessment_md_path):
-                    success = wrapper.store_ocp_assessment(project_name, intake_assessment_md_path)
-                    if success:
-                        print("Stored intake assessment in ChromaDB successfully")
-                elif os.path.exists(intake_assessment_path):
-                    # If we only have HTML, extract text content
-                    import re
-                    try:
-                        with open(intake_assessment_path, 'r', encoding='utf-8') as file:
-                            html_content = file.read()
-                            
-                        # Simple regex to extract text from HTML tags
-                        text_content = re.sub(r'<[^>]*>', ' ', html_content)
-                        text_content = re.sub(r'\s+', ' ', text_content).strip()
-                        
-                        # Create content for storage
-                        intake_content = f"# OpenShift Migration Assessment for {project_name}\n\n{text_content}"
-                        
-                        # Also save the markdown file for future use
-                        with open(intake_assessment_md_path, 'w', encoding='utf-8') as file:
-                            file.write(intake_content)
-                        
-                        success = wrapper.store_ocp_assessment(project_name, intake_assessment_md_path)
-                        if success:
-                            print("Stored intake assessment in ChromaDB successfully")
-                    except Exception as e:
-                        print(f"Error extracting text from intake assessment HTML: {str(e)}")
-            else:
-                print("ChromaDB storage is disabled - skipping storage")
-            
         except Exception as e:
             print(f"Warning: Could not store reports in ChromaDB: {str(e)}")
+            import traceback
+            traceback.print_exc()
         
         return "default" 

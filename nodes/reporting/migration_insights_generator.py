@@ -926,16 +926,51 @@ code {
             # Also try to store in ChromaDB if available
             try:
                 from utils.chromadb_wrapper import get_chromadb_wrapper
+                from datetime import datetime
                 
                 wrapper = get_chromadb_wrapper()
                 if wrapper.is_enabled() and 'markdown_path' in locals():
-                    # Store in ChromaDB with custom collection or use existing one
-                    success = wrapper.store_analysis_report(f"{project_name}_migration_insights", markdown_path)
+                    # Get component name with fallback priority
+                    component_name = (
+                        shared.get("component_name") or
+                        shared.get("project_name") or 
+                        shared.get("excel_validation", {}).get("component_name") or
+                        project_name or
+                        "Unknown Component"
+                    )
+                    
+                    print(f"Storing Migration Insights in ChromaDB for component: {component_name}")
+                    
+                    # Read the content to add metadata
+                    with open(markdown_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    # Add metadata to content for better searchability
+                    enhanced_content = f"""# Migration Insights Report
+
+**Component Name:** {component_name}
+**Report Type:** Migration Insights
+**Analysis Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**File Path:** {markdown_path}
+
+{content}
+"""
+                    
+                    # Store in ChromaDB with detailed metadata
+                    success = wrapper.store_analysis_report(
+                        component_name=component_name,
+                        report_file_path=markdown_path,
+                        report_content=enhanced_content
+                    )
                     if success:
-                        print("Stored migration insights in ChromaDB successfully")
+                        print("✅ Stored Migration Insights in ChromaDB successfully")
+                    else:
+                        print("❌ Failed to store Migration Insights in ChromaDB")
                 
             except Exception as e:
                 print(f"Warning: Could not store migration insights in ChromaDB: {str(e)}")
+                import traceback
+                traceback.print_exc()
             
             return "default"
             
