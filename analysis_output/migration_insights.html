@@ -5,170 +5,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenShift Migration Insights - excel</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 40px 20px;
-            color: #374151;
-            max-width: 900px;
-            margin: 0 auto;
-            background: #f3f4f6;
-        }
-        h1 {
-            font-size: 2em;
-            font-weight: 600;
-            margin: 0 0 30px 0;
-            color: #1f2937;
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 15px;
-        }
-        h2 {
-            font-size: 1.4em;
-            font-weight: 600;
-            margin: 40px 0 15px 0;
-            color: #1f2937;
-        }
-        h3 {
-            font-size: 1.1em;
-            font-weight: 600;
-            margin: 25px 0 10px 0;
-            color: #374151;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            border: 1px solid #e5e7eb;
-        }
-        th {
-            background: #2563eb;
-            color: #fff;
-            font-weight: 600;
-            padding: 16px 20px;
-            text-align: left;
-            font-size: 0.875em;
-            border: none;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        td {
-            padding: 12px 20px;
-            border-bottom: 1px solid #f3f4f6;
-            font-size: 0.875em;
-            border: none;
-            color: #374151;
-        }
-        tbody tr:nth-child(even) { background: #f9fafb; }
-        tbody tr:nth-child(odd) { background: #fff; }
-        tbody tr:hover { background: #eff6ff !important; }
-        td:first-child {
-            background: #f8fafc !important;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        .status-implemented { 
-            color: #059669;
-            font-weight: 600;
-            background: #ecfdf5;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75em;
-        }
-        .status-partial { 
-            color: #d97706;
-            font-weight: 600;
-            background: #fffbeb;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75em;
-        }
-        .status-not-implemented { 
-            color: #dc2626;
-            font-weight: 600;
-            background: #fef2f2;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75em;
-        }
-        .priority-critical { 
-            color: #dc2626; 
-            font-weight: 600;
-            background: #fef2f2;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75em;
-        }
-        .priority-high { 
-            color: #d97706; 
-            font-weight: 600;
-            background: #fffbeb;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75em;
-        }
-        .priority-medium { 
-            color: #2563eb; 
-            font-weight: 600;
-            background: #eff6ff;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75em;
-        }
-        .go-status {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            text-align: center;
-            display: inline-block;
-            margin: 10px 0;
-        }
-        .go {
-            background: #ecfdf5;
-            color: #059669;
-            border: 1px solid #a7f3d0;
-        }
-        .no-go {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fca5a5;
-        }
-        .checklist {
-            list-style-type: none;
-            padding: 0;
-        }
-        .checklist li {
-            padding: 8px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        .checklist li:before {
-            content: "✓ ";
-            color: #059669;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .executive-summary {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            margin-bottom: 25px;
-            border: 1px solid #e5e7eb;
-        }
-        p { margin: 0 0 15px 0; }
-        ul, ol { margin: 0 0 15px 0; padding-left: 20px; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 40px 20px;
+        color: #374151;
+        max-width: 900px;
+        margin: 0 auto;
+        background: #f3f4f6;
+    }
+    h1 {
+        font-size: 2em;
+        font-weight: 600;
+        margin: 0 0 30px 0;
+        color: #1f2937;
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 15px;
+    }
+    h2 {
+        font-size: 1.4em;
+        font-weight: 600;
+        margin: 40px 0 15px 0;
+        color: #1f2937;
+    }
+    h3 {
+        font-size: 1.1em;
+        font-weight: 600;
+        margin: 25px 0 10px 0;
+        color: #374151;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+    th {
+        background: #2563eb;
+        color: #fff;
+        font-weight: 600;
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 0.875em;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    td {
+        padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.875em;
+        border: none;
+        color: #374151;
+    }
+    tbody tr:nth-child(even) { background: #f9fafb; }
+    tbody tr:nth-child(odd) { background: #fff; }
+    tbody tr:hover { background: #eff6ff !important; }
+    td:first-child {
+        background: #f8fafc !important;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    .status-implemented { 
+        color: #059669;
+        font-weight: 600;
+        background: #ecfdf5;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }
+    .status-partial { 
+        color: #d97706;
+        font-weight: 600;
+        background: #fffbeb;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }
+    .status-not-implemented { 
+        color: #dc2626;
+        font-weight: 600;
+        background: #fef2f2;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }
+    .priority-critical { 
+        color: #dc2626; 
+        font-weight: 600;
+        background: #fef2f2;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }
+    .priority-high { 
+        color: #d97706; 
+        font-weight: 600;
+        background: #fffbeb;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }
+    .priority-medium { 
+        color: #2563eb; 
+        font-weight: 600;
+        background: #eff6ff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75em;
+    }
+    .go-status {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        margin: 10px 0;
+    }
+    .go {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+    .no-go {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+    }
+    .checklist {
+        list-style-type: none;
+        padding: 0;
+    }
+    .checklist li {
+        padding: 8px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .checklist li:before {
+        content: "✓ ";
+        color: #059669;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+    .executive-summary {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        margin-bottom: 25px;
+        border: 1px solid #e5e7eb;
+    }
+    p { margin: 0 0 15px 0; }
+    ul, ol { margin: 0 0 15px 0; padding-left: 20px; }
     </style>
 </head>
 <body>
     <h1>OpenShift Migration Insights for excel</h1>
     <div class="executive-summary">
         <h2>Intake Overview</h2>
-        <p><strong>Name:</strong> excel</p>
-        <p>This is a basic application component.</p>
+        <h3><strong>Name:</strong></h3>
+        <p>The excel application component is a key part of the existing infrastructure.</p>
         <div class="go-status go">Go</div>
 
         <h2>General Information</h2>
@@ -176,21 +176,21 @@
             <thead>
                 <tr>
                     <th>Metadata</th>
-                    <th>Description</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Application Type</td>
-                    <td>Web Application</td>
+                    <td>Description:</td>
+                    <td>This is a critical application component.</td>
                 </tr>
                 <tr>
-                    <td>Environment</td>
-                    <td>TAS (Cloud Foundry)</td>
+                    <td>Environment:</td>
+                    <td>TAS</td>
                 </tr>
                 <tr>
-                    <td>Current State</td>
-                    <td>Running</td>
+                    <td>Dependencies:</td>
+                    <td>Several external services and databases.</td>
                 </tr>
             </tbody>
         </table>
@@ -205,16 +205,12 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Language</td>
-                    <td class="status-implemented">Implemented</td>
+                    <td>.NET Framework:</td>
+                    <td><span class="status-implemented">Implemented</span></td>
                 </tr>
                 <tr>
-                    <td>Framework</td>
-                    <td class="status-partial">Partial</td>
-                </tr>
-                <tr>
-                    <td>Databases</td>
-                    <td class="status-not-implemented">Not Implemented</td>
+                    <td>SQL Server:</td>
+                    <td><span class="status-partial">Partial Implementation</span></td>
                 </tr>
             </tbody>
         </table>
@@ -229,37 +225,31 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Email Service</td>
-                    <td class="status-implemented">Implemented</td>
+                    <td>Database Service:</td>
+                    <td><span class="status-not-implemented">Not Implemented</span></td>
                 </tr>
                 <tr>
-                    <td>SMS Service</td>
-                    <td class="status-not-implemented">Not Implemented</td>
+                    <td>API Gateway:</td>
+                    <td><span class="status-implemented">Implemented</span></td>
                 </tr>
             </tbody>
         </table>
 
         <h2>OpenShift Migration Readiness Checklist</h2>
         <ul class="checklist">
-            <li><strong>1. Language support:</strong> √ Implemented</li>
-            <li><strong>2. Framework compatibility:</strong> × Not Implemented (Partial)</li>
-            <li><strong>3. Database configuration:</strong> × Not Implemented (Not Implemented)</li>
+            <li>Update .NET Framework to compatible version: <span class="priority-medium">Medium Priority</span></li>
+            <li>Implement database service binding: <span class="priority-high">High Priority</span></li>
+            <li>Test and validate API gateway integration: <span class="priority-critical">Critical Priority</span></li>
         </ul>
 
         <h2>Migration Insights and Recommendations</h2>
-        <p>Key recommendations for migration to OpenShift platform include:</p>
-        <ul>
-            <li class="priority-critical">Migrate language support to a compatible framework.</li>
-            <li class="priority-high">Implement database configuration.</li>
-            <li class="priority-medium">Test and validate all services after migration.</li>
-        </ul>
-
-        <h3>Next Steps:</h3>
-        <ol>
-            <li>Migrate language support to a compatible framework.</li>
-            <li>Implement database configuration.</li>
-            <li>Test and validate all services after migration.</li>
+        <p>The excel application component requires significant updates to migrate to OpenShift. Key recommendations include updating the .NET Framework to a compatible version, implementing database service binding, and testing API gateway integration.</p>
+        <ol type="1">
+            <li>Update .NET Framework to compatible version</li>
+            <li>Implement database service binding</li>
+            <li>Test and validate API gateway integration</li>
         </ol>
+
     </div>
 </body>
 </html>

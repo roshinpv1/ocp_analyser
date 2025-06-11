@@ -43,7 +43,7 @@ class Config:
     @property
     def use_endpoint_embeddings(self) -> bool:
         """Whether to use endpoint-based embedding models."""
-        value = os.getenv('USE_ENDPOINT_EMBEDDINGS', 'false').lower()
+        value = os.getenv('USE_ENDPOINT_EMBEDDINGS', 'true').lower()
         return value in ('true', '1', 'yes', 'on')
     
     @property

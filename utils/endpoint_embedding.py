@@ -78,7 +78,7 @@ class EndpointEmbeddingFunction(EmbeddingFunction):
                     f"{self.endpoint_url}/v1/embeddings",
                     json={
                         "input": text,
-                        "model": "text-embedding-ada-002"
+                        "model": "text-embedding-all-minilm-l6-v2-embedding"
                     },
                     timeout=self.timeout,
                     headers={"Content-Type": "application/json"}
@@ -169,7 +169,7 @@ class EndpointEmbeddingFunction(EmbeddingFunction):
                 f"{self.endpoint_url}/v1/embeddings",
                 json={
                     "input": texts,
-                    "model": "text-embedding-ada-002"
+                    "model": "text-embedding-all-minilm-l6-v2-embedding"
                 },
                 timeout=self.timeout * len(texts),
                 headers={"Content-Type": "application/json"}

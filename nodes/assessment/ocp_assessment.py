@@ -727,5 +727,5 @@ code {
             import traceback
             traceback.print_exc()
         
-        # Return "success" action for flow control
-        return "success" 
+        # Return "default" action for flow control
+        return "default" 
