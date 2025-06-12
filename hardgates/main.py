@@ -66,9 +66,10 @@ Environment Variables:
     
     args = parser.parse_args()
     
-    # Validate inputs
-    if not args.repo.startswith("https://github.com/"):
-        parser.error("Repository URL must be a valid GitHub URL")
+    # Validate GitHub URL - support custom domains like github.xyz.com
+    if not (args.repo.startswith("https://") and "github" in args.repo.split("//")[1].split("/")[0]):
+        print("Error: Please provide a valid GitHub repository URL (supports github.com and GitHub Enterprise domains)")
+        return 1
     
     # Get GitHub token from args or environment
     github_token = args.token or os.getenv("GITHUB_TOKEN")

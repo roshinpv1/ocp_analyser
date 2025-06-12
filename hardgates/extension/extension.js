@@ -50,10 +50,17 @@ async function analyzeRepository() {
         // Show input dialogs
         const repoUrl = await vscode.window.showInputBox({
             prompt: 'Enter GitHub repository URL',
-            placeholder: 'https://github.com/user/repo',
+            placeholder: 'https://github.com/user/repo or https://github.company.com/user/repo',
             validateInput: (value) => {
-                if (!value || !value.startsWith('https://github.com/')) {
-                    return 'Please enter a valid GitHub repository URL';
+                if (!value) {
+                    return 'Please enter a repository URL';
+                }
+                if (!value.startsWith('https://')) {
+                    return 'URL must start with https://';
+                }
+                const domain = value.split('//')[1]?.split('/')[0];
+                if (!domain || !domain.includes('github')) {
+                    return 'Please enter a valid GitHub repository URL (supports github.com and GitHub Enterprise domains)';
                 }
                 return null;
             }

@@ -18,9 +18,9 @@ def fetch_github_repo(repo_url: str, branch: str = "main", github_token: Optiona
         Dictionary mapping file paths to file contents
     """
     
-    # Validate GitHub URL
-    if not repo_url.startswith("https://github.com/"):
-        raise ValueError("Invalid GitHub repository URL")
+    # Validate GitHub URL - support custom domains like github.xyz.com
+    if not (repo_url.startswith("https://") and "github" in repo_url.split("//")[1].split("/")[0]):
+        raise ValueError("Repository URL must be a GitHub URL (supports github.com and GitHub Enterprise domains)")
     
     # Create a temporary directory for cloning
     with tempfile.TemporaryDirectory() as temp_dir:
