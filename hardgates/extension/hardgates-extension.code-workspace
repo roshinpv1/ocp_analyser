@@ -1,0 +1,69 @@
+{
+    "folders": [
+        {
+            "name": "Hard Gate Assessment Extension",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "out": false,
+            "node_modules": true,
+            "*.vsix": true
+        },
+        "search.exclude": {
+            "out": true,
+            "node_modules": true,
+            "*.vsix": true
+        },
+        "typescript.tsc.autoDetect": "off",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.detectIndentation": false,
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Install Dependencies",
+                "type": "shell",
+                "command": "npm install",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            }
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Launch Extension",
+                "type": "extensionHost",
+                "request": "launch",
+                "args": [
+                    "--extensionDevelopmentPath=${workspaceFolder}"
+                ],
+                "outFiles": [
+                    "${workspaceFolder}/**/*.js"
+                ],
+                "preLaunchTask": "Compile Extension"
+            }
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.vscode-typescript-next",
+            "dbaeumer.vscode-eslint",
+            "esbenp.prettier-vscode",
+            "ms-vscode.vscode-json"
+        ]
+    }
+} 

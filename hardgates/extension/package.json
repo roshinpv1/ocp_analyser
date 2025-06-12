@@ -1,0 +1,84 @@
+{
+  "name": "hard-gate-assessment",
+  "displayName": "Hard Gate Assessment",
+  "description": "Analyze GitHub repositories for hard gate compliance directly in VS Code",
+  "version": "1.0.0",
+  "publisher": "hardgates",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:hardgates.analyze",
+    "onCommand:hardgates.test"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "hardgates.analyze",
+        "title": "Hard Gate Assessment: Analyze Repository"
+      },
+      {
+        "command": "hardgates.test",
+        "title": "Hard Gate Assessment: Test Extension"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "hardgates.analyze",
+          "when": "true"
+        },
+        {
+          "command": "hardgates.test",
+          "when": "true"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Hard Gate Assessment",
+      "properties": {
+        "hardgates.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "URL of the Hard Gate Assessment API server"
+        },
+        "hardgates.githubToken": {
+          "type": "string",
+          "default": "",
+          "description": "GitHub personal access token for private repositories"
+        },
+        "hardgates.defaultBranch": {
+          "type": "string",
+          "default": "main",
+          "description": "Default branch to analyze"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "echo 'Extension already compiled to JavaScript'",
+    "watch": "echo 'No watch needed for JavaScript - extension.js is ready'",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint . --ext .js,.ts --ignore-pattern node_modules",
+    "lint:fix": "eslint . --ext .js,.ts --ignore-pattern node_modules --fix",
+    "test": "node ./out/test/runTest.js",
+    "package": "npx vsce package",
+    "install-extension": "npx vsce package && code --install-extension *.vsix"
+  },
+  "devDependencies": {
+    "@types/node": "14.x",
+    "@types/vscode": "^1.60.0",
+    "typescript": "^4.4.4",
+    "eslint": "^8.0.0",
+    "@vscode/test-electron": "^2.0.0",
+    "@vscode/vsce": "^2.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.9.0"
+  }
+}

@@ -1,0 +1,651 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hard Gates Assessment Report - spring-petclinic.git</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .metric {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .compliance-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .compliance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 10px;
+            width: 40.0%;
+            transition: width 0.3s ease;
+        }
+        
+        .section {
+            background: white;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #667eea;
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        .hard-gate-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .hard-gate-item:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .hard-gate-header {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .hard-gate-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-implemented {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-missing {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-unknown {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .hard-gate-details {
+            padding: 1rem 1.5rem;
+        }
+        
+        .detail-row {
+            margin-bottom: 0.8rem;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+        
+        .detail-value {
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .technology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .tech-category {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .tech-category h4 {
+            color: #667eea;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .tech-item {
+            background: white;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .tech-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .tech-version {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .findings-list {
+            margin-top: 1rem;
+        }
+        
+        .finding-item {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+        }
+        
+        .finding-title {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .severity-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .severity-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .severity-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .severity-low {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .hard-gate-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Hard Gates Assessment Report</h1>
+            <p>Project: spring-petclinic.git</p>
+        </div>
+        
+        <div class="summary-cards">
+            <div class="card">
+                <h3>📊 Overall Compliance</h3>
+                <div class="metric">40.0%</div>
+                <div class="compliance-bar">
+                    <div class="compliance-fill"></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>✅ Implemented</h3>
+                <div class="metric">4</div>
+                <p>Hard gates fully implemented</p>
+            </div>
+            
+            <div class="card">
+                <h3>⚬ Partial</h3>
+                <div class="metric">4</div>
+                <p>Hard gates partially implemented</p>
+            </div>
+            
+            <div class="card">
+                <h3>❌ Missing</h3>
+                <div class="metric">7</div>
+                <p>Hard gates not implemented</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                🎯 Primary Hard Gates Assessment (15 Items)
+            </div>
+            <div class="section-content">
+
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Logs are searchable and available</div>
+                        <div class="status-badge status-implemented">✓ Implemented</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">SLF4J logging configured</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Ensure log aggregation is setup</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Avoid logging confidential data</div>
+                        <div class="status-badge status-partial">⚬ Partial</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">Some logging patterns found</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Review all log statements for sensitive data</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Create audit trail logs</div>
+                        <div class="status-badge status-missing">✗ Missing</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">No audit logging found</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Add audit trail for important business operations</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Implement tracking ID for log messages</div>
+                        <div class="status-badge status-missing">✗ Missing</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">No correlation IDs found</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Add MDC or similar for request tracking</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Log REST API calls</div>
+                        <div class="status-badge status-partial">⚬ Partial</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">Some controller logging</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Add comprehensive API request/response logging</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Log application messages</div>
+                        <div class="status-badge status-implemented">✓ Implemented</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">Application logging present</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Standardize log levels and messages</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Client UI errors are logged</div>
+                        <div class="status-badge status-missing">✗ Missing</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">No client error logging</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Add frontend error reporting mechanism</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Retry Logic</div>
+                        <div class="status-badge status-missing">✗ Missing</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">No retry patterns found</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Implement retry logic for external service calls</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Set timeouts on IO operation</div>
+                        <div class="status-badge status-partial">⚬ Partial</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">Some timeout configurations</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Ensure all IO operations have appropriate timeouts</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Throttling, drop request</div>
+                        <div class="status-badge status-missing">✗ Missing</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">No rate limiting found</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Add rate limiting to protect against abuse</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Set circuit breakers on outgoing requests</div>
+                        <div class="status-badge status-missing">✗ Missing</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">No circuit breaker pattern</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Implement circuit breakers for external dependencies</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Log system errors</div>
+                        <div class="status-badge status-implemented">✓ Implemented</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">Exception logging in catch blocks</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Ensure all exceptions are properly logged</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Use HTTP standard error codes</div>
+                        <div class="status-badge status-implemented">✓ Implemented</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">Standard HTTP status codes used</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Continue using appropriate HTTP status codes</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Include Client error tracking</div>
+                        <div class="status-badge status-missing">✗ Missing</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">No client error tracking</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Add mechanism to track client-side errors</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="hard-gate-item">
+                    <div class="hard-gate-header">
+                        <div class="hard-gate-title">Automated Regression Testing</div>
+                        <div class="status-badge status-partial">⚬ Partial</div>
+                    </div>
+                    <div class="hard-gate-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Evidence:</div>
+                            <div class="detail-value">Unit tests found</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Recommendation:</div>
+                            <div class="detail-value">Add comprehensive automated test suite including integration tests</div>
+                        </div>
+                    </div>
+                </div>
+            
+        </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                🔧 Technology Stack
+            </div>
+            <div class="section-content">
+                <div class="technology-grid">
+
+                    <div class="tech-category">
+                        <h4>Languages</h4>
+
+                        <div class="tech-item">
+                            <div class="tech-name">Java</div>
+                            <div class="tech-version">1.8+</div>
+                            <div class="tech-purpose">main application</div>
+                        </div>
+
+                    </div>
+
+                    <div class="tech-category">
+                        <h4>Frameworks</h4>
+
+                        <div class="tech-item">
+                            <div class="tech-name">Spring</div>
+                            <div class="tech-version">5.x</div>
+                            <div class="tech-purpose">web framework</div>
+                        </div>
+
+                    </div>
+
+                    <div class="tech-category">
+                        <h4>Databases</h4>
+
+                        <div class="tech-item">
+                            <div class="tech-name">MySQL</div>
+                            <div class="tech-version">8.x</div>
+                            <div class="tech-purpose">data storage</div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="timestamp">
+            Report generated on 2025-06-12 15:48:07 | Hardgates Assessment Tool
+        </div>
+    </div>
+</body>
+</html>

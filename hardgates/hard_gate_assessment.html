@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hard Gate Assessment - sample-spring-boot-crud-example-with-h2</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        
+        h1 {
+            font-size: 2em;
+            color: #1f2937;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        
+        h3 {
+            color: #374151;
+            margin-top: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #2563eb;
+            color: #fff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .status-implemented {
+            color: #059669;
+            background: #ecfdf5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .status-partial {
+            color: #d97706;
+            background: #fffbeb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .status-not-implemented {
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            margin-top: 5px;
+        }
+        
+        .compliance-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .compliance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc2626 0%, #d97706 50%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>sample-spring-boot-crud-example-with-h2</h1>
+    <p style="color: #2563eb; margin-bottom: 30px; font-weight: 500;">Hard Gate Assessment Report</p>
+    
+    <h2>Executive Summary</h2>
+    
+    <div class="summary-stats">
+        <div class="stat-card">
+            <div class="stat-number">30</div>
+            <div class="stat-label">Total Gates Evaluated</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Gates Met</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">10</div>
+            <div class="stat-label">Partially Met</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">17</div>
+            <div class="stat-label">Not Met</div>
+        </div>
+    </div>
+    
+    <h3>Overall Compliance</h3>
+    <div class="compliance-bar">
+        <div class="compliance-fill" style="width: 26.7%"></div>
+    </div>
+    <p><strong>26.7% Hard Gates Compliance</strong></p>
+
+    <h2>Technology Stack</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Languages</strong></td>
+                <td>Java</td>
+                <td>1.8+</td>
+                <td>main application</td>
+            </tr>
+
+            <tr>
+                <td><strong>Frameworks</strong></td>
+                <td>Spring</td>
+                <td>5.x</td>
+                <td>web framework</td>
+            </tr>
+
+            <tr>
+                <td><strong>Databases</strong></td>
+                <td>H2</td>
+                <td>1.4+</td>
+                <td>in-memory database</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h2>Hard Gates Analysis</h2>
+
+    <h3>Auditability</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Avoid Logging Confidential Data</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>No sensitive data found in logs</td>
+                <td>Continue practice</td>
+            </tr>
+
+            <tr>
+                <td><strong>Create Audit Trail Logs</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Some logging patterns found</td>
+                <td>Add comprehensive audit logging</td>
+            </tr>
+
+            <tr>
+                <td><strong>Tracking Id For Log Messages</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No correlation IDs found</td>
+                <td>Add tracking IDs to logs</td>
+            </tr>
+
+            <tr>
+                <td><strong>Log Rest Api Calls</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Some API logging detected</td>
+                <td>Ensure all endpoints are logged</td>
+            </tr>
+
+            <tr>
+                <td><strong>Log Application Messages</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Application logging present</td>
+                <td>Standardize logging format</td>
+            </tr>
+
+            <tr>
+                <td><strong>Client Ui Errors Are Logged</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No client error logging found</td>
+                <td>Add client-side error tracking</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Availability</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Retry Logic</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No retry patterns found</td>
+                <td>Implement retry logic for external calls</td>
+            </tr>
+
+            <tr>
+                <td><strong>Set Timeouts On Io Operations</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Some timeout configurations</td>
+                <td>Review and standardize timeout values</td>
+            </tr>
+
+            <tr>
+                <td><strong>Throttling Drop Request</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No rate limiting found</td>
+                <td>Add request throttling</td>
+            </tr>
+
+            <tr>
+                <td><strong>Circuit Breakers On Outgoing Requests</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No circuit breaker pattern</td>
+                <td>Implement circuit breakers</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Error Handling</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Log System Errors</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Error logging present</td>
+                <td>Ensure comprehensive error logging</td>
+            </tr>
+
+            <tr>
+                <td><strong>Use Http Standard Error Codes</strong></td>
+                <td><span class="status-implemented">✓ Implemented</span></td>
+                <td>Standard HTTP codes used</td>
+                <td>Continue using standard codes</td>
+            </tr>
+
+            <tr>
+                <td><strong>Include Client Error Tracking</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No client error tracking</td>
+                <td>Add client error monitoring</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Monitoring</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Url Monitoring</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No health check endpoints</td>
+                <td>Add health monitoring endpoints</td>
+            </tr>
+
+            <tr>
+                <td><strong>Metrics Collection</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No metrics framework found</td>
+                <td>Implement application metrics</td>
+            </tr>
+
+            <tr>
+                <td><strong>Performance Monitoring</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No APM integration</td>
+                <td>Add performance monitoring</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Testing</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Automated Regression Testing</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Some test files found</td>
+                <td>Increase test coverage</td>
+            </tr>
+
+            <tr>
+                <td><strong>Unit Testing</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Unit tests present</td>
+                <td>Improve test coverage</td>
+            </tr>
+
+            <tr>
+                <td><strong>Integration Testing</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No integration tests found</td>
+                <td>Add integration tests</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Security</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Input Validation</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No input validation found</td>
+                <td>Add comprehensive input validation</td>
+            </tr>
+
+            <tr>
+                <td><strong>Authentication</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Some authentication logic</td>
+                <td>Strengthen authentication</td>
+            </tr>
+
+            <tr>
+                <td><strong>Authorization</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No authorization controls</td>
+                <td>Implement role-based access control</td>
+            </tr>
+
+            <tr>
+                <td><strong>Encryption At Rest</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No encryption configuration</td>
+                <td>Add data encryption</td>
+            </tr>
+
+            <tr>
+                <td><strong>Encryption In Transit</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>HTTPS capability</td>
+                <td>Ensure all communications are encrypted</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Performance</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Caching</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No caching implementation</td>
+                <td>Add appropriate caching strategy</td>
+            </tr>
+
+            <tr>
+                <td><strong>Connection Pooling</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Database connection pooling</td>
+                <td>Optimize connection pool settings</td>
+            </tr>
+
+            <tr>
+                <td><strong>Async Processing</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No async patterns found</td>
+                <td>Add async processing where appropriate</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <h3>Data Management</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Practice</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>Database Connection Security</strong></td>
+                <td><span class="status-partial">⚬ Partial</span></td>
+                <td>Basic database configuration</td>
+                <td>Secure database connections</td>
+            </tr>
+
+            <tr>
+                <td><strong>Data Validation</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>Limited data validation</td>
+                <td>Add comprehensive data validation</td>
+            </tr>
+
+            <tr>
+                <td><strong>Backup Strategies</strong></td>
+                <td><span class="status-not-implemented">✗ Missing</span></td>
+                <td>No backup configuration</td>
+                <td>Implement backup and recovery strategy</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <footer style="margin-top: 50px; text-align: center; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+        <p>Hard Gate Assessment Report generated on 2025-06-12 15:19:53</p>
+    </footer>
+</body>
+</html>
